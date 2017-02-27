@@ -1,0 +1,23 @@
+{
+  "name": "ellsif/welcms",
+  "description": "Simple PHP CMS",
+  "keywords": ["php", "cms"],
+  "type": "project",
+  "license": "MIT",
+  "homepage": "https://github.com/ellsif/WelCMS",
+  "authors": [
+    {
+      "name": "ellsif",
+      "email": "hatasu@ellsif.com"
+    }
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "6.0.*"
+  },
+  "autoload": {
+    "psr-0": {
+      "ellsif": "app/",
+      "ellsif\\WelCMS": "app/"
+    }
+  }
+}
