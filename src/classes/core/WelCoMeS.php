@@ -124,7 +124,7 @@ class WelCoMeS
             $printer = new $printerClass();
             $printer->$printMethod($result);
 
-        } catch(\Exception $e) {
+        } catch(\Throwable $e) {
 
             $logger->log('error', 'system', $e->getMessage() . PHP_EOL . $e->getTraceAsString());
 

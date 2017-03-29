@@ -47,7 +47,6 @@ class Pocket
 
     public function reset()
     {
-
         $this->config = [
             'db' => [
                 'Driver' => 'sqlite',
@@ -75,8 +74,8 @@ class Pocket
             ],
             'dir' => [
                 'WelCMS' => dirname(__FILE__, 3) . '/',
-                'System' => '',
-                'App' => 'app',
+                'System' => dirname(__FILE__, 3) . '/',
+                'App' => dirname(__FILE__, 4) . '/app/',
                 'Plugins' => 'plugins',
                 'Initialize' => '',
                 'Log' => 'logs',
@@ -229,6 +228,19 @@ class Pocket
         return json_encode($this->config);
     }
 
+    /**
+     * 設定値の一覧を連想配列で取得します。
+     */
+    public function getList()
+    {
+        $list = [];
+        foreach($this->config as $prefix => $array) {
+            foreach($array as $key => $val) {
+                $list[$prefix . $key] = $val;
+            }
+        }
+        return $list;
+    }
 
     /**
      * セッション情報のgetter/setter
