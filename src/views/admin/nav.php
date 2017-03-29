@@ -1,6 +1,6 @@
 <?php
 $url = \ellsif\WelCMS\Router::getInstance();
-$config = \ellsif\WelCMS\Config::getInstance();
+$config = \ellsif\WelCMS\Pocket::getInstance();
 $urlInfo = $config->varUrlInfo();
 $action = $urlInfo['paths'][1] ?? '';
 ?>

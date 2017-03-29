@@ -1,6 +1,6 @@
 <?php
   namespace ellsif;
-  $config = WelCMS\Config::getInstance();
+  $config = WelCMS\Pocket::getInstance();
 
   // ページ表示用のデータを取得
   $doc = new Document();

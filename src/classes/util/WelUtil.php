@@ -1,11 +1,12 @@
 <?php
 namespace ellsif\WelCMS;
 
-use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use ellsif\DataAccess;
+use ellsif\FileAccess;
+use ellsif\util\FileUtil;
 use ellsif\SqliteAccess;
 
-class Util
+class WelUtil
 {
     /**
      * DataAccessクラスインスタンス取得する。
@@ -16,44 +17,13 @@ class Util
      * - CsvDataAccess ※未実装
      * - MySqlDataAccess ※未実装
      */
-    public static function getDataAccess(): DataAccess
+    public static function getDataAccess($driver): DataAccess
     {
         // TODO MySQLやCSV対応
-        return SqliteAccess::getInstance();
-    }
-
-    /**
-     * ローカルファイルへの文字列出力を行う。
-     *
-     * ## パラメータ
-     * <dl>
-     *   <dt>path</dt>
-     *     <dd>出力先パスを指定します。<br>指定されたディレクトリが存在しない場合、ディレクトリを作成します。指定されたファイルが既に存在している場合は追記します。</dd>
-     *   <dt>string</dt>
-     *     <dd>ファイルに書き出す文字列を指定します。</dd>
-     * </dl>
-     *
-     * ## エラー/例外
-     * 書き込みに失敗した場合、Exceptionをthrowします。
-     *
-     * ## 例
-     *     writeFile('/path/to/file.txt', 'Hello!');
-     *
-     */
-    public static function writeFile($path, $string)
-    {
-        if (file_exists($path) && !is_writable($path)) {
-            throw new \Exception("${path} に書き込み権限がありません。");
+        if ($driver !== 'sqlite') {
+            throw new Exception("${driver}はサポートされていません。");
         }
-
-        makeDirectory(dirname($path));
-        if (!$handle = fopen($path, 'a')) {
-            throw new \Exception("${path} のオープンに失敗しました。");
-        }
-        if (fwrite($handle, $string . "\n") === FALSE) {
-            throw new \Exception("${path} の書き込みに失敗しました。");
-        }
-        fclose($handle);
+        return new SqliteAccess();
     }
 
     /**
@@ -64,13 +34,13 @@ class Util
      */
     public static function getFileAccess() :FileAccess
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         $fileAccessClass = $config->settingFileAccessClass();
-        return $fileAccessClass::getInstance();
+        return new $fileAccessClass();
     }
 
     /**
-     * Entityのインスタンスを取得する。
+     * Repositoryのインスタンスを取得する。
      *
      * ## 説明
      * テーブル名を指定してEntityクラスをインスタンス化して取得します。<br>
@@ -94,21 +64,22 @@ class Util
      */
     public static function getRepository(string $name): \ellsif\WelCMS\Repository
     {
-        $config = Config::getInstance();
-        $modelPath = $config->dirEntity() . $name . 'Repository.php';
+        $config = Pocket::getInstance();
+        $modelPath = $config->dirRepository() . $name . 'Repository.php';
         if (file_exists($modelPath)) {
-            $nameSpace = Util::getNameSpace($modelPath);
-            $className = "${nameSpace}\\${name}Entity";
+            $nameSpace = FileUtil::getNameSpace($modelPath);
+            $className = "${nameSpace}\\${name}Repository";
             return new $className();
         }
+
         // テーブルがあるならば、汎用Entityを返す
-        $dataAccess = Util::getDataAccess();
+        $dataAccess = WelUtil::getDataAccess($config->dbDriver());
         $tables = $dataAccess->getTables();
         if (in_array($name, $tables)) {
             return new \ellsif\WelCMS\Repository($name);
         }
 
-        throw new InvalidArgumentException("${name}Repositoryの初期化に失敗しました", 500);
+        throw new \InvalidArgumentException("${name}Repositoryの初期化に失敗しました", 500);
     }
 
     /**
@@ -119,26 +90,14 @@ class Util
      */
     public static function loadPart(string $name): WebPart
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         $partPath = $config->dirSystem() . 'classes/parts/' . $name . '.php';
         if (file_exists($partPath)) {
-            $nameSpace = getNameSpace($partPath);
+            $nameSpace = FileUtil::getNameSpace($partPath);
             $className = "${nameSpace}\\${name}";
             return new $className();
         }
-        throwError("${name}WebPartの初期化に失敗しました");
-    }
-
-    /**
-     * ディレクトリを作成する。
-     */
-    public static function makeDirectory($path, $mode = 0777)
-    {
-        if (!file_exists($path)) {
-            if (!mkdir($path, $mode, true)) {
-                throw new \Exception("${path} ディレクトリの作成に失敗しました。");
-            }
-        }
+        throw new \RuntimeException("${name}WebPartの初期化に失敗しました", 500);
     }
 
     /**
@@ -150,7 +109,7 @@ class Util
      */
     public static function getDate($format = 'Y-m-d')
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         date_default_timezone_set($config->timeZone());
         return date($format);
     }
@@ -164,7 +123,7 @@ class Util
      */
     public static function getTime()
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         date_default_timezone_set($config->timeZone());
         return date('H:i:s');
     }
@@ -178,17 +137,9 @@ class Util
      */
     public static function getDateTime()
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         date_default_timezone_set($config->timeZone());
         return date('Y-m-d H:i:s');
-    }
-
-    public static function toDir($path)
-    {
-        if (mb_substr($path, -1) !== '/') {
-            $path = "${path}/";
-        }
-        return $path;
     }
 
     public static function getPdoDebug(\PDOStatement $stmt) :string
@@ -232,11 +183,11 @@ class Util
      */
     public static function parseUrl(string $url) :array
     {
-        if (!Util::isUrl($url)) {
+        if (!WelUtil::isUrl($url)) {
             if (intval($_SERVER['REMOTE_PORT']) == 443) {
-                $url = 'https://' . Util::getHostname() . $url;
+                $url = 'https://' . WelUtil::getHostname() . $url;
             } else {
-                $url = 'http://' . Util::getHostname() . $url;
+                $url = 'http://' . WelUtil::getHostname() . $url;
             }
         }
         $urlInfo = parse_url($url);
@@ -247,7 +198,7 @@ class Util
 
             $urlInfo['params'] = [];
             if (isset($urlInfo['query'])) {
-                $urlInfo['params'] = Util::parseQuery($urlInfo['query']);
+                $urlInfo['params'] = WelUtil::parseQuery($urlInfo['query']);
             }
             return $urlInfo;
         } else {
@@ -285,11 +236,6 @@ class Util
         }
     }
 
-    public static function isPost() :bool
-    {
-        return strcasecmp('POST', $_SERVER['REQUEST_METHOD']) == 0;
-    }
-
     /**
      * ハッシュ化に使うsaltを取得
      *
@@ -316,7 +262,7 @@ class Util
             if (count($ary) == 3) {
                 $salt = $ary[0];
                 $version = intval($ary[1]);
-                $hashed = getHashed($password, $salt, $version);
+                $hashed = WelUtil::getHashed($password, $salt, $version);
                 return $hashstr === $hashed;
             }
         }
@@ -386,77 +332,6 @@ class Util
     }
 
     /**
-     * phpファイルからnamespaceを取得する。
-     *
-     * ## パラメータ
-     * <dl>
-     *   <dt>phpFilePath</dt>
-     *     <dd>PHPファイルのパスを指定します。</dd>
-     * </dl>
-     *
-     * ## 戻り値
-     * namespaceを返します。取得に失敗した場合はnullを返します。
-     */
-    public static function getNameSpace(string $phpFilePath)
-    {
-        $nameSpace = null;
-        if (file_exists($phpFilePath)) {
-            $fp = fopen($phpFilePath, 'r');
-            while ($line = fgets($fp)) {
-                if (strpos($line, 'namespace ') !== false) {
-                    $nameSpace = rtrim(substr($line, strpos($line, 'namespace ') + 10), " ;\n");
-                    break;
-                }
-            }
-            fclose($fp);
-        }
-        return $nameSpace;
-    }
-
-    /**
-     * ファイルの一覧を取得する。
-     *
-     * ## 説明
-     * 指定されたディレクトリのファイルを再帰的に取得して返します。
-     */
-    public static function getFileList(array $directories): array
-    {
-        $paths = [];
-        foreach ($directories as $dir) {
-            $it = new \RecursiveDirectoryIterator($dir,
-                \FilesystemIterator::CURRENT_AS_FILEINFO |
-                \FilesystemIterator::KEY_AS_PATHNAME |
-                \FilesystemIterator::SKIP_DOTS);
-            $iterator = new \RecursiveIteratorIterator($it);
-            foreach ($iterator as $path => $info) {
-                if ($info->isFIle()) {
-                    $paths[] = $path;
-                }
-            }
-        }
-        return $paths;
-    }
-
-    /**
-     * 先頭から文字列を除去する。
-     */
-    public static function leftRemove(string $str, string $prefix): string
-    {
-        if (($pos = mb_strpos($str, $prefix)) === 0) {
-            return mb_substr($str, mb_strlen($prefix));
-        }
-        return $str;
-    }
-
-    /**
-     * POSTパラメータを取得
-     */
-    public static function getPost(string $name, $default = null)
-    {
-        return $_POST[$name] ?? $default;
-    }
-
-    /**
      * 配列かどうかを判定する。（連想配列はfalseとなる）
      */
     public static function isArray($obj)
@@ -489,31 +364,65 @@ class Util
         return false;
     }
 
-
     /**
-     * キャメルケースに変換する。
+     * 個別ページの認証を行う。
      *
-     * @param $str
-     * @return string
+     * ## 説明
+     * 以下の場合に例外をthrowします。
+     *
+     * - ページが存在しない（404）
+     * - ページが非公開かつ管理者ログインしていない（404）
+     * - ページに認証設定されており認証されたグループでログインしていない（401）
      */
-    public static function toCamel($str, $lcfirst = false): string
+    public static function authenticatePage($page)
     {
-        $str = ucwords($str, '_');
-        if ($lcfirst) {
-            return lcfirst(str_replace('_', '', $str));
+        $config = Pocket::getInstance();
+        if (is_string($page)) {
+            $pageEntity = WelUtil::getRepository('Page');
+            $pages = $pageEntity->list(['path' => trim($page, '/')]);
+            $page = $pages[0] ?? null;
+        }
+        if ($page) {
+            if (intval($page['published']) === 0) {
+                throw new \InvalidArgumentException('Not Found', 404);
+            } elseif (!WelUtil::isAllowed($config->loginUser(), $page)) {
+                throw new \InvalidArgumentException('Unauthorized', 401);
+            }
         } else {
-            return str_replace('_', '', $str);
+            throw new \InvalidArgumentException('Not Found', 404);
         }
     }
 
     /**
-     * スネークケースに変換
-     *
-     * @param $str
-     * @return string
+     * 個別ページの表示許可があるか判定する。
      */
-    public static function toSnake($str): string
+    public static function isAllowed($user, $page): bool
     {
-        return ltrim(strtolower(preg_replace('/[A-Z]/', '_\0', $str)), '_');
+        $userGroupRepo = WelUtil::getRepository('UserGroup');
+        $userGroups = $userGroupRepo->getUserGroups($user['id']);
+        if (count($userGroups)) {
+            $allowedUserGroupIds = array_filter(explode('|', $page['allowedUserGroupIds']), 'strlen');
+            $groupIds = array_column($userGroups, 'id');
+            foreach($groupIds as $groupId) {
+                if (array_search($groupId, $allowedUserGroupIds) >= 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sessionテーブルからセッション情報を取得
+     */
+    public static function getSession()
+    {
+        $sessionRepository = WelUtil::getRepository('Session');
+        $sessions = $sessionRepository->list(['sessid' => session_id()]);
+        if (count($sessions) > 0) {
+            return $sessions[0];
+        } else {
+            return null;
+        }
     }
 }

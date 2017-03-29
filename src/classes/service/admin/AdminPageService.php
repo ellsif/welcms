@@ -50,7 +50,7 @@ trait AdminPageService
   public function postPageAdmin($param)
   {
     $result = new ServiceResult();
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $printHtml = $config->varPrinterFormat() === 'html';
 
     if (!$config->varValid()) {
@@ -86,7 +86,7 @@ trait AdminPageService
   }
 
   public function _del(){
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
 
     // 削除処理
     $execDelete = function() use ($viewPath) {
@@ -152,7 +152,7 @@ trait AdminPageService
    */
   private function pagesShowForm($id = null): bool
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $viewPath = $config->dirView() . '/admin/pages/add_edit.php';
 
     $page = null;
@@ -217,7 +217,7 @@ trait AdminPageService
   private function pagesSubmitContents() :bool
   {
     $dataAccess = \ellsif\getDataAccess();
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $page_id = $config->varFormTargetId();
 
     $template = new HtmlTemplate();

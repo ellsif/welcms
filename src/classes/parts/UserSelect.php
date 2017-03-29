@@ -16,7 +16,7 @@ class UserSelect extends WebPart
     parent::initialize($options);
 
     // js追加
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $config->addVarFooterJsAfter('assets/js/userSelect.js');
   }
 

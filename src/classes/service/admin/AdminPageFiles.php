@@ -17,7 +17,7 @@ trait AdminPageFiles
    */
   protected function files($viewPath, $data)
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
 
     $config->varAction('admin/files');  // TODO いらないかも
     $action = $data[0] ?? 'index';

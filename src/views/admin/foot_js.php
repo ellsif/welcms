@@ -5,7 +5,7 @@ if ($_port != 80) {
 } else {
   $_port = '';
 }
-$config = \ellsif\WelCMS\Config::getInstance();
+$config = \ellsif\WelCMS\Pocket::getInstance();
 ?>
 
 <!-- jQuery -->

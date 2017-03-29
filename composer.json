@@ -11,14 +11,19 @@
       "email": "hatasu@ellsif.com"
     }
   ],
+  "require": {
+    "ellsif/util": "dev-master"
+  },
   "require-dev": {
-    "phpunit/phpunit": "6.0.*"
+    "phpunit/phpunit": "6.0.*",
+    "guzzlehttp/guzzle": "6.2.*"
   },
   "autoload": {
     "psr-4": {
       "ellsif\\": [
         "src/",
         "src/classes/core/",
+        "src/classes/auth/",
         "src/classes/util/",
         "src/classes/repository/",
         "src/classes/printer/"
@@ -26,9 +31,12 @@
       "ellsif\\WelCMS\\": [
         "src/",
         "src/classes/core/",
+        "src/classes/auth/",
         "src/classes/util/",
         "src/classes/repository/",
-        "src/classes/printer/"
+        "src/classes/printer/",
+        "src/classes/service/",
+        "src/classes/service/admin/"
       ]
     }
   }

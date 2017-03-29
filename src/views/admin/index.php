@@ -1,6 +1,6 @@
 <?php
 namespace ellsif;
-$config = WelCMS\Config::getInstance();
+$config = WelCMS\Pocket::getInstance();
 $urlInfo = $config->varUrlInfo();
 ?><!DOCTYPE html>
 <html lang="ja-JP">

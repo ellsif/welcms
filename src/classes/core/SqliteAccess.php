@@ -1,18 +1,14 @@
 <?php
 
 namespace ellsif;
-use ellsif\WelCMS\Config;
-use ellsif\WelCMS\Util;
+
+use ellsif\WelCMS\Exception;
+use ellsif\WelCMS\Pocket;
+use ellsif\WelCMS\WelUtil;
 use \PDO;
 
 class SqliteAccess implements DataAccess
 {
-    use Singleton;
-    public static function getInstance() : SqliteAccess
-    {
-        return self::instance();
-    }
-
     private $logger = null;
     private $pdo = null;
     private $tables = [];
@@ -26,12 +22,16 @@ class SqliteAccess implements DataAccess
      * ## 例外/エラー
      * PDOの初期化に失敗した場合、Exceptionをthrowします。
      */
-    protected function __construct()
+    public function __construct()
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
+
         $this->pdo = new PDO('sqlite:' . $config->dbDatabase());
+
+        // TODO ロック解除待ち時間（が、ここじゃない気がする）
+        //$this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 20);
         if (!$this->pdo) {
-            throw new \Exception('PDOの初期化に失敗しました。');
+            throw new Exception('PDOの初期化に失敗しました。');
         }
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->tables = $this->getTables();
@@ -173,13 +173,13 @@ class SqliteAccess implements DataAccess
         }
         if ($stmt->execute()) {
             $results = $stmt->fetchAll(PDO::FETCH_NAMED);
-            $this->logger->log('trace', 'sql', Util::getPdoDebug($stmt));
+            $this->logger->log('trace', 'sql', WelUtil::getPdoDebug($stmt));
             $this->logger->log('trace', 'sql', "options: " . json_encode($options));
             $this->logger->log('trace', 'sql', json_encode($results));
             return $this->createResult($name, $results);
         } else {
             $this->logger->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
-            throw new \Exception("${name}からのデータの取得に失敗しました。");
+            throw new \RuntimeException("${name}からのデータの取得に失敗しました。");
         }
     }
 
@@ -240,11 +240,13 @@ class SqliteAccess implements DataAccess
         foreach($columns as $column) {
             $stmt->bindValue(":${column}", $data[$column]);
         }
-        $this->logger->log('trace', 'DataAccess', Util::getPdoDebug($stmt));
-        if (!$stmt->execute()) {
+        $this->logger->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        try {
+            $stmt->execute();
+        } catch(\Exception $e) {
             $errorInfo = $stmt->errorInfo();
             $this->logger->log('error', 'DataAccess', $errorInfo[2]);
-            throw new \Exception("${name}へのINSERTに失敗しました。");
+            throw new \Exception("${name}へのINSERTに失敗しました。", 0, $e);
         }
         $id = $this->pdo->lastInsertId();
         return $id;
@@ -273,7 +275,7 @@ class SqliteAccess implements DataAccess
             $stmt->bindValue($key, $val);
         }
         $stmt->bindValue(':id', $id);
-        $this->logger->log('trace', 'DataAccess', Util::getPdoDebug($stmt));
+        $this->logger->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
             $this->logger->log('error', 'DataAccess', $errorInfo[2]);
@@ -309,7 +311,7 @@ class SqliteAccess implements DataAccess
             $stmt->bindValue($key, $val);
         }
 
-        $this->logger->log('trace', 'DataAccess', Util::getPdoDebug($stmt));
+        $this->logger->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
             $this->logger->log('error', 'DataAccess', $errorInfo[2]);
@@ -347,7 +349,7 @@ class SqliteAccess implements DataAccess
             $stmt->bindValue($key, $val);
         }
 
-        $this->logger->log('trace', 'DataAccess', Util::getPdoDebug($stmt));
+        $this->logger->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
             $this->logger->log('error', 'DataAccess', $errorInfo[2]);

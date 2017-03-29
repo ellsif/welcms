@@ -1,6 +1,6 @@
 <?php
 namespace ellsif;
-use ellsif\WelCMS\HtmlTemplate;$config = WelCMS\Config::getInstance();
+use ellsif\WelCMS\HtmlTemplate;$config = WelCMS\Pocket::getInstance();
 $url = WelCMS\Router::getInstance();
 $template = $template ?? null;
 $data = $config->varFormData();

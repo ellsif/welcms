@@ -1,9 +1,9 @@
 <?php
 namespace ellsif\WelCms\Test;
 
-use ellsif\WelCMS\Config;
+use ellsif\WelCMS\Pocket;
 use ellsif\WelCMS\Router;
-use ellsif\WelCMS\Util;
+use ellsif\WelCMS\WelUtil;
 
 
 class RouterTest extends \PHPUnit\Framework\TestCase
@@ -12,13 +12,30 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
     public static function setUpBeforeClass()
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         $config->dbDriver('sqlite');
         $config->dbDatabase(dirname(__FILE__, 3) . '/data/RouterTest.sqlite');
+        $config->dirWelCMS(dirname(__FILE__, 4) .  '/src');
+        $config->dirSystem(dirname(__FILE__, 4) .  '/src');
         $config->dirApp(dirname(__FILE__, 2) . '/stub');
-        require_once $config->dirApp() . 'service/TestService.php';
+        require_once $config->dirApp() . '/classes/service/TestService.php';
 
-        $dataAccess = Util::getDataAccess();
+        $dataAccess = WelUtil::getDataAccess('sqlite');
+
+        // ユーザーグループのテストデータ
+        $dataAccess->createTable('UserGroup', [
+            'name' => 'TEXT',
+            'userIds' => 'TEXT',
+        ]);
+        $userGroupEntity = WelUtil::getRepository('UserGroup');
+        $userGroupEntity->save([
+            [
+                'name' => '所属するグループ',
+                'userIds' => '|1|',
+            ]
+        ]);
+
+        // 個別ページのテストデータ
         $dataAccess->createTable('Page', [
             'template_id' => 'INTEGER',
             'name' => 'TEXT',
@@ -28,8 +45,7 @@ class RouterTest extends \PHPUnit\Framework\TestCase
             'published' => 'INTEGER DEFAULT 0',
             'allowedUserGroupIds' => 'TEXT',
         ]);
-
-        $pageEntity = Util::getRepository('Page');
+        $pageEntity = WelUtil::getRepository('Page');
         $pageEntity->save([
             [
                 'template_id' => 1,
@@ -50,7 +66,7 @@ class RouterTest extends \PHPUnit\Framework\TestCase
                 'name' => '会員専用ページ',
                 'path' => 'member',
                 'published' => 1,
-                'allowedUserGroupIds' => '1',
+                'allowedUserGroupIds' => '|1|',
             ],
         ]);
     }
@@ -62,14 +78,18 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->router = Router::getInstance();
-        $_SERVER = [
-            'REQUEST_URI' => 'http://localhost.localdomain:8080/test/action/',
-            'REQUEST_METHOD' => 'GET',
-        ];
+        $this->router = new Router();
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/action/';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
+        $config->reset();
         $config->settingActivated(1);
+        $config->dbDriver('sqlite');
+        $config->dbDatabase(dirname(__FILE__, 3) . '/data/RouterTest.sqlite');
+        $config->dirWelCMS(dirname(__FILE__, 4) .  '/src');
+        $config->dirSystem(dirname(__FILE__, 4) .  '/src');
+        $config->dirApp(dirname(__FILE__, 2) . '/stub/');
     }
 
     public function testGetInstance()
@@ -82,9 +102,9 @@ class RouterTest extends \PHPUnit\Framework\TestCase
      */
     public function testInitialize()
     {
-        $this->router->initialize();
+        $this->router->routing();
 
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         $this->assertEquals('GET', $config->varRequestMethod());
         $this->assertEquals('http://localhost.localdomain:8080/test/action/', $config->varCurrentUrl());
         $this->assertEquals('test/action', $config->varCurrentPath());
@@ -92,10 +112,9 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
     public function testRoutingActivate()
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         $config->settingActivated(0);   // not activate
 
-        $this->router->initialize();
         $this->router->routing();
 
         $this->assertEquals('AdminService', $config->varService());
@@ -104,13 +123,12 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
     public function testRoutingActivate404()
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         $config->settingActivated(0);   // not activate
         $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/fabicon.ico';
 
-        $this->router->initialize();
-
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(404);
         $this->router->routing();
     }
 
@@ -118,20 +136,115 @@ class RouterTest extends \PHPUnit\Framework\TestCase
     {
         $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/fabicon.badext';
 
-        $this->router->initialize();
-
         $this->expectException(\InvalidArgumentException::class);
         $this->router->routing();
     }
 
     public function testRoutingDefault()
     {
-        $this->router->initialize();
         $this->router->routing();
 
-        $config = Config::getInstance();
-        $this->assertEquals('ellsif\WelCMS\Printer', $config->varPrinter());
+        $config = Pocket::getInstance();
+        $this->assertEquals('\ellsif\WelCMS\Printer', $config->varPrinter());
         $this->assertEquals('test', $config->varService());
         $this->assertEquals('action', $config->varAction());
+    }
+
+    public function testRoutingHidden()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/hidden';
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(404);
+        $this->router->routing();
+    }
+
+    public function testRoutingPageAllowed()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/member';
+        $config = Pocket::getInstance();
+        $config->loginUser(['id' => 1]);
+
+        $this->router->routing();
+
+        $this->assertEquals('\ellsif\WelCMS\PagePrinter', $config->varPrinter());
+        $this->assertTrue(true);
+    }
+
+    public function testRoutingPageNotAllowed()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/member';
+        $config = Pocket::getInstance();
+        $config->loginUser(['id' => 2]);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(401);
+        $this->router->routing();
+    }
+
+    /***********************************************************************
+     * Auth関係のテスト
+     ***********************************************************************/
+    public function testRoutingUserSuccess()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth1';
+        $config = Pocket::getInstance();
+        $config->loginUser(['id' => 1]);
+
+        $this->router->routing();
+
+        $this->assertEquals('auth1', $config->varAction());
+        $this->assertEquals('auth1User', $config->varActionMethod());
+    }
+
+    public function testRoutingUserFailure()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth1';
+
+        $this->expectExceptionCode(401);
+        $this->router->routing();
+    }
+
+    public function testRoutingAdminSuccess()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth2';
+        $config = Pocket::getInstance();
+        $config->isAdmin(true);
+
+        $this->router->routing();
+        $this->assertEquals('auth2', $config->varAction());
+        $this->assertEquals('auth2Admin', $config->varActionMethod());
+    }
+
+    public function testRoutingAdminFailure()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth2';
+        $config = Pocket::getInstance();
+        $config->loginUser(['id' => 1]);
+        $config->loginManager(['id' => 1]);
+
+        $this->expectExceptionCode(401);
+        $this->router->routing();
+    }
+
+    public function testRoutingManagerSuccess()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth3';
+        $config = Pocket::getInstance();
+        $config->loginManager(['id' => 1]);
+
+        $this->router->routing();
+        $this->assertEquals('auth3', $config->varAction());
+        $this->assertEquals('auth3Manager', $config->varActionMethod());
+    }
+
+    public function testRoutingManagerFailure()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth3';
+        $config = Pocket::getInstance();
+        $config->loginUser(['id' => 1]);
+
+        $this->expectExceptionCode(401);
+        $this->router->routing();
     }
 }

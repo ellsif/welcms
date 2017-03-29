@@ -55,7 +55,7 @@ abstract class Service
 
   protected function requireHelpers()
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     require_once $config->dirSystem() . '/functions/helper.php';
     require_once $config->dirSystem() . '/classes/core/Template.php';
     require_once $config->dirSystem() . '/classes/core/HtmlTemplate.php';

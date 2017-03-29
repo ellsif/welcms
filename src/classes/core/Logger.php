@@ -1,8 +1,9 @@
 <?php
 namespace ellsif;
 
-use ellsif\WelCMS\Config;
-use ellsif\WelCMS\Util;
+use ellsif\util\FileUtil;
+use ellsif\util\StringUtil;
+use ellsif\WelCMS\WelUtil;
 
 class Logger
 {
@@ -21,7 +22,7 @@ class Logger
     public function setLogDir($path)
     {
         if ($path) {
-            $this->logDir = toDir($path);
+            $this->logDir = StringUtil::suffix($path, '/');
         }
     }
 
@@ -40,12 +41,13 @@ class Logger
             $level = $this->logLevel;
         }
         $logLevel = array_search($level, Logger::LOG_LEVELS);
+
         if ($logLevel !== FALSE &&  $logLevel <= array_search($this->logLevel, Logger::LOG_LEVELS)) {
             // ログ出力
-            $log = Util::getDateTime() . $this->delim . $level . $this->delim . $label . $this->delim . $message;
+            $log = WelUtil::getDateTime() . $this->delim . $level . $this->delim . $label . $this->delim . $message;
             if ($this->logDir) {
-                $path = $this->logDir . Util::getDate('Y-m') . '.log';
-                Util::writeFile($path, $log);
+                $path = $this->logDir . WelUtil::getDate('Y-m') . '.log';
+                FileUtil::writeFile($path, $log);
             } else {
                 // echo $log;
             }

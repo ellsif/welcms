@@ -2,3 +2,6 @@
 .idea
 composer.phar
 composer.lock
+*.sqlite
+/tests/logs/
+/tests/data/

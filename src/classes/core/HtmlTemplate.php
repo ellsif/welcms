@@ -12,7 +12,7 @@ class HtmlTemplate implements Template
 
   public function __construct()
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $config->dbDriver();
     require_once $config->dirSystem() . '/functions/helper.php';
   }

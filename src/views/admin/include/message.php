@@ -2,7 +2,7 @@
 namespace ellsif;
 
 // フォームのエラーメッセージを表示
-$config = WelCMS\Config::getInstance();
+$config = WelCMS\Pocket::getInstance();
 $data = $config->varFormData();
 $formError = $config->varFormError();
 if ($data && $formError) {

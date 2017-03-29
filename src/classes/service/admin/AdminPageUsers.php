@@ -10,7 +10,7 @@ trait AdminPageUsers
 {
   protected function users($viewPath, $data)
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $action = $data[0] ?? 'index';
     if ($action === 'regist') {
       $viewPath = $config->dirView() . '/admin/api/json.php';

@@ -46,7 +46,7 @@ class PluginHelper
   public static function getPluginsByDir() :array
   {
     $results = [];
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $it = new \RecursiveDirectoryIterator($config->dirPlugins(), \FilesystemIterator::SKIP_DOTS);
     foreach($it as $fileInfo) {
       if (!$fileInfo->isDir()) {
@@ -112,7 +112,7 @@ class PluginHelper
    */
   public static function getClassPath($name, $version): string
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     return $config->dirPlugins() . "${name}/${version}/${name}.php";
   }
 }

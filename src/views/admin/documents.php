@@ -2,7 +2,7 @@
   namespace ellsif\WelCMS;
 
   // 表示用データ取得
-  $config = Config::getInstance();
+  $config = Pocket::getInstance();
   $files = [];
   $paths = \ellsif\getFileList([
     $config->dirSystem() . 'classes/core',

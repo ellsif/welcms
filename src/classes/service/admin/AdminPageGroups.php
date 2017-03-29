@@ -16,7 +16,7 @@ trait AdminPageGroups
    */
   protected function groups($viewPath, $data)
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
 
     $action = $data[0] ?? 'index';
     if ($action === 'regist') {

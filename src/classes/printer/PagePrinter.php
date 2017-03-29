@@ -10,7 +10,7 @@ class PagePrinter extends Printer
    */
   public function html(ServiceResult $result = null)
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $path = '/' . implode('/', $config->varActionParams());
     $page = $this->getPage($path);
     if ($page) {
@@ -36,12 +36,13 @@ class PagePrinter extends Printer
    */
   private function getHtml($page): string
   {
-    $dataAccess = \ellsif\getDataAccess();
+      $pocket = Pocket::getInstance();
+    $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
     $templateData = $dataAccess->get('Template', $page['template_id']);
 
     $htmlTemplate = new HtmlTemplate();
     $contents = $htmlTemplate->getPageContents($page['id']);
-    $contents = \ellsif\getMap($contents, 'name');
+    $contents = WelUtil::getMap($contents, 'name');
     $templateData = json_decode($templateData['body_template'], true);
     return $htmlTemplate->getString($templateData, $contents);
   }

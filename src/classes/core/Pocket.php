@@ -2,13 +2,15 @@
 
 namespace ellsif\WelCMS;
 use ellsif\Singleton;
+use ellsif\util\StringUtil;
 
 /**
- * CMSの各種設定を管理するクラス。
+ * CMSの設定・共通オブジェクトを管理するクラス。
  *
  * ## 説明
- * システム全体を通して利用する可能性のある設定値をまとめて管理するクラスです。<br>
- * Singletonとして実装されています。
+ * システム全体を通して利用する可能性のある設定・オブジェクトをまとめて管理するクラスです。<br>
+ * Singletonとして実装されています。<br>
+ * グローバル変数の代用として利用します。
  *
  * 各種パラメータへのgetter、setterを提供しますが、<br>
  * システムの初期化が完了した後にsetter呼び出しが行われた場合、例外をthrowします。（基本的にgetterとしての利用を想定しています）
@@ -18,14 +20,14 @@ use ellsif\Singleton;
  *     $config = Config::getInstance();
  *     echo $config->settingSiteName(); // サイト名を表示
  */
-class Config
+class Pocket
 {
     use Singleton;
 
     /**
      * インスタンスを取得する。
      */
-    public static function getInstance() : Config
+    public static function getInstance() : Pocket
     {
         return self::instance();
     }
@@ -40,6 +42,12 @@ class Config
 
     protected function __construct()
     {
+        $this->reset();
+    }
+
+    public function reset()
+    {
+
         $this->config = [
             'db' => [
                 'Driver' => 'sqlite',
@@ -48,7 +56,7 @@ class Config
                 'Password' => '',
                 'Database' => '',
                 'Charset' => 'utf8',
-                'SystenTables' => [
+                'SystemTables' => [
                     'Setting' => 'システムの基本設定。',
                     'Content' => 'コンテンツデータ。',
                     'Page' => '個別ページ情報。',
@@ -66,13 +74,14 @@ class Config
                 ],
             ],
             'dir' => [
-                'System' => 'system',
+                'WelCMS' => dirname(__FILE__, 3) . '/',
+                'System' => '',
                 'App' => 'app',
                 'Plugins' => 'plugins',
-                'Migration' => 'migration',
+                'Initialize' => '',
                 'Log' => 'logs',
-                'Entity' => 'classes/entity',
-                'View' => 'views',
+                'Repository' => dirname(__FILE__, 2) . '/repository/',
+                'View' => dirname(__FILE__, 3) . '/views/',
                 'Part' => 'views/parts',
                 'EntityApp' => 'classes/entity',
                 'ViewApp' => 'views',
@@ -114,6 +123,9 @@ class Config
                 'timeZone' => 'Asia/Tokyo',
                 'noticeMethods' => ['Email'],
                 'printFormats' => ['json','xml','svg','pdf','atom','csv'],
+                'loginUser' => null,
+                'loginManager' => null,
+                'isAdmin' => false,
             ],
         ];
     }
@@ -124,7 +136,7 @@ class Config
         if (count($val) == 0) {
             $val = $this->_get($name);
             if (is_string($val)) {
-                $val = $pref . $val . $suf;
+                $val = StringUtil::suffix($pref . $val, $suf);
             }
             return $val;
         }
@@ -138,7 +150,7 @@ class Config
      */
     protected function _get(string $name)
     {
-        foreach(Config::PREFS as $pref) {
+        foreach(Pocket::PREFS as $pref) {
             if (strpos($name, $pref) === 0) {
                 // DB関連
                 $conf = $this->config[$pref];
@@ -170,20 +182,24 @@ class Config
         if ($this->_locked) {
             throw new \Exception('Configはロックされています。');
         }
-        foreach(Config::PREFS as $pref) {
+        foreach(Pocket::PREFS as $pref) {
             if (strpos($name, $pref) === 0) {
                 // DB関連
                 $conf = $this->config[$pref];
                 $namePref = substr($name, 0, strlen($pref));
                 $label = substr($name, strlen($pref));
                 if ($pref === $namePref && (isset($conf[$label]) || is_callable([$this, $name]))) {
-                    $this->config[$pref][$label] = $value;
+                    if ($pref === 'dir') {
+                        $this->config[$pref][$label] = StringUtil::suffix($value, '/');
+                    } else {
+                        $this->config[$pref][$label] = $value;
+                    }
                     return;
                 }
             }
         }
 
-        if (isset($this->config['default'][$name])) {
+        if (array_key_exists($name, $this->config['default'])) {
             $this->config['default'][$name] = $value;
             return;
         }
@@ -276,6 +292,11 @@ class Config
      */
     public function printFormats(...$val) { return $this->getset(__FUNCTION__, $val); }
 
+    public function loginUser(...$val) { return $this->getset(__FUNCTION__, $val); }
+
+    public function loginManager(...$val) { return $this->getset(__FUNCTION__, $val); }
+
+    public function isAdmin(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * Home画面のURLのgetter/setter。
@@ -363,7 +384,7 @@ class Config
     /**
      * システムが利用するテーブル情報ののgetter/setter。
      */
-    public function dbSystenTables(...$val) { return $this->getset(__FUNCTION__, $val); }
+    public function dbSystemTables(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * アプリケーションが利用するテーブル情報ののgetter/setter。
@@ -406,8 +427,7 @@ class Config
      * システムディレクトリのパスを取得、設定します。
      * デフォルトはsystemとなります。
      */
-    public function dirSystem(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirWelCMS(), '/'); }
-
+    public function dirSystem(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * アプリケーションディレクトリパスのgetter/setter。
@@ -417,7 +437,7 @@ class Config
      * アプリケーションディレクトリはシステムディレクトリと同じ構成とし、カスタマイズ用のファイルを格納します。<br>
      * 同名のファイルが存在する場合、アプリケーションディレクトリ以下のファイルがシステムディレクトリより優先して利用されます。<br>
      */
-    public function dirApp(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirWelCMS(), '/'); }
+    public function dirApp(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * プラグインディレクトリパスのgetter/setter。
@@ -441,7 +461,7 @@ class Config
      * デフォルトはmigrationとなります。<br>
      * 本機能は現在、CMSのアクティベーションのみで利用しています。将来的にCMSのバージョンアップに利用されるようになります。
      */
-    public function dirMigration(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirWelCMS(), '/'); }
+    public function dirInitialize(...$val) { return $this->getset(__FUNCTION__, $val, '', '/'); }
 
     /**
      * Viewファイル格納ディレクトリパスのgetter/setter。
@@ -451,7 +471,7 @@ class Config
      * 設定はWelCMSを配置したディレクトリからの相対パスで行い、取得は絶対パスで行われる点に注意してください。<br>
      * デフォルトはviewsとなります。<br>
      */
-    public function dirView(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirSystem(), '/'); }
+    public function dirView(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * Viewファイル格納ディレクトリパスのgetter/setter、アプリケーション版。
@@ -490,7 +510,7 @@ class Config
      * 設定はWelCMSを配置したディレクトリからの相対パスで行い、取得は絶対パスで行われる点に注意してください。<br>
      * デフォルトはviews/partsとなります。<br>
      */
-    public function dirEntity(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirSystem(), '/'); }
+    public function dirRepository(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * View部品ファイル格納ディレクトリパスのgetter/setter、アプリケーション版。
@@ -510,7 +530,7 @@ class Config
      * 設定はWelCMSを配置したディレクトリからの相対パスで行い、取得は絶対パスで行われる点に注意してください。<br>
      * デフォルトはlogsとなります。<br>
      */
-    public function dirLog(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirWelCMS(), '/'); }
+    public function dirLog(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     ////////////////////////////////////////////////////////////////////
     // 以下、動的な設定値。
@@ -760,7 +780,7 @@ class Config
      */
     public function appendAlert(string $message, string $level = 'info')
     {
-        $config = Config::getInstance();
+        $config = Pocket::getInstance();
         if (strcasecmp($level, 'error') === 0) {
             $alerts = $config->varAlertError();
             $alerts[] = $message;
@@ -827,4 +847,5 @@ class Config
     public function addRiotJs($path) {
         $this->config['var']['RiotJs'][] = $path;
     }
+
 }

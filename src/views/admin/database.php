@@ -1,5 +1,5 @@
 <?php
-  namespace ellsif\WelCMS;
+namespace ellsif\WelCMS;
 
   $tables = $tables ?? [];
 ?><!DOCTYPE html>

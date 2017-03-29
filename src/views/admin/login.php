@@ -1,7 +1,7 @@
 <?php
 namespace ellsif;
 use ellsif\Form;
-$config = WelCMS\Config::getInstance();
+$config = WelCMS\Pocket::getInstance();
 $data = $config->varFormData();
 $formError = $config->varFormError();
 ?><!DOCTYPE html>

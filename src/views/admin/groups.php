@@ -1,7 +1,7 @@
 <?php
 namespace ellsif;
 use ellsif\WelCMS\Router;
-$config = WelCMS\Config::getInstance();
+$config = WelCMS\Pocket::getInstance();
 $urlInfo = $config->varUrlInfo();
 $url = Router::getInstance();
 $groups = $groups ?? [];

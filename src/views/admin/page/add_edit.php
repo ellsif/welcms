@@ -1,6 +1,6 @@
 <?php
   namespace ellsif\WelCMS;
-  $config = Config::getInstance();
+  $config = Pocket::getInstance();
 
   $id = $id ?? 0;
 

@@ -1,22 +1,7 @@
 <?php
 namespace ellsif;
 
-use ellsif\WelCMS\Config;
-
-
-/**
- * Sessionテーブルからセッション情報を取得
- */
-function getSession()
-{
-  $dataAccess = getDataAccess();
-  $sessions = $dataAccess->select('Session', 0, 1 , '', ['sessid' => session_id()]);
-  if (count($sessions) > 0) {
-    return $sessions[0];
-  } else {
-    return null;
-  }
-}
+use ellsif\WelCMS\Pocket;
 
 function tag($tagName, $attributes, $text = null) :string
 {
@@ -61,7 +46,7 @@ function tagged($tagName, $attributes, $body) :string
  */
 function throwError($message, $debug = '', $code = 500, $previous = null)
 {
-  $config = Config::getInstance();
+  $config = Pocket::getInstance();
   if ($config->runMode() == 'development') {
     $message .= "\n(${debug})";
   }
@@ -81,7 +66,7 @@ function pre_dump($obj)
 function includePart($name)
 {
   try {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $name = basename($name);
     include $config->dirView() . "parts/${name}.php";
   } catch(\Exception $e) {

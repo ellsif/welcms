@@ -15,7 +15,7 @@ trait AdminPageTemplates
    */
   protected function templates($viewPath, $data)
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
 
     $action = $data[0] ?? 'index';
     $id = $data[1] ?? null;
@@ -64,7 +64,7 @@ trait AdminPageTemplates
    * @return bool
    */
   private function templatesShowForm($id = null): bool {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $viewPath = $config->dirView() . '/admin/templates/add_edit.php';
 
     $template = null;

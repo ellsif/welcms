@@ -19,7 +19,7 @@ trait AdminDatabaseService
    */
   public function getDatabaseAdmin($param = [])
   {
-    $config = Config::getInstance();
+    $config = Pocket::getInstance();
     $result = new ServiceResult();
     $dataAccess = \ellsif\getDataAccess();
     $tableNames = array_filter($dataAccess->getTables(), function($tableName){
@@ -28,7 +28,7 @@ trait AdminDatabaseService
     if (empty($param)) {
 
       $tables = [];
-      $sysTables = $config->dbSystenTables();
+      $sysTables = $config->dbSystemTables();
       $appTables = $config->dbApplicationTables();
       foreach($tableNames as $tableName) {
         $entity = \ellsif\getEntity($tableName);
