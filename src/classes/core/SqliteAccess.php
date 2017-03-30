@@ -60,7 +60,7 @@ class SqliteAccess extends DataAccess
         );
         foreach($columns as $columnName => $array) {
             $columnName = $this->pdo->quote($columnName);
-            $type = $array['type'] ? $this->convertType($array['type']) : 'TEXT';
+            $type = isset($array['type']) ? $this->convertType($array['type']) : 'TEXT';
             $default = '';
             if (isset($array['default'])) {
                 $default = $type === 'TEXT' ? $this->pdo->quote($array['default']) : intval($array['default']);

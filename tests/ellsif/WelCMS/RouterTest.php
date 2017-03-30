@@ -20,49 +20,34 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $config->dirApp(dirname(__FILE__, 2) . '/stub');
         require_once $config->dirApp() . '/classes/service/TestService.php';
 
-        $dataAccess = WelUtil::getDataAccess('sqlite');
-
         // ユーザーグループのテストデータ
-        $dataAccess->createTable('UserGroup', [
-            'name' => 'TEXT',
-            'userIds' => 'TEXT',
-        ]);
         $userGroupEntity = WelUtil::getRepository('UserGroup');
         $userGroupEntity->save([
             [
                 'name' => '所属するグループ',
-                'userIds' => '|1|',
+                'userIDs' => '|1|',
             ]
         ]);
 
         // 個別ページのテストデータ
-        $dataAccess->createTable('Page', [
-            'template_id' => 'INTEGER',
-            'name' => 'TEXT',
-            'path' => 'TEXT',
-            'options' => 'TEXT',
-            'bodyCache' => 'TEXT',
-            'published' => 'INTEGER DEFAULT 0',
-            'allowedUserGroupIds' => 'TEXT',
-        ]);
         $pageEntity = WelUtil::getRepository('Page');
         $pageEntity->save([
             [
-                'template_id' => 1,
+                'templateID' => 1,
                 'name' => 'Topページ',
                 'path' => '',
                 'published' => 1,
                 'allowedUserGroupIds' => '',
             ],
             [
-                'template_id' => 1,
+                'templateID' => 1,
                 'name' => '下書きページ',
                 'path' => 'hidden',
                 'published' => 0,
                 'allowedUserGroupIds' => '',
             ],
             [
-                'template_id' => 1,
+                'templateID' => 1,
                 'name' => '会員専用ページ',
                 'path' => 'member',
                 'published' => 1,
@@ -117,7 +102,7 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
         $this->router->routing();
 
-        $this->assertEquals('AdminService', $config->varService());
+        $this->assertEquals('Admin', $config->varService());
         $this->assertEquals('activate', $config->varAction());
     }
 

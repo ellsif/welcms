@@ -5,6 +5,34 @@ namespace ellsif\WelCMS;
 class UserGroupRepository extends Repository
 {
     /**
+     * カラムの定義
+     *
+     * ## 説明
+     * リポジトリへの初回アクセス時にテーブルが存在しない場合、
+     * 自動的にテーブルが作成されます。
+     */
+    protected $columns = [
+        'name' => [
+            'label'       => 'グループ名',
+            'type'        => 'string',
+            'description' => 'グループ名です。後から変更可能です。',
+            'validation'  => [
+                ['rule' => 'required'],
+            ],
+        ],
+        'userIDs' => [
+            'label'       => '所属ユーザーのID',
+            'type'        => 'string',
+            'description' => 'パイプ区切りで指定します（例: "|1|2|3|"）。',
+            'onSave'      => '',  // 登録時にソートした上でパイプ繋ぎ
+            'validation'  => [
+                ['rule' => 'required'],
+            ],
+        ],
+    ];
+
+
+    /**
      * UserGroupテーブルからデータを取得する。
      */
     public function getUserGroups($userId = null): array
@@ -13,8 +41,8 @@ class UserGroupRepository extends Repository
             $pocket = Pocket::getInstance();
             $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
             return $dataAccess->selectQuery(
-                "SELECT * FROM UserGroup WHERE userIds LIKE :userId",
-                ['userId' => "%|" . intval($userId) . "|%"]
+                "SELECT * FROM UserGroup WHERE userIds LIKE :userIDs",
+                ['userIDs' => "%|" . intval($userId) . "|%"]
             );
         }
         return [];

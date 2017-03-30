@@ -6,7 +6,7 @@ namespace ellsif\WelCMS;
 /**
  * システム管理者認証クラス
  */
-class AdminAuth implements Auth
+class AdminAuth extends Auth
 {
     /**
      * 認証処理を行う。

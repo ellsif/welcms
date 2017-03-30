@@ -244,39 +244,6 @@ class WelUtil
     }
 
     /**
-     * ハッシュ化に使うsaltを取得
-     *
-     * @return string
-     */
-    public static function getSalt($length = 24) :string
-    {
-        return bin2hex(openssl_random_pseudo_bytes($length));
-    }
-
-    // ハッシュ化されたパスワードを取得
-    public static function getHashed(string $password, string $salt, int $version) :string
-    {
-        $hash = hash('sha256', $password . $salt);
-        return "${hash}:${salt}$${version}$";
-    }
-
-    // パスワードのチェック
-    public static function checkHash(string $password, string $hashstr) :bool
-    {
-        $ary = explode(':', $hashstr);
-        if (count($ary) == 2) {
-            $ary = explode('$', $ary[1]);
-            if (count($ary) == 3) {
-                $salt = $ary[0];
-                $version = intval($ary[1]);
-                $hashed = WelUtil::getHashed($password, $salt, $version);
-                return $hashstr === $hashed;
-            }
-        }
-        return false;
-    }
-
-    /**
      * データ配列を連想配列に変換する
      *
      * ## 説明

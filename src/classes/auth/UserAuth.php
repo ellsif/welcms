@@ -6,7 +6,7 @@ namespace ellsif\WelCMS;
 /**
  * ユーザー認証クラス
  */
-class UserAuth implements Auth
+class UserAuth extends Auth
 {
     /**
      * 認証処理を行う。
