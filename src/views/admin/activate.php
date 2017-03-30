@@ -42,9 +42,9 @@ $data = $data ?? [];
                             'サイトURL',
                             'urlHome',
                             [
-                                'value' => $data['UrlHome'][1] ?? $urlInfo['scheme'] . '://' . $urlInfo['host'] . $port . '/',
+                                'value' => $data['urlHome'][1] ?? $urlInfo['scheme'] . '://' . $urlInfo['host'] . $port . '/',
                                 'placeholder' => 'https://example.com/',
-                                'error' => $data['UrlHome'][2] ?? '',
+                                'error' => $data['urlHome'][2] ?? '',
                             ]
                         );
                         echo Form::formInput(
@@ -52,8 +52,8 @@ $data = $data ?? [];
                             'siteName',
                             [
                                 'placeholder' => 'WelCMS',
-                                'value' => $data['SiteName'][1] ?? '',
-                                'error' => $data['SiteName'][2] ?? '',
+                                'value' => $data['siteName'][1] ?? '',
+                                'error' => $data['siteName'][2] ?? '',
                             ]
                         );
                         echo Form::formInput(
@@ -62,8 +62,8 @@ $data = $data ?? [];
                             [
                                 'placeholder' => 'admin@example.com',
                                 'help' => 'メールアドレス以外も設定可能です。',
-                                'value' => $data['AdminID'][1] ?? '',
-                                'error' => $data['AdminID'][2] ?? '',
+                                'value' => $data['adminID'][1] ?? '',
+                                'error' => $data['adminID'][2] ?? '',
                             ]
                         );
                         echo Form::formInput(
@@ -72,8 +72,8 @@ $data = $data ?? [];
                             [
                                 'type' => 'password',
                                 'help' => '4文字以上の半角英数記号のみ設定可能です。',
-                                'value' => $data['AdminPass'][1] ?? '',
-                                'error' => $data['AdminPass'][2] ?? '',
+                                'value' => $data['adminPass'][1] ?? '',
+                                'error' => $data['adminPass'][2] ?? '',
                             ]
                         );
                         ?>

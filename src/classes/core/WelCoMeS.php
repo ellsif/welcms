@@ -174,15 +174,15 @@ class WelCoMeS
         $pocket = Pocket::getInstance();
 
         $settingRepo = WelUtil::getRepository('Setting');
-        $list = $settingRepo->list(['name' => 'Activated']);
+        $list = $settingRepo->list(['name' => 'activated']);
         $activated = count($list) > 0 && intval($list[0]['value']) == 1;
         $pocket->settingActivated($activated);
         if ($pocket->settingActivated()) {
-            $settings = $settingRepo->list(['name' => ['UrlHome', 'SiteName']]);
+            $settings = $settingRepo->list(['name' => ['urlHome', 'siteName']]);
             foreach($settings as $setting) {
-                if ($setting['name'] === 'UrlHome') {
+                if ($setting['name'] === 'urlHome') {
                     $pocket->settingUrlHome($setting['value']);
-                } elseif ($setting['name'] === 'SiteName') {
+                } elseif ($setting['name'] === 'siteName') {
                     $pocket->settingSiteName($setting['value']);
                 }
             }
