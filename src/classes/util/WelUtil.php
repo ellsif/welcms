@@ -5,6 +5,7 @@ use ellsif\DataAccess;
 use ellsif\FileAccess;
 use ellsif\util\FileUtil;
 use ellsif\SqliteAccess;
+use ellsif\util\StringUtil;
 
 class WelUtil
 {
@@ -398,5 +399,29 @@ class WelUtil
         } else {
             return null;
         }
+    }
+
+    /**
+     * 指定のURLへリダイレクトします。
+     */
+    public static function redirect($path, $code = 301)
+    {
+        $url = (WelUtil::isUrl($path)) ? $path : WelUtil::getUrlBase() . StringUtil::leftRemove($path, '/');
+        header("HTTP/1.1 ${code}");
+        header( "Location: " . $url);
+    }
+
+    /**
+     * ベースURLを取得します。
+     * TODO 階層下げた場合の対応が必要。
+     */
+    public static function getUrlBase()
+    {
+        $urlInfo = Pocket::getInstance()->varUrlInfo();
+        $urlBase = $urlInfo['scheme'] . '://' . $urlInfo['host'];
+        if (intval($urlInfo['port']) != 80) {
+            $urlBase .= ':' . $urlInfo['port'];
+        }
+        return $urlBase;
     }
 }

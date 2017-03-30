@@ -608,13 +608,13 @@ class Pocket
      * ## 例
      *     $config = Config::getInstance();
      *     $urlInfo = $config->varUrlInfo();
-     *     echo $urlInfo['scheme'];
-     *     echo $urlInfo['host'];
-     *     echo $urlInfo['port'];
-     *     echo $urlInfo['path'];
-     *     echo $urlInfo['query'];
-     *     echo $urlInfo['paths'];
-     *     echo $urlInfo['params'];
+     *     echo $urlInfo['scheme'];  //
+     *     echo $urlInfo['host'];    //
+     *     echo $urlInfo['port'];    //
+     *     echo $urlInfo['path'];    //
+     *     echo $urlInfo['query'];   //
+     *     echo $urlInfo['paths'];   //
+     *     echo $urlInfo['params'];  //
      */
     public function varUrlInfo(...$val) { return $this->getset(__FUNCTION__, $val); }
 

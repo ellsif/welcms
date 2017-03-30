@@ -40,8 +40,9 @@ class AdminService extends Service
      */
     public function postActivate($params)
     {
-        $data = $_POST;
         $result = new ServiceResult();
+
+        $data = $_POST;
         $settingRepo = WelUtil::getRepository('Setting');
         $settingRepo->validateActivation($data);
         Logger::getInstance()->log('debug', 'activate',
@@ -54,33 +55,42 @@ class AdminService extends Service
     }
 
     /**
-     * ログイン処理を行う。
-     *
-     * @param $viewPath
-     * @param $data
+     * ログイン画面を表示します。
      */
-    public function login($viewPath, $data)
+    public function login($params)
     {
-        $config = Pocket::getInstance();
-        if ($config->varValidated() && $config->varValid()) {
+        return new ServiceResult();
+    }
+
+    /**
+     * ログイン処理を行います。
+     */
+    public function postLogin($params)
+    {
+        $result = new ServiceResult();
+        $data = $_POST;
+
+        $pocket = Pocket::getInstance();
+
+        $settingRepo = WelUtil::getRepository('Setting');
+        $settings = $settingRepo->list(['name' => 'password']);
+
+        // TODO バリデーションがいる
+        if (count($settings) > 0 && isset($settings[0]['value'])) {
 
             // ログイン処理を行う
-            $params = $config->varFormData();
-            $dataAccess = \ellsif\getDataAccess();
-            $settings = $dataAccess->select('Setting');
-            $hash = \ellsif\getMap($settings, 'name', 'value');
+            $hash = $settings[0]['value'];
 
-            if (\ellsif\checkHash($params['AdminPass']['value'], $hash['Hash'])) {
-                $urlManager = Router::getInstance();
+            if (Auth::checkHash($data['password'], $hash)) {
                 $_SESSION['is_admin'] = TRUE;
-                $urlManager->redirect('admin');
+                WelUtil::redirect('/admin');
             } else {
-                $config->varFormError(['認証に失敗しました。']);
-                $this->loadView($viewPath, $data);
+                $pocket->varFormError(['認証に失敗しました。']);
             }
         } else {
-            $this->loadView($viewPath, $data);
+            throw new Exception('認証情報の取得に失敗しました。設定を見直して下さい。');
         }
+        return $result;
     }
 
     /**
