@@ -109,15 +109,18 @@ class Router
 
         if (\strcmp($paths[0], 'admin') === 0) {
             $config->varIsAdminPage(true);
+
+            // TODO プラグイン関連は未実装
+            /*
             if ($this->isPlugin($paths[1])) {
                 $service = $paths[1];
                 $action = $paths[2] ?? 'index';
                 $params = array_splice($paths, 3);
             } else {
-                $service = $paths[0];
-                $action = $paths[1] ?? 'index';
-                $params = array_splice($paths, 2);
-            }
+            */
+            $service = $paths[0];
+            $action = $paths[1] ?? 'index';
+            $params = array_splice($paths, 2);
         } else {
 
             // その他のページの場合
