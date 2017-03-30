@@ -174,7 +174,7 @@ class WelCoMeS
         $pocket = Pocket::getInstance();
 
         $settingRepo = WelUtil::getRepository('Setting');
-        $list = $settingRepo->list(['name' => 'activated']);
+        $list = $settingRepo->list(['name' => 'activate']);
         $activated = count($list) > 0 && intval($list[0]['value']) == 1;
         $pocket->settingActivated($activated);
         if ($pocket->settingActivated()) {
