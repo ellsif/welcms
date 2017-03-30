@@ -25,10 +25,10 @@ $data = $data ?? [];
                         echo Form::formStart(
                             '/welcms/activate', [],
                             [
-                                'UrlHome' => ['rule' => 'required', 'msg' => 'サイトURL : 必須入力です。'],
-                                'SiteName' => ['rule' => 'required', 'msg' => 'サイト名 : 必須入力です。'],
-                                'AdminID' => ['rule' => 'required', 'msg' => '管理者ID : 必須入力です。'],
-                                'AdminPass' => [
+                                'urlHome' => ['rule' => 'required', 'msg' => 'サイトURL : 必須入力です。'],
+                                'siteName' => ['rule' => 'required', 'msg' => 'サイト名 : 必須入力です。'],
+                                'adminID' => ['rule' => 'required', 'msg' => '管理者ID : 必須入力です。'],
+                                'adminPass' => [
                                     ['rule' => 'required', 'msg' => '管理者パスワード : 必須入力です。'],
                                     ['rule' => 'length', 'args' => [12, 4], 'msg' => '管理者パスワード : 4文字以上、12文字以内で入力してください。']
                                 ],
@@ -40,7 +40,7 @@ $data = $data ?? [];
                         $port = intval($urlInfo['port']) !== 80 ? ':'.$urlInfo['port'] : '';
                         echo Form::formInput(
                             'サイトURL',
-                            'UrlHome',
+                            'urlHome',
                             [
                                 'value' => $data['UrlHome'][1] ?? $urlInfo['scheme'] . '://' . $urlInfo['host'] . $port . '/',
                                 'placeholder' => 'https://example.com/',
@@ -49,7 +49,7 @@ $data = $data ?? [];
                         );
                         echo Form::formInput(
                             'サイト名',
-                            'SiteName',
+                            'siteName',
                             [
                                 'placeholder' => 'WelCMS',
                                 'value' => $data['SiteName'][1] ?? '',
@@ -58,7 +58,7 @@ $data = $data ?? [];
                         );
                         echo Form::formInput(
                             '管理者ID',
-                            'AdminID',
+                            'adminID',
                             [
                                 'placeholder' => 'admin@example.com',
                                 'help' => 'メールアドレス以外も設定可能です。',
@@ -68,7 +68,7 @@ $data = $data ?? [];
                         );
                         echo Form::formInput(
                             '管理者パスワード',
-                            'AdminPass',
+                            'adminPass',
                             [
                                 'type' => 'password',
                                 'help' => '4文字以上の半角英数記号のみ設定可能です。',
