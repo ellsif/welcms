@@ -1,5 +1,6 @@
 <?php
 namespace ellsif\WelCMS;
+use ellsif\Logger;
 
 /**
  * Repositoryの基底クラス
@@ -9,15 +10,45 @@ class Repository
 
     protected $name = null;
 
+    protected $dataAccess = null;
+
     protected $columns = [];
 
-    public function __construct($name = null){
+    /**
+     * コンストラクタ
+     *
+     * ## 説明
+     *
+     */
+    public function __construct($name = null)
+    {
         if ($name) {
             $this->name = $name;
         }
         $pocket = Pocket::getInstance();
-        $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
-        $this->columns = $dataAccess->getColumns($this->getEntityName());
+        $this->dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
+
+        if (!$this->dataAccess->isTableExists($name)) {
+            if (count($this->columns) > 0) {
+                $this->dataAccess->createTable($name, $this->columns);
+            } else {
+                throw new Exception("テーブル${name}が利用できませんでした。");
+            }
+        }
+    }
+
+    protected function initColumns()
+    {
+        $columns = $this->dataAccess->getColumns($this->getEntityName());
+
+        foreach($columns as $name => $column) {
+            if ($name === 'id' || $name === 'created' || $name === 'updated') {
+                continue;
+            }
+            if (!array_key_exists($name, $this->columns)) {
+                $this->columns[$name] = $column;
+            }
+        }
     }
 
     /**
@@ -97,18 +128,22 @@ class Repository
 
             $pocket = Pocket::getInstance();
             $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
+
             if (isset($saveData['id']) && is_numeric($saveData['id'])) {
                 // 更新
+                Logger::getInstance()->log('debug', 'update', json_encode($saveData));
                 if (!$dataAccess->update($this->getEntityName(), $saveData['id'], $saveData)) {
                     throw new \RuntimeException('データの更新に失敗しました。');
                 }
             } else {
                 // 登録
+                Logger::getInstance()->log('debug', 'regist', json_encode($saveData));
                 $id = $dataAccess->insert($this->getEntityName(), $saveData);
                 $row['id'] = $id;
+                Logger::getInstance()->log('debug', 'registed', "id = ${id}");
+
             }
         }
-
         return $data;
     }
 
@@ -148,4 +183,9 @@ class Repository
         //$pocket->varFormToken($form['token']);
     }
 
+
+    public function getDebugDump()
+    {
+        return json_encode($this->columns);
+    }
 }

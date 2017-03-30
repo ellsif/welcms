@@ -1,8 +1,10 @@
 <?php
 namespace ellsif\WelCms\Test;
 
+use ellsif\WelCMS\Exception;
 use ellsif\WelCMS\Pocket;
 use ellsif\WelCMS\WelCoMeS;
+use ellsif\WelCMS\WelUtil;
 use GuzzleHttp\Client;
 
 /**
@@ -11,13 +13,23 @@ use GuzzleHttp\Client;
 class WelCoMeSTest extends \PHPUnit\Framework\TestCase
 {
 
+    /**
+     * メソッド名とsqliteファイルの対応
+     */
+    private static $dbFiles = [];
+
     public static function setUpBeforeClass()
     {
-        if (file_exists(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite')) {
-            unlink(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite');
-        }
-        if (file_exists(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainActivationRedirect.sqlite')) {
-            unlink(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainActivationRedirect.sqlite');
+        WelCoMeSTest::$dbFiles = [
+            'testMainInitDB'             => file_exists(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite'),
+            'testMainActivationRedirect' => file_exists(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainActivationRedirect.sqlite'),
+            'testMainPostActivationSuccess' => dirname(__FILE__, 3) . '/data/WelCoMeSTestMainPostActivationSuccess.sqlite',
+        ];
+
+        foreach(WelCoMeSTest::$dbFiles as $methodName => $path) {
+            if (file_exists($path)) {
+                unlink($path);
+            }
         }
     }
 
@@ -31,38 +43,56 @@ class WelCoMeSTest extends \PHPUnit\Framework\TestCase
         $pocket->reset();
     }
 
-    public function testConstructFailure()
-    {
-        $this->expectException(\ArgumentCountError::class);
-        new WelCoMeS();
-    }
-
-    public function testConstructFailureFileNotFound()
-    {
-        $this->expectException(\RuntimeException::class);
-        new WelCoMeS('/bad/path.php');
-    }
-
+    /**
+     * コンストラクタのテスト
+     */
     public function testConstructSuccess()
     {
         $welCMS = new WelCoMeS(dirname(__FILE__, 2) . '/stub/conf/conf.php');
         $this->assertInstanceOf(WelCoMeS::class, $welCMS);
     }
 
-    public function testMainInitDBSuccess()
+    /**
+     * コンストラクタのテスト（引数なし）
+     */
+    public function testConstructSuccessNoArg()
     {
-        // 初回起動時にDBが存在しない場合、作成されることを確認する。
-        $welCMS = new WelCoMeS(dirname(__FILE__, 2) . '/stub/conf/conf.php');
-        $pocket = Pocket::getInstance();
-        $pocket->dbDatabase(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite');
+        $welCMS = new WelCoMeS();
+        $this->assertInstanceOf(WelCoMeS::class, $welCMS);
 
-        $welCMS->main();
-
-        $this->assertFileExists(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite');
-        unlink(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite');
     }
 
-    // アクティベートされていない場合はアクティベーションページを表示
+    /**
+     * コンストラクタのテスト（不正なパス）
+     */
+    public function testConstructFailureFileNotFound()
+    {
+        $this->expectException(Exception::class);
+        new WelCoMeS('/bad/path.php');
+    }
+
+    /**
+     * 初回起動時にDBが存在しない場合、作成されることを確認する。
+     */
+    public function testMainInitDBSuccess()
+    {
+        $dbFile = dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite';
+        if (file_exists($dbFile)) {
+            unlink($dbFile);
+        }
+
+        $client = new Client();
+        $res = $client->get('http://localhost:1349/testMainInitDBSuccess.php');
+
+        $this->assertEquals(200, $res->getStatusCode());
+        $this->assertFileExists($dbFile);
+        unlink($dbFile);
+    }
+
+    /**
+     * アクティベートされていない場合はアクティベーションページを表示
+     * TODO リダイレクトされるべきか・・・？
+     */
     public function testMainActivationRedirect()
     {
         $client = new Client();
@@ -73,5 +103,31 @@ class WelCoMeSTest extends \PHPUnit\Framework\TestCase
         // TODO assertは追加必要
         $this->assertNotRegExp("/<b>Notice<\/b>/", (string)$res->getBody());
         $this->assertRegExp('/WelCMS初期設定/', (string)$res->getBody());
+    }
+
+    /**
+     * アクティベーションのPOSTが通る事を確認する。
+     */
+    public function testMainPostActivationSuccess()
+    {
+        $client = new Client();
+        $res = $client->post('http://localhost:1349/testMainPostActivationSuccess.php', [
+            'form_params' => [
+                'siteName' => 'Test Site',
+                'urlHome' => 'http://example.com',
+                'adminID' => 'admin',
+                'adminPass' => 'password',
+            ]
+        ]);
+
+        $this->assertEquals(200, $res->getStatusCode());
+
+        // DBの更新結果をチェック
+        $pocket = Pocket::getInstance();
+        $pocket->dbDatabase(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainPostActivationSuccess.sqlite');
+        $settingRepo = WelUtil::getRepository('Setting');
+        $list = $settingRepo->list(['name'=>'activate']);
+        $this->assertNotEmpty($list);
+        $this->assertEquals(1, $list[0]['value']);
     }
 }

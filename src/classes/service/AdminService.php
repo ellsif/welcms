@@ -28,29 +28,29 @@ class AdminService extends Service
     }
 
     /**
-     * アクティベーションページ用。
+     * アクティベーションページを表示します。
      */
     public function activate($params)
     {
         return new ServiceResult();
-/*
-        $this->requireHelpers();
+    }
 
-        $logger = Logger::getInstance();
-        $logger->log('debug', 'Activate', 'ShowActivationPage Start');
-
-        /*
-        $pocket = Pocket::getInstance();
-        $this->loadView(
-            $config->dirView() . 'admin/activate.php',
-            [
-                'config' => $config,
-                'data' => $config->varFormData(),
-                'urlInfo' => $config->varUrlInfo(),
-            ]
-        );
-        $logger->log('debug', 'Activate', 'ShowActivationPage End');
-*/
+    /**
+     * アクティベーションを行います。
+     */
+    public function postActivate($params)
+    {
+        $data = $_POST;
+        $result = new ServiceResult();
+        $settingRepo = WelUtil::getRepository('Setting');
+        $settingRepo->validateActivation($data);
+        Logger::getInstance()->log('debug', 'activate',
+            Pocket::getInstance()->varValid() ? 'valid' : 'invalid ' . json_encode(Pocket::getInstance()->varFormData()));
+        if (Pocket::getInstance()->varValid()) {
+            // アクティベーション処理
+            $settingRepo->activation($data['urlHome'], $data['siteName'], $data['adminID'], $data['adminPass']);
+        }
+        return $result;
     }
 
     /**

@@ -7,7 +7,7 @@ use ellsif\WelCMS\Pocket;
 use ellsif\WelCMS\WelUtil;
 use \PDO;
 
-class SqliteAccess implements DataAccess
+class SqliteAccess extends DataAccess
 {
     private $logger = null;
     private $pdo = null;
@@ -18,6 +18,7 @@ class SqliteAccess implements DataAccess
      *
      * ## 説明
      * SqliteAccessはコンストラクタでPDOの初期化を行います。
+     * TODO 呼ばれすぎなのでPocketに入れよう。
      *
      * ## 例外/エラー
      * PDOの初期化に失敗した場合、Exceptionをthrowします。
@@ -49,20 +50,26 @@ class SqliteAccess implements DataAccess
     public function createTable(string $name, array $columns) :bool
     {
         if (count($columns) == 0) {
-            throw new \Exception('テーブルの作成に失敗しました。カラムが指定されていません。');
+            throw new Exception('テーブルの作成に失敗しました。カラムが指定されていません。');
         }
-        if (array_key_exists('id', $columns) || array_key_exists('created_at', $columns) || array_key_exists('updated_at', $columns)) {
-            throw new \Exception('テーブルの作成に失敗しました。id, created_at, updated_at は自動的に追加されるため指定できません。');
+        if (array_key_exists('id', $columns) || array_key_exists('created', $columns) || array_key_exists('updated', $columns)) {
+            throw new Exception('テーブルの作成に失敗しました。id, created, updated は自動的に追加されるため指定できません。');
         }
         $columnDefs = array(
             'id INTEGER PRIMARY KEY AUTOINCREMENT'
         );
-        foreach($columns as $key => $val) {
-            $column = $this->pdo->quote($key);
-            $columnDefs[] = "${column} ${val}";
+        foreach($columns as $columnName => $array) {
+            $columnName = $this->pdo->quote($columnName);
+            $type = $array['type'] ? $this->convertType($array['type']) : 'TEXT';
+            $default = '';
+            if (isset($array['default'])) {
+                $default = $type === 'TEXT' ? $this->pdo->quote($array['default']) : intval($array['default']);
+                $default = "DEFAULT " . $default;
+            }
+            $columnDefs[] = "${columnName} ${type} ${default}";
         }
-        $columnDefs[] = 'created_at TIMESTAMP';
-        $columnDefs[] = 'updated_at TIMESTAMP';
+        $columnDefs[] = 'created TIMESTAMP';
+        $columnDefs[] = 'updated TIMESTAMP';
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $this->pdo->quote($name) . ' (' . implode(',', $columnDefs) . ')';
         $stmt = $this->pdo->prepare($sql);
         if ($stmt->execute()) {
@@ -173,10 +180,10 @@ class SqliteAccess implements DataAccess
         }
         if ($stmt->execute()) {
             $results = $stmt->fetchAll(PDO::FETCH_NAMED);
-            $this->logger->log('trace', 'sql', WelUtil::getPdoDebug($stmt));
-            $this->logger->log('trace', 'sql', "options: " . json_encode($options));
-            $this->logger->log('trace', 'sql', json_encode($results));
-            return $this->createResult($name, $results);
+            $this->logger->log('debug', 'sql', WelUtil::getPdoDebug($stmt));
+            $this->logger->log('debug', 'sql', "options: " . json_encode($options));
+            $this->logger->log('debug', 'sql', json_encode($results));
+            return $results;
         } else {
             $this->logger->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \RuntimeException("${name}からのデータの取得に失敗しました。");
@@ -390,8 +397,8 @@ class SqliteAccess implements DataAccess
     /**
      * テーブルのカラム一覧を取得する
      *
-     * @param string $name
-     * @return array
+     * ## 説明
+     *
      */
     public function getColumns(string $name): array
     {
@@ -402,30 +409,19 @@ class SqliteAccess implements DataAccess
         if ($stmt->execute()) {
             $results = $stmt->fetchAll(PDO::FETCH_OBJ);
             foreach ($results as $result) {
-                $columns[$result->name] = $result;
-            }
-        }
-        return $columns;
-    }
-
-    /**
-     * カラムの型に合わせた結果を返す
-     *
-     * @param string $name
-     * @param array $data
-     * @return array
-     */
-    private function createResult(string $name, array $data): array
-    {
-        $columns = $this->getColumns($name);
-        foreach($data as &$row) {
-            foreach($row as $col => &$value) {
-                if (strtoupper($columns[$col]->type) === 'INTEGER' && is_numeric($value)) {
-                    $value = intval($value);
+                $columns[$result->name] = [
+                    'label' => $result->name,
+                    'type' => $result->type,
+                    'default' => $result->dflt_value,
+                ];
+                if (intval($result->notnull) > 0) {
+                    $columns[$result->name]['validation'] = [
+                        ['rule' => 'required'],
+                    ];
                 }
             }
         }
-        return $data;
+        return $columns;
     }
 
     /**
@@ -451,8 +447,8 @@ class SqliteAccess implements DataAccess
      */
     private function addCreatedAt(array $data) :array
     {
-        if (!isset($data['created_at'])) {
-            $data['created_at'] = time();
+        if (!isset($data['created'])) {
+            $data['created'] = time();
         }
         $data = $this->addUpdatedAt($data);
         return $data;
@@ -466,9 +462,22 @@ class SqliteAccess implements DataAccess
      */
     private function addUpdatedAt(array $data) :array
     {
-        if (!isset($data['updated_at'])) {
-            $data['updated_at'] = time();
+        if (!isset($data['updated'])) {
+            $data['updated'] = time();
         }
         return $data;
+    }
+
+    public function convertType($type) :string
+    {
+        $conv = [
+            'int'       => 'INTEGER',
+            'float'     => 'REAL',
+            'double'    => 'REAL',
+            'string'    => 'TEXT',
+            'text'      => 'TEXT',
+            'timestamp' => 'TIMESTAMP',
+        ];
+        return $conv[$type] ?? 'TEXT';
     }
 }

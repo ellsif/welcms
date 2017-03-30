@@ -19,10 +19,10 @@ class Router
      */
     public function routing()
     {
-        $this->initialize();
         $pocket = Pocket::getInstance();
+        $this->initialize();
 
-        // アクティベーションされていない場合
+        // アクティベーション処理
         $activated = (intval($pocket->settingActivated()) != 0);
         if (!$activated) {
             $this->routingActivation();
@@ -55,9 +55,14 @@ class Router
 
         // サービスとアクションを決定
         $this->setServiceAndAction($paths);
-        if (!$pocket->varIsPage() &&
-            !$this->isActionCallable($pocket->varService(), $pocket->varAction())) {
-            throw new \InvalidArgumentException('Not Found', 404);
+        if (!$pocket->varIsPage()) {
+
+            list($actionMethod, $auth) = $this->getCallableAction($pocket->varService(), $pocket->varAction());
+            if ($actionMethod == null) {
+                throw new \InvalidArgumentException('Not Found', 404);
+            }
+            $pocket->varActionMethod($actionMethod);
+            $pocket->varAuth($auth);
         }
 
         // 認証を行う
@@ -130,13 +135,13 @@ class Router
     }
 
     /**
-     * アクションの実行可否をチェックする。
+     * 呼び出し可能なアクションを取得する。
      *
      * ## 説明
      * 命名規則に従い、Serviceファイルをrequireし、該当のActionが実行可能かチェックします。<br>
      * 同時にConfig.verActionMethodの値を更新します。
      */
-    public function isActionCallable(string $service, string $action): bool
+    protected function getCallableAction(string $service, string $action)
     {
         $config = Pocket::getInstance();
         $className = FileUtil::getFqClassName(StringUtil::toCamel($service) . 'Service', [$config->dirApp(), $config->dirSystem()]);
@@ -157,14 +162,12 @@ class Router
                 foreach($httpMethodList as $httpMethod) {
                     $methodName = StringUtil::toCamel("${httpMethod}_${action}_${auth}", true);
                     if(is_callable([$className, $methodName])) {
-                        $config->varAuth($auth);
-                        $config->varActionMethod($methodName);
-                        return true;
+                        return [$methodName, $auth];
                     }
                 }
             }
         }
-        return false;
+        return [null, null];
     }
 
     /**
@@ -214,7 +217,10 @@ class Router
         throw new \InvalidArgumentException($viewPath . ' Not Found', 404);
     }
 
-    private function routingActivation()
+    /**
+     * アクティベーションページを表示するためのルーティング処理。
+     */
+    protected function routingActivation()
     {
         $pocket = Pocket::getInstance();
         $ext = pathinfo($pocket->varCurrentPath(), PATHINFO_EXTENSION);
@@ -222,10 +228,13 @@ class Router
             // faviconなどへのリクエストは無視（ファイルが存在しない場合のみ通る）
             throw new \InvalidArgumentException('Not Found', 404);
         }
-        $pocket->varServiceClass(FileUtil::getFqClassName('AdminService', [$pocket->dirApp(), $pocket->dirSystem()]));
         $pocket->varService('Admin');
+        $pocket->varServiceClass(FileUtil::getFqClassName('AdminService', [$pocket->dirApp(), $pocket->dirSystem()]));
         $pocket->varAction('activate');
-        $pocket->varActionMethod('activate');
+
+        list($actionMethod, $auth) = $this->getCallableAction($pocket->varService(), $pocket->varAction());
+        $pocket->varActionMethod($actionMethod);
+        $pocket->varAuth($auth);
         $pocket->varPrinter(FileUtil::getFqClassName('Printer', [$pocket->dirApp(), $pocket->dirSystem()]));
         $pocket->varPrinterFormat('html');
     }

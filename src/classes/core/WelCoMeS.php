@@ -82,7 +82,7 @@ class WelCoMeS
         $logger->setLogDir($pocket->dirLog());
 
         // Settingテーブルから設定値をロード
-        $this->initializeSettings();
+        $this->loadSettings();
 
         // 初期化完了後、ログレベルを設定値に合わせる
         $logger->setLogLevel($pocket->logLevel());
@@ -107,6 +107,7 @@ class WelCoMeS
             $action = $pocket->varActionMethod();
             $params = $pocket->varActionParams();
             $result = null;
+            $logger->log('debug', 'main', "${serviceClass}::${action} called");
 
             if ($serviceClass) {
                 $service = new $serviceClass();
@@ -166,52 +167,25 @@ class WelCoMeS
     }
 
     /**
-     * SettingテーブルからCMSの設定を取得し、Configに反映する。
-     * Settingテーブルが存在しない（DBが初期化されていない）場合はDBを初期化する。
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    protected function initializeSettings()
-    {
-        $pocket = Pocket::getInstance();
-        $dbFile = $pocket->dbDatabase();
-        if (!file_exists($dbFile)) {
-            $this->initDatabase();
-        }
-        $this->loadSettings();
-    }
-
-    /**
-     * 各種テーブルを作成しCMSを有効化する
-     * （初期設定が行われていない場合のみ実行）
-     */
-    protected function initDatabase()
-    {
-        $logger = Logger::getInstance();
-        $logger->log('trace', 'initialize', 'init database start.');
-
-        $pocket = Pocket::getInstance();
-        include($pocket->dirInitialize() . 'sqlite_init.php');  // TODO sqlite以外の場合も
-
-        $logger->log('trace', 'initialize', 'init database success.');
-    }
-
-    /**
      * Settingテープルから設定をロード
      */
     protected function loadSettings()
     {
         $pocket = Pocket::getInstance();
 
-        $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
-        $settings = $dataAccess->select('Setting');
-        $hash = WelUtil::getMap($settings, 'name', 'value');
-
-        $pocket->settingActivated($hash['Activated']);
+        $settingRepo = WelUtil::getRepository('Setting');
+        $list = $settingRepo->list(['name' => 'Activated']);
+        $activated = count($list) > 0 && intval($list[0]['value']) == 1;
+        $pocket->settingActivated($activated);
         if ($pocket->settingActivated()) {
-            $pocket->settingUrlHome($hash['UrlHome']);
-            $pocket->settingSiteName($hash['SiteName']);
+            $settings = $settingRepo->list(['name' => ['UrlHome', 'SiteName']]);
+            foreach($settings as $setting) {
+                if ($setting['name'] === 'UrlHome') {
+                    $pocket->settingUrlHome($setting['value']);
+                } elseif ($setting['name'] === 'SiteName') {
+                    $pocket->settingSiteName($setting['value']);
+                }
+            }
         }
     }
 
@@ -282,7 +256,7 @@ EOT;
     private function loadConfig($confPath)
     {
         if (!file_exists($confPath)) {
-            throw new \RuntimeException('設定ファイルの読み込みに失敗しました。');
+            throw new Exception('設定ファイルの読み込みに失敗しました。');
         }
         include_once $confPath;
     }

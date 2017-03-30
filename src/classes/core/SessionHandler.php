@@ -47,10 +47,8 @@ class SessionHandler implements \SessionHandlerInterface
      */
     public function read($session_id)
     {
-        $pocket = Pocket::getInstance();
-        $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
-        $sessions = $dataAccess->select('Session', 0, 1, '', ['sessid' => $session_id]);
-
+        $sessionRepository = WelUtil::getRepository('Session');
+        $sessions = $sessionRepository->list(['sessid' => $session_id], '', 0, 1);
         if (count($sessions) > 0) {
             return $sessions[0]['data'];
         } else {
