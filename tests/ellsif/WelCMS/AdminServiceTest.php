@@ -21,7 +21,8 @@ class AdminServiceTest extends \PHPUnit\Framework\TestCase
     public static function setUpBeforeClass()
     {
         self::$dbFiles = [
-            'testLoginSuccess'             => dirname(__FILE__, 3) . '/data/AdminServiceTestLoginSuccess.sqlite',
+            'testLoginSuccess'     => dirname(__FILE__, 3) . '/data/AdminServiceTestLoginSuccess.sqlite',
+            'testPostLoginSuccess' => dirname(__FILE__, 3) . '/data/AdminServiceTestPostLoginSuccess.sqlite',
         ];
 
         foreach(self::$dbFiles as $methodName => $path) {
@@ -47,7 +48,7 @@ class AdminServiceTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * ログイン画面を表示
+     * ログイン画面が表示されることを確認する。
      */
     public function testLoginSuccess()
     {
@@ -56,12 +57,39 @@ class AdminServiceTest extends \PHPUnit\Framework\TestCase
 
         // アクティベーションを済ませておく。
         $settingRepo = WelUtil::getRepository('Setting');
-        $settingRepo->save([['name' => 'activate', 'value' => 1], ['name' => 'siteName', 'value' => 'テストサイト']]);
+        $settingRepo->activation('http://localhost:1349/', 'テストサイト', 'admin', 'password');
 
         $client = new Client();
         $res = $client->get('http://localhost:1349/AdminServiceTestLoginSuccess/admin/login/');
 
         $this->assertEquals(200, $res->getStatusCode());
-        $this->assertEquals('hoge', (string)$res->getBody());
+        $this->assertNotRegExp("/<b>Notice<\/b>/", (string)$res->getBody());
+        $this->assertRegExp('/テストサイト 管理画面ログイン/', (string)$res->getBody());
+    }
+
+    /**
+     * ログインが成功することを確認する。
+     */
+    public function testPostLoginSuccess()
+    {
+        $dbFile = self::$dbFiles[__FUNCTION__];
+        Pocket::getInstance()->dbDatabase($dbFile);
+
+        // ログイン情報の登録。
+        $settingRepo = WelUtil::getRepository('Setting');
+        $settingRepo->activation('http://localhost:1349/', 'テストサイト', 'admin', 'password');
+
+        $client = new Client();
+        $res = $client->post('http://localhost:1349/AdminServiceTestPostLoginSuccess/admin/login/', [
+            'form_params' => [
+                'adminID' => 'admin',
+                'adminPass' => 'password',
+            ],
+            'allow_redirects' => false,
+        ]);
+
+        // ログイン後にリダイレクトされる
+        $this->assertEquals(301, $res->getStatusCode());
+        $this->assertEquals('http://localhost:1349/AdminServiceTestPostLoginSuccess/admin', $res->getHeaderLine('Location'));
     }
 }

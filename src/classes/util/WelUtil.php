@@ -203,7 +203,6 @@ class WelUtil
             $path = $urlInfo['path'];
             if (Pocket::getInstance()->dirWelCMS()) {
                 // index.phpがルートディレクトリに無い場合
-                echo $path;
                 $path = StringUtil::leftRemove($path, '/' . Pocket::getInstance()->dirWelCMS());
                 $urlInfo['path'] = $path;
             }
@@ -412,9 +411,6 @@ class WelUtil
      */
     public static function redirect($path, $code = 301)
     {
-        if (Pocket::getInstance()->dirWelCMS()) {
-            $path = Pocket::getInstance()->dirWelCMS() . $path;
-        }
         $url = (WelUtil::isUrl($path)) ? $path : WelUtil::getUrlBase() . StringUtil::leftRemove($path, '/');
         header("HTTP/1.1 ${code}");
         header( "Location: " . $url);
@@ -431,6 +427,10 @@ class WelUtil
         $urlBase = $urlInfo['scheme'] . '://' . $urlInfo['host'];
         if (intval($urlInfo['port']) != 80) {
             $urlBase .= ':' . $urlInfo['port'];
+        }
+        $urlBase .= '/';
+        if (Pocket::getInstance()->dirWelCMS()) {
+            $urlBase .= Pocket::getInstance()->dirWelCMS();
         }
         return $urlBase;
     }

@@ -83,7 +83,7 @@ class AdminService extends Service
         $pocket = Pocket::getInstance();
 
         $settingRepo = WelUtil::getRepository('Setting');
-        $settings = $settingRepo->list(['name' => 'password']);
+        $settings = $settingRepo->list(['name' => 'adminPass']);
 
         // TODO バリデーションがいる
         if (count($settings) > 0 && isset($settings[0]['value'])) {
@@ -91,7 +91,7 @@ class AdminService extends Service
             // ログイン処理を行う
             $hash = $settings[0]['value'];
 
-            if (Auth::checkHash($data['password'], $hash)) {
+            if (Auth::checkHash($data['adminPass'], $hash)) {
                 $_SESSION['is_admin'] = TRUE;
                 WelUtil::redirect('/admin');
             } else {
@@ -115,9 +115,9 @@ class AdminService extends Service
     /**
      * 管理画面ダッシュボード。
      */
-    protected function index($viewPath, $data)
+    protected function index($params)
     {
-        $this->loadView($viewPath, $data);
+        return new ServiceResult();
     }
 
     /**
