@@ -2,6 +2,7 @@
 
 namespace ellsif\WelCMS;
 
+use ellsif\Logger;
 use ellsif\util\FileUtil;
 use ellsif\util\StringUtil;
 
@@ -31,6 +32,7 @@ class Router
 
         $urlInfo = $pocket->varUrlInfo();
         $paths = $urlInfo['paths'];
+        Logger::getInstance()->log('debug', 'routing', json_encode($paths));
 
         // 出力フォーマットをチェック
         if (!$this->routingSetFormat($paths)) {

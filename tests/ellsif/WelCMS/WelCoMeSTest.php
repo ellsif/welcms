@@ -21,8 +21,8 @@ class WelCoMeSTest extends \PHPUnit\Framework\TestCase
     public static function setUpBeforeClass()
     {
         WelCoMeSTest::$dbFiles = [
-            'testMainInitDB'             => file_exists(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite'),
-            'testMainActivationRedirect' => file_exists(dirname(__FILE__, 3) . '/data/WelCoMeSTestMainActivationRedirect.sqlite'),
+            'testMainInitDB'             => dirname(__FILE__, 3) . '/data/WelCoMeSTestMainInitDB.sqlite',
+            'testMainActivationRedirect' => dirname(__FILE__, 3) . '/data/WelCoMeSTestMainActivationRedirect.sqlite',
             'testMainPostActivationSuccess' => dirname(__FILE__, 3) . '/data/WelCoMeSTestMainPostActivationSuccess.sqlite',
         ];
 

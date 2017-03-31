@@ -19,7 +19,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
         $pocket = Pocket::getInstance();
         $pocket->dbDriver('sqlite');
-        $pocket->dirWelCMS(dirname(__FILE__, 4) .  '/src');
         $pocket->dirSystem(dirname(__FILE__, 4) .  '/src');
         $pocket->dirApp(dirname(__FILE__, 2) . '/stub');
 
@@ -30,9 +29,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         $pocket = Pocket::getInstance();
         $pocket->dbDriver('sqlite');
         $pocket->dbDatabase(dirname(__FILE__, 3) . '/data/SessionHandlerTest.sqlite');
-        $pocket->dirWelCMS(dirname(__FILE__, 4) .  '/src');
-        $pocket->dirSystem(dirname(__FILE__, 4) .  '/src');
-        $pocket->dirApp(dirname(__FILE__, 2) . '/stub/');
         $pocket->dirLog(dirname(__FILE__, 3) . '/logs/');
 
         // テストデータ作成

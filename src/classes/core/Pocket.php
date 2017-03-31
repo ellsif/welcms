@@ -55,25 +55,11 @@ class Pocket
                 'Password' => '',
                 'Database' => '',
                 'Charset' => 'utf8',
-                'SystemTables' => [
-                    'Setting' => 'システムの基本設定。',
-                    'Content' => 'コンテンツデータ。',
-                    'Page' => '個別ページ情報。',
-                    'Template' => 'テンプレート情報。',
-                    'Plugin' => 'プラグイン情報。',
-                    'PluginContent' => 'プラグインが利用するコンテンツデータを格納します。',
-                    'PluginSetting' => 'プラグインの設定。',
-                    'Session' => 'セッション情報。',
-                    'User' => 'ユーザー情報。',
-                    'UserGroup' => 'グループ情報。',
-                    'FormReservation' => 'フォーム予約テーブル。',
-                ],
-                'ApplicationTables' => [
-
-                ],
+                'SystemTables' => [],
+                'ApplicationTables' => [],
             ],
             'dir' => [
-                'WelCMS' => dirname(__FILE__, 3) . '/',
+                'WelCMS' => '',
                 'System' => dirname(__FILE__, 3) . '/',
                 'App' => dirname(__FILE__, 4) . '/app/',
                 'Plugins' => 'plugins',
@@ -462,7 +448,7 @@ class Pocket
      *     $config->dirPlugins('plgin');
      *     echo $config->dirPlugins();  // /your/webroot/welcms/plgin
      */
-    public function dirPlugins(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirWelCMS(), '/'); }
+    public function dirPlugins(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * マイグレーションファイル格納ディレクトリパスのgetter/setter。

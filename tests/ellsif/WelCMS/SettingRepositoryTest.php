@@ -13,7 +13,6 @@ class SettingRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $pocket = Pocket::getInstance();
         $pocket->dbDriver('sqlite');
-        $pocket->dirWelCMS(dirname(__FILE__, 4) .  '/src');
         $pocket->dirSystem(dirname(__FILE__, 4) .  '/src');
         $pocket->dirApp(dirname(__FILE__, 2) . '/stub');
         $pocket->dirRepository(dirname(__FILE__, 4) .  '/src/classes/repository/');

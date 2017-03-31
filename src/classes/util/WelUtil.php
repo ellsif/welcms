@@ -201,6 +201,12 @@ class WelUtil
         $urlInfo = parse_url($url);
         if ($urlInfo !== FALSE) {
             $path = $urlInfo['path'];
+            if (Pocket::getInstance()->dirWelCMS()) {
+                // index.phpがルートディレクトリに無い場合
+                echo $path;
+                $path = StringUtil::leftRemove($path, '/' . Pocket::getInstance()->dirWelCMS());
+                $urlInfo['path'] = $path;
+            }
             $paths = array_filter(explode('/', $path), "strlen");
             $urlInfo['paths'] = array_values($paths);
 

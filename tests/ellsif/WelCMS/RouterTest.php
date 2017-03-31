@@ -15,7 +15,6 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $config = Pocket::getInstance();
         $config->dbDriver('sqlite');
         $config->dbDatabase(dirname(__FILE__, 3) . '/data/RouterTest.sqlite');
-        $config->dirWelCMS(dirname(__FILE__, 4) .  '/src');
         $config->dirSystem(dirname(__FILE__, 4) .  '/src');
         $config->dirApp(dirname(__FILE__, 2) . '/stub');
         require_once $config->dirApp() . '/classes/service/TestService.php';
@@ -72,7 +71,6 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $config->settingActivated(1);
         $config->dbDriver('sqlite');
         $config->dbDatabase(dirname(__FILE__, 3) . '/data/RouterTest.sqlite');
-        $config->dirWelCMS(dirname(__FILE__, 4) .  '/src');
         $config->dirSystem(dirname(__FILE__, 4) .  '/src');
         $config->dirApp(dirname(__FILE__, 2) . '/stub/');
     }
