@@ -415,6 +415,7 @@ class WelUtil
         $url = (WelUtil::isUrl($path)) ? $path : WelUtil::getUrlBase() . StringUtil::leftRemove($path, '/');
         header("HTTP/1.1 ${code}");
         header( "Location: " . $url);
+        exit;
     }
 
     /**

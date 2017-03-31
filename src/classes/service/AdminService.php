@@ -32,6 +32,9 @@ class AdminService extends Service
      */
     public function activate($params)
     {
+        if (Pocket::getInstance()->settingActivated()) {
+            WelUtil::redirect('admin/');
+        }
         return new ServiceResult();
     }
 
@@ -40,6 +43,10 @@ class AdminService extends Service
      */
     public function postActivate($params)
     {
+        if (Pocket::getInstance()->settingActivated()) {
+            WelUtil::redirect('admin/');
+        }
+
         $result = new ServiceResult();
 
         $data = $_POST;
@@ -50,6 +57,9 @@ class AdminService extends Service
         if (Pocket::getInstance()->varValid()) {
             // アクティベーション処理
             $settingRepo->activation($data['urlHome'], $data['siteName'], $data['adminID'], $data['adminPass']);
+            // ログインして管理画面へ
+            $_SESSION['is_admin'] = true;
+            WelUtil::redirect('admin/');
         }
         return $result;
     }
