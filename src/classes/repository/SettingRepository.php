@@ -126,7 +126,7 @@ class SettingRepository extends Repository
                 'valueType' => 'text',
                 'label' => '管理者パスワード',
                 'name' => 'adminPass',
-                'value' => $adminPass,
+                'value' => Auth::getHashed($adminPass),
                 'useInPage' => 0,
             ]
         ]);
