@@ -18,6 +18,8 @@ class ManagerAuth extends Auth
     {
         $config = Pocket::getInstance();
 
-        return ($config->loginManager() || $config->isAdmin());
+        if (!$config->loginManager() && !$config->isAdmin()) {
+            throw new \RuntimeException('Not Authorized', 401);
+        }
     }
 }

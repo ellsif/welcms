@@ -182,6 +182,7 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
     public function testRoutingUserFailure()
     {
+        $this->assertTrue(false);   // TODO リダイレクトにしたのでGuzzleでのテストに変更する必要がある
         $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth1';
 
         $this->expectExceptionCode(401);
@@ -201,6 +202,8 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
     public function testRoutingAdminFailure()
     {
+        $this->assertTrue(false);   // TODO リダイレクトにしたのでGuzzleでのテストに変更する必要がある
+
         $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth2';
         $config = Pocket::getInstance();
         $config->loginUser(['id' => 1]);
@@ -223,6 +226,8 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
     public function testRoutingManagerFailure()
     {
+        $this->assertTrue(false);   // TODO リダイレクトにしたのでGuzzleでのテストに変更する必要がある
+
         $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/auth3';
         $config = Pocket::getInstance();
         $config->loginUser(['id' => 1]);

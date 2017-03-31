@@ -18,6 +18,8 @@ class AdminAuth extends Auth
     {
         $config = Pocket::getInstance();
 
-        return $config->isAdmin();
+        if (!$config->isAdmin()) {
+            throw new \RuntimeException('Not Authorized', 401);
+        }
     }
 }

@@ -12,11 +12,15 @@ abstract class Auth
      * デフォルトでは所定のログインURLへのリダイレクトになります。<br>
      * 例）AdminAuthの場合はadmin/login
      */
-    protected function onAuthError()
+    protected function onAuthError(\Throwable $error)
     {
-        $class = get_class($this);
-        $class = substr($class, strrpos($class, '\\') + 1);
-        WelUtil::redirect('/' . strtolower($class) . '/login');
+        if ($error->getCode() == 401) {
+            $class = get_class($this);
+            $class = substr($class, strrpos($class, '\\') + 1);
+            WelUtil::redirect('/' . strtolower($class) . '/login');
+        } else {
+            throw $error;
+        }
     }
 
     protected abstract function doAuthenticate(): bool;
@@ -26,8 +30,10 @@ abstract class Auth
      */
     public function authenticate()
     {
-        if (!$this->doAuthenticate()) {
-            $this->onAuthError();
+        try {
+            $this->doAuthenticate();
+        } catch(\Throwable $e) {
+            $this->onAuthError($e);
         }
     }
 
