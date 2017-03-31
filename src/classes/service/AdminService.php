@@ -115,7 +115,7 @@ class AdminService extends Service
     /**
      * 管理画面ダッシュボード。
      */
-    protected function index($params)
+    public function index($params)
     {
         return new ServiceResult();
     }

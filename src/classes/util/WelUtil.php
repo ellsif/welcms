@@ -411,7 +411,7 @@ class WelUtil
      */
     public static function redirect($path, $code = 301)
     {
-        $url = (WelUtil::isUrl($path)) ? $path : WelUtil::getUrlBase() . StringUtil::leftRemove($path, '/');
+        $url = (WelUtil::isUrl($path)) ? $path : WelUtil::getUrl() . StringUtil::leftRemove($path, '/');
         header("HTTP/1.1 ${code}");
         header( "Location: " . $url);
         exit;
@@ -421,7 +421,7 @@ class WelUtil
      * ベースURLを取得します。
      * TODO 階層下げた場合の対応が必要。
      */
-    public static function getUrlBase()
+    public static function getUrl($path = '')
     {
         $urlInfo = Pocket::getInstance()->varUrlInfo();
         $urlBase = $urlInfo['scheme'] . '://' . $urlInfo['host'];
@@ -432,6 +432,6 @@ class WelUtil
         if (Pocket::getInstance()->dirWelCMS()) {
             $urlBase .= Pocket::getInstance()->dirWelCMS();
         }
-        return $urlBase;
+        return $urlBase . StringUtil::leftRemove($path, '/');
     }
 }
