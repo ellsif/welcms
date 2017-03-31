@@ -148,6 +148,7 @@ class Router
      */
     protected function getCallableAction(string $service, string $action)
     {
+        Logger::getInstance()->log('debug', 'routing', "service: ${service} action: ${action}");
         $config = Pocket::getInstance();
         $className = FileUtil::getFqClassName(StringUtil::toCamel($service) . 'Service', [$config->dirApp(), $config->dirSystem()]);
         if ($className) {
