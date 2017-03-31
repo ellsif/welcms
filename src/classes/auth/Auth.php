@@ -4,10 +4,32 @@ namespace ellsif\WelCMS;
 
 abstract class Auth
 {
+
+    /**
+     * 認証に失敗した場合のアクションを記述します。
+     *
+     * ## 説明
+     * デフォルトでは所定のログインURLへのリダイレクトになります。<br>
+     * 例）AdminAuthの場合はadmin/login
+     */
+    protected function onAuthError()
+    {
+        $class = get_class($this);
+        $class = substr($class, strrpos($class, '\\') + 1);
+        WelUtil::redirect('/' . strtolower($class) . '/login');
+    }
+
+    protected abstract function doAuthenticate(): bool;
+
     /**
      * 認証処理を行う。
      */
-    public abstract function authenticate();
+    public function authenticate()
+    {
+        if (!$this->doAuthenticate()) {
+            $this->onAuthError();
+        }
+    }
 
     /**
      * ハッシュ化に使うsaltを取得します。

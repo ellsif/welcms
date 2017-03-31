@@ -412,6 +412,9 @@ class WelUtil
      */
     public static function redirect($path, $code = 301)
     {
+        if (Pocket::getInstance()->dirWelCMS()) {
+            $path = Pocket::getInstance()->dirWelCMS() . $path;
+        }
         $url = (WelUtil::isUrl($path)) ? $path : WelUtil::getUrlBase() . StringUtil::leftRemove($path, '/');
         header("HTTP/1.1 ${code}");
         header( "Location: " . $url);

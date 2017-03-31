@@ -9,16 +9,15 @@ namespace ellsif\WelCMS;
 class AdminAuth extends Auth
 {
     /**
-     * 認証処理を行う。
+     * 認証処理を行います。
      *
      * ## 説明
-     * システム管理ユーザー以外の場合は例外をThrowする。
+     * システム管理ユーザー以外のみ許可します。
      */
-    public function authenticate() {
+    protected function doAuthenticate():bool
+    {
         $config = Pocket::getInstance();
 
-        if (!$config->isAdmin()) {
-            throw new \RuntimeException('Not Authorized', 401);
-        }
+        return $config->isAdmin();
     }
 }

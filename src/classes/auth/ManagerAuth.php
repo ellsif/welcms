@@ -14,11 +14,10 @@ class ManagerAuth extends Auth
      * ## 説明
      * 管理ユーザー、システム管理ユーザー以外の場合は例外をThrowする。
      */
-    public function authenticate() {
+    protected function doAuthenticate(): bool
+    {
         $config = Pocket::getInstance();
 
-        if (!$config->loginManager() && !$config->isAdmin()) {
-            throw new \RuntimeException('Not Authorized', 401);
-        }
+        return ($config->loginManager() || $config->isAdmin());
     }
 }
