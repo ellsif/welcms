@@ -478,7 +478,7 @@ class Pocket
      * dirView()のアプリケーション版です。
      * デフォルトはviewsとなります。<br>
      */
-    public function dirViewApp(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirView(), '/'); }
+    public function dirViewApp(...$val) { return $this->getset(__FUNCTION__, $val); }
 
 
     /**
