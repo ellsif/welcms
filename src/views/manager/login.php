@@ -16,7 +16,7 @@ $formError = $config->varFormError();
       <div id="page-wrapper" style="margin:0">
         <div class="row">
           <div class="col-lg-8 col-lg-offset-2">
-            <h1 class="page-header"><?php echo Pocket::getInstance()->settingSiteName()?> システム管理画面ログイン</h1>
+            <h1 class="page-header"><?php echo Pocket::getInstance()->settingSiteName()?> 管理画面ログイン</h1>
           </div>
         </div>
         <div class="row">
@@ -28,11 +28,11 @@ $formError = $config->varFormError();
                 ?>
                 <?php
                   echo Form::formStart(
-                    '/admin/login', [],
+                    '/manager/login', [],
                     [
-                      'adminID' => ['rule' => 'required', 'msg' => '管理者ID : 必須入力です。'],
-                      'adminPass' => [
-                        ['rule' => 'required', 'msg' => '管理者パスワード : 必須入力です。'],
+                      'userId' => ['rule' => 'required', 'msg' => 'ログインID : 必須入力です。'],
+                      'password' => [
+                        ['rule' => 'required', 'msg' => 'パスワード : 必須入力です。'],
                       ],
                     ]
                   );
@@ -40,21 +40,21 @@ $formError = $config->varFormError();
                   <?php
                     // $port = intval($urlInfo['port']) !== 80 ? ':'.$urlInfo['port'] : '';
                     echo Form::formInput(
-                      '管理者ID',
-                      'adminID',
+                      'ログインID',
+                      'userId',
                       [
                         'placeholder' => 'admin@example.com',
-                        'value' => $data['adminID']['value'] ?? '',
-                        'error' => $data['adminID']['error'] ?? '',
+                        'value' => $data['userId']['value'] ?? '',
+                        'error' => $data['userId']['error'] ?? '',
                       ]
                     );
                     echo Form::formInput(
-                      '管理者パスワード',
-                      'adminPass',
+                      'パスワード',
+                      'password',
                       [
                         'type' => 'password',
-                        'value' => $data['adminPass']['value'] ?? '',
-                        'error' => $data['adminPass']['error'] ?? '',
+                        'value' => $data['password']['value'] ?? '',
+                        'error' => $data['password']['error'] ?? '',
                       ]
                     );
                   ?>
