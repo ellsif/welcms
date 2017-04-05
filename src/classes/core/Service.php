@@ -17,30 +17,6 @@ abstract class Service
   }
 
   /**
-   * 認証を行い、権限があればページを表示する。
-   * 出来るだけ継承先では本メソッドを利用してほしい。
-  public function show(array $params)
-  {
-    if (!$this->authenticate($params)) {
-      throw new \Error('Not Authorized', 401);
-    }
-
-    $config = Config::getInstance();
-/*
-    $_viewPath = $action;
-    if (!$viewPath) {
-      $_viewPath = $config->dirView() . $this->getName() . '/' . $action . '.php';
-    }
-    $config->varService(get_class($this));
-    if ($this->$action($_viewPath, $data) && \ellsif\isPost()) {
-      // 予約されたフォームを完了させる
-      Form::passReserve();
-    }
-  }
-*/
-
-
-  /**
    * ページの名前を取得。
    * SomeNamePage -> someName
    *
