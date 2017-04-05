@@ -480,7 +480,6 @@ class Pocket
      */
     public function dirViewApp(...$val) { return $this->getset(__FUNCTION__, $val); }
 
-
     /**
      * View部品ファイル格納ディレクトリパスのgetter/setter。
      *

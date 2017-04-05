@@ -212,7 +212,7 @@ class Router
     public static function getViewPath(string $path = null)
     {
         $pocket = Pocket::getInstance();
-        $viewPath = $path ?? $pocket->dirView() . strtolower($pocket->varService() . '/' . $pocket->varAction()) . '.php';
+        $viewPath = $path ?? (strtolower($pocket->varService() . '/' . $pocket->varAction()) . '.php');
         if (file_exists($pocket->dirViewApp() . $viewPath)) {
             return $pocket->dirViewApp() . $viewPath;
         } elseif (file_exists($pocket->dirView() . $viewPath)) {
