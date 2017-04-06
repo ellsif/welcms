@@ -14,7 +14,7 @@ class AdminAuth extends Auth
      * ## 説明
      * システム管理ユーザー以外のみ許可します。
      */
-    protected function doAuthenticate():bool
+    protected function doAuthenticate()
     {
         $config = Pocket::getInstance();
 

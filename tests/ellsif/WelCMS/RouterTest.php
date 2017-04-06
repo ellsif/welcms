@@ -73,6 +73,7 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $config->dbDatabase(dirname(__FILE__, 3) . '/data/RouterTest.sqlite');
         $config->dirSystem(dirname(__FILE__, 4) .  '/src');
         $config->dirApp(dirname(__FILE__, 2) . '/stub/');
+        $config->dirLog(dirname(__FILE__, 3) . '/logs/');
     }
 
     public function testGetInstance()
@@ -130,6 +131,21 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $config = Pocket::getInstance();
         $this->assertEquals('\ellsif\WelCMS\Printer', $config->varPrinter());
         $this->assertEquals('test', $config->varService());
+        $this->assertEquals('action', $config->varAction());
+    }
+
+    /**
+     * ディレクトリを作った場合のルーティング
+     */
+    public function testRoutingSubDir()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/myserv/test/action';
+
+        $this->router->routing();
+
+        $config = Pocket::getInstance();
+        $this->assertEquals('\ellsif\WelCMS\Printer', $config->varPrinter());
+        $this->assertEquals('myserv/test', $config->varService());
         $this->assertEquals('action', $config->varAction());
     }
 

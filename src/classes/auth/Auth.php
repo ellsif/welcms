@@ -23,7 +23,7 @@ abstract class Auth
         }
     }
 
-    protected abstract function doAuthenticate(): bool;
+    protected abstract function doAuthenticate();
 
     /**
      * 認証処理を行う。

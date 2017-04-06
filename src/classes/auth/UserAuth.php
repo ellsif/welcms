@@ -14,7 +14,8 @@ class UserAuth extends Auth
      * ## 説明
      * ログインユーザー、または管理ユーザー、システム管理ユーザー以外の場合はログイン画面にリダイレクト。
      */
-    protected function doAuthenticate(): bool {
+    protected function doAuthenticate()
+    {
         $config = Pocket::getInstance();
 
         if (!$config->loginUser() && !$config->loginManager() && !$config->isAdmin()) {

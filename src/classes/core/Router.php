@@ -55,16 +55,9 @@ class Router
         // プリンタを選択
         $this->routingSetPrinter();
 
-        // サービスとアクションを決定
-        $this->setServiceAndAction($paths);
-        if (!$pocket->varIsPage()) {
-
-            list($actionMethod, $auth) = $this->getCallableAction($pocket->varService(), $pocket->varAction());
-            if ($actionMethod == null) {
-                throw new \InvalidArgumentException('Not Found', 404);
-            }
-            $pocket->varActionMethod($actionMethod);
-            $pocket->varAuth($auth);
+        // サービスとアクションを取得
+        if (!$this->setServiceAndAction($paths)) {
+            throw new \InvalidArgumentException('Not Found', 404);
         }
 
         // 認証を行う
@@ -97,65 +90,55 @@ class Router
      *
      * ## 説明
      * URLからServiceとAcrionを判定し、ConfingのvarService、varAction、varActionParamsに設定します。
-     *
-     * ### "admin/"で始まる場合
-     * 管理者向けページとして判定します。
-     *
-     * ### "admin/"以外で始まる場合
-     * varServiceにURLの先頭要素、varActionに2番目の要素(無ければ"index")を設定します。
-     * URLの先頭要素が無い場合、ConfigのvarIsTopPageにtrueを設定します。
      */
     protected function setServiceAndAction($paths)
     {
-        $config = Pocket::getInstance();
+        Logger::getInstance()->log('debug', 'routing', "setServiceAndAction paths: " . json_encode($paths));
 
-        if (\strcmp($paths[0], 'admin') === 0) {
-            $config->varIsAdminPage(true);
+        $pocket = Pocket::getInstance();
 
-            // TODO プラグイン関連は未実装
-            /*
-            if ($this->isPlugin($paths[1])) {
-                $service = $paths[1];
-                $action = $paths[2] ?? 'index';
-                $params = array_splice($paths, 3);
-            } else {
-            */
-            $service = $paths[0];
-            $action = $paths[1] ?? 'index';
-            $params = array_splice($paths, 2);
-        } else {
-
-            // その他のページの場合
-            $service = $paths[0] ?? '';
-            $action = $paths[1] ?? 'index';
-            $params = array_splice($paths, 2);
-            if (count($paths) === 0) {
-                $config->varIsTopPage(true);
+        $dir = '';
+        for($i = 0; $i < count($paths); $i++) {
+            $service = $paths[$i];
+            $action = $paths[$i+1] ?? 'index';
+            $callable = $this->getCallableAction($service, $action, $dir);
+            if ($callable) {
+                $pocket->varService($dir . $service);
+                $pocket->varAction(pathinfo($action, PATHINFO_FILENAME));
+                $pocket->varActionParams(array_splice($paths, $i + 2));
+                $pocket->varActionMethod($callable[0]);
+                $pocket->varAuth($callable[1]);
+                return true;
             }
+            $dir .= $service . '/';
         }
-
-        $config->varService($service);
-        $config->varAction(pathinfo($action, PATHINFO_FILENAME));
-        $config->varActionParams($params);
+        return false;
     }
 
     /**
      * 呼び出し可能なアクションを取得する。
      *
      * ## 説明
-     * 命名規則に従い、Serviceファイルをrequireし、該当のActionが実行可能かチェックします。<br>
-     * 同時にConfig.verActionMethodの値を更新します。
+     * 命名規則に従い、Serviceファイルをrequireし、該当のActionが実行可能かチェックします。
+     *
+     * ## 返り値
+     * メソッド名と認証方法の配列を返します。
      */
-    protected function getCallableAction(string $service, string $action)
+    protected function getCallableAction(string $service, string $action, string $dir = '')
     {
         Logger::getInstance()->log('debug', 'routing', "service: ${service} action: ${action}");
-        $config = Pocket::getInstance();
-        $className = FileUtil::getFqClassName(StringUtil::toCamel($service) . 'Service', [$config->dirApp(), $config->dirSystem()]);
+
+        $pocket = Pocket::getInstance();
+        $className = FileUtil::getFqClassName(
+            StringUtil::toCamel($service) . 'Service',
+            [$pocket->dirApp() . 'classes/service/' . $dir, $pocket->dirSystem() . 'classes/service/' . $dir]
+        );
+
         if ($className) {
-            $config->varServiceClass($className);
+            $pocket->varServiceClass($className);
 
             $authList = [];
-            $authClassFileList = FileUtil::getFileList([$config->dirApp() . '/classes/auth', $config->dirSystem() . '/classes/auth']);
+            $authClassFileList = FileUtil::getFileList([$pocket->dirApp() . '/classes/auth', $pocket->dirSystem() . '/classes/auth']);
             foreach($authClassFileList as $authClassFilePath) {
                 $authClassName = pathinfo($authClassFilePath, PATHINFO_FILENAME);
                 if (StringUtil::endsWith($authClassName, 'Auth') && $authClassName !== 'Auth') {
@@ -163,7 +146,7 @@ class Router
                 }
             }
             $authList[] = '';   // 認証不要ページ
-            $httpMethodList = [strtolower($config->varRequestMethod()), ''];
+            $httpMethodList = [strtolower($pocket->varRequestMethod()), ''];
             foreach($authList as $auth) {
                 foreach($httpMethodList as $httpMethod) {
                     $methodName = StringUtil::toCamel("${httpMethod}_${action}_${auth}", true);
@@ -173,7 +156,7 @@ class Router
                 }
             }
         }
-        return [null, null];
+        return null;
     }
 
     /**
