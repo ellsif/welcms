@@ -14,7 +14,7 @@ class ManagerAuth extends Auth
      * ## 説明
      * 管理ユーザー、システム管理ユーザー以外の場合は例外をThrowする。
      */
-    protected function doAuthenticate(): bool
+    protected function doAuthenticate()
     {
         $config = Pocket::getInstance();
 
