@@ -126,9 +126,10 @@ class Router
      */
     protected function getCallableAction(string $service, string $action, string $dir = '')
     {
-        Logger::getInstance()->log('debug', 'routing', "service: ${service} action: ${action}");
-
         $pocket = Pocket::getInstance();
+        Logger::getInstance()->log('debug', 'routing', "service: ${service} action: ${action}");
+        Logger::getInstance()->log('debug', 'routing', "search: ".$pocket->dirApp() . 'classes/service/' . $dir);
+
         $className = FileUtil::getFqClassName(
             StringUtil::toCamel($service) . 'Service',
             [$pocket->dirApp() . 'classes/service/' . $dir, $pocket->dirSystem() . 'classes/service/' . $dir]
@@ -195,7 +196,7 @@ class Router
     public static function getViewPath(string $path = null)
     {
         $pocket = Pocket::getInstance();
-        $viewPath = $path ?? (strtolower($pocket->varService() . '/' . $pocket->varAction()) . '.php');
+        $viewPath = $path ?? (lcfirst($pocket->varService() . '/' . $pocket->varAction()) . '.php');
         if (file_exists($pocket->dirViewApp() . $viewPath)) {
             return $pocket->dirViewApp() . $viewPath;
         } elseif (file_exists($pocket->dirView() . $viewPath)) {
