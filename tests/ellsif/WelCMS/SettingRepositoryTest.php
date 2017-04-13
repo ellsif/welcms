@@ -15,7 +15,6 @@ class SettingRepositoryTest extends \PHPUnit\Framework\TestCase
         $pocket->dbDriver('sqlite');
         $pocket->dirSystem(dirname(__FILE__, 4) .  '/src');
         $pocket->dirApp(dirname(__FILE__, 2) . '/stub');
-        $pocket->dirRepository(dirname(__FILE__, 4) .  '/src/classes/repository/');
         $pocket->dbDatabase(dirname(__FILE__, 3) . '/data/SettingRepositoryTest.sqlite');
     }
 
