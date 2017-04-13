@@ -65,7 +65,6 @@ class Pocket
                 'Plugins' => 'plugins',
                 'Initialize' => '',
                 'Log' => 'logs',
-                'Repository' => dirname(__FILE__, 2) . '/repository/',
                 'View' => dirname(__FILE__, 3) . '/views/',
                 'Part' => 'views/parts',
                 'EntityApp' => 'classes/entity',
@@ -498,16 +497,6 @@ class Pocket
      * デフォルトはviewsとなります。<br>
      */
     public function dirPartApp(...$val) { return $this->getset(__FUNCTION__, $val, $this->dirPart(), '/'); }
-
-    /**
-     * Entityファイル格納ディレクトリパスのgetter/setter。
-     *
-     * ## 説明
-     * View部品ファイル格納ディレクトリのパスを取得、設定します。
-     * 設定はWelCMSを配置したディレクトリからの相対パスで行い、取得は絶対パスで行われる点に注意してください。<br>
-     * デフォルトはviews/partsとなります。<br>
-     */
-    public function dirRepository(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * View部品ファイル格納ディレクトリパスのgetter/setter、アプリケーション版。

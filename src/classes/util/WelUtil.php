@@ -65,29 +65,19 @@ class WelUtil
      */
     public static function getRepository(string $name): \ellsif\WelCMS\Repository
     {
-        $config = Pocket::getInstance();
-        $modelPath = $config->dirRepository() . $name . 'Repository.php';
-        $fileExists = file_exists($modelPath);
-        if ($fileExists) {
-            $nameSpace = FileUtil::getNameSpace($modelPath);
-            $className = "${nameSpace}\\${name}Repository";
+        $pocket = Pocket::getInstance();
+        $className = FileUtil::getFqClassName($name . 'Repository', [$pocket->dirApp(), $pocket->dirSystem()]);
+        if ($className){
             return new $className($name);
         }
 
         // テーブルがあるならば、汎用Entityを返す
-        $dataAccess = WelUtil::getDataAccess($config->dbDriver());
+        $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
         if ($dataAccess->isTableExists($name)) {
             return new \ellsif\WelCMS\Repository($name);
         }
 
-        if ($fileExists) {
-            throw new \InvalidArgumentException("${name}Repositoryの初期化に失敗しました。", 500);
-        } else {
-            throw new \InvalidArgumentException(
-                "${name}Repositoryの初期化に失敗しました。${modelPath}が存在しません。",
-                500
-            );
-        }
+        throw new \InvalidArgumentException("${name}Repositoryの初期化に失敗しました。", 500);
     }
 
     /**
