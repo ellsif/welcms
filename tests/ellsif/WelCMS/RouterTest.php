@@ -124,8 +124,20 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $this->router->routing();
     }
 
+    /**
+     * ルーティング成功。
+     *
+     * ## 条件
+     * - "/サービス/アクション/"形式のURLに対してルーティングを行う
+     *
+     * ## 結果
+     * - Printer、Service，Actionが正しく設定される
+     */
     public function testRoutingDefault()
     {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/action/';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
         $this->router->routing();
 
         $config = Pocket::getInstance();
@@ -135,7 +147,38 @@ class RouterTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * ディレクトリを作った場合のルーティング
+     * パラメータ有りでルーティング成功。
+     *
+     * ## 条件
+     * - "/サービス/アクション/パラメータ1/パラメータ2"形式のURLに対してルーティングを行う
+     *
+     * ## 結果
+     * - Printer、Service，Actionが、ActionParamsが正しく設定される
+     */
+    public function testRoutingDefaultParam()
+    {
+        $_SERVER['REQUEST_URI'] = 'http://localhost.localdomain:8080/test/action/param1/100/param2/200/';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $this->router->routing();
+
+        $config = Pocket::getInstance();
+        $this->assertEquals('\ellsif\WelCMS\Printer', $config->varPrinter());
+        $this->assertEquals('test', $config->varService());
+        $this->assertEquals('action', $config->varAction());
+        $this->assertEquals('["param1","100","param2","200"]', json_encode($config->varActionParams()));
+    }
+
+    /**
+     * サブディレクトリを作った場合にルーティング成功。
+     *
+     * ## 条件
+     * - serviceディレクトリにサブディレクトリを作成
+     * - サブディレクトリ中にServiceクラスファイルを置く
+     * - "/サブディレクトリ/サービス/アクション"形式のURLに対してルーティングを行う
+     *
+     * ## 結果
+     * - Printer、Service，Actionが正しく設定される
      */
     public function testRoutingSubDir()
     {
@@ -196,6 +239,16 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('auth1User', $config->varActionMethod());
     }
 
+    /**
+     * ユーザーログインが必要なページにログイン失敗。
+     *
+     * ## 条件
+     * - ログインしていない
+     * - ユーザーでのログインが必要なURLをリクエストする
+     *
+     * ## 結果
+     * - ログイン画面にリダイレクトする
+     */
     public function testRoutingUserFailure()
     {
         $this->assertTrue(false);   // TODO リダイレクトにしたのでGuzzleでのテストに変更する必要がある
