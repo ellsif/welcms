@@ -53,7 +53,7 @@ trait AdminPageTemplates
     $templates = $dataAccess->select('templates');
     $pageData = [];
     $pageData['templates'] = $templates;
-    $this->loadView($viewPath, $pageData);
+    WelUtil::loadView($viewPath, $pageData);
     return true;
   }
 
@@ -73,7 +73,7 @@ trait AdminPageTemplates
       $template = $dataAccess->get('templates', $id);
     }
     if ($id == null || $template) {
-      $this->loadView($viewPath, ['template' => $template]);
+      WelUtil::loadView($viewPath, ['template' => $template]);
       return true;
     }
     return false;

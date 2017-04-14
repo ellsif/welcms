@@ -52,7 +52,7 @@ class ManagerService extends Service
     public function show404($data = [])
     {
         $config = Pocket::getInstance();
-        $this->loadView($config->dirView() . 'manager/404.php', $data);
+        WelUtil::loadView($config->dirView() . 'manager/404.php', $data);
     }
 
     /**

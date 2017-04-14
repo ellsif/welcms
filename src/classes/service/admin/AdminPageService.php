@@ -140,7 +140,7 @@ trait AdminPageService
     $pages = $pageModel->list();
     $pageData = [];
     $pageData['pages'] = $pages;
-    $this->loadView($viewPath, $pageData);
+    WelUtil::loadView($viewPath, $pageData);
     return true;
   }
 
@@ -184,7 +184,7 @@ trait AdminPageService
       }
     }
     if ($id == null || $page){
-      $this->loadView($viewPath, ['page' => $page, 'contents' => $contents]);
+      WelUtil::loadView($viewPath, ['page' => $page, 'contents' => $contents]);
       return true;
     }
     return false;

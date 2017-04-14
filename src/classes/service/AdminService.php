@@ -109,7 +109,7 @@ class AdminService extends Service
     public function show404($data = [])
     {
         $config = Pocket::getInstance();
-        $this->loadView($config->dirView() . 'admin/404.php', $data);
+        WelUtil::loadView($config->dirView() . 'admin/404.php', $data);
     }
 
     /**

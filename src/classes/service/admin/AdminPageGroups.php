@@ -36,7 +36,7 @@ trait AdminPageGroups
       } else {
         // エラー
       }
-      $this->loadView($viewPath, ['data' => ['result' => $result, 'data' => ['name' => $_POST['name']]]]);
+      WelUtil::loadView($viewPath, ['data' => ['result' => $result, 'data' => ['name' => $_POST['name']]]]);
       return true;
     } else if ($action === 'index') {
       return $this->groupsShowIndex($viewPath);
@@ -67,7 +67,7 @@ trait AdminPageGroups
     foreach($pageData['groups'] as &$group) {
       $group['userLoginIds'] = array_column($usersModel->getUsersByIds($group['userIds']), 'userId');
     }
-    $this->loadView($viewPath, $pageData);
+    WelUtil::loadView($viewPath, $pageData);
     return true;
   }
 }

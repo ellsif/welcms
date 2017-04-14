@@ -31,7 +31,7 @@ trait AdminPageUsers
       } else {
         // エラー
       }
-      $this->loadView($viewPath, ['data' => ['result' => $result, 'data' => ['name' => $name]]]);
+      WelUtil::loadView($viewPath, ['data' => ['result' => $result, 'data' => ['name' => $name]]]);
       return true;
     } else if ($action === 'index') {
       return $this->usersShowIndex($viewPath);
@@ -53,7 +53,7 @@ trait AdminPageUsers
       $userId = intval('');
       $pageData['users'] = $usersModel->list(); // TODO 見せる範囲は同じグループのユーザー？？？？
     }
-    $this->loadView($viewPath, $pageData);
+    WelUtil::loadView($viewPath, $pageData);
     return true;
   }
 }
