@@ -419,9 +419,11 @@ class WelUtil
             $urlBase .= ':' . $urlInfo['port'];
         }
         $urlBase .= '/';
+        /*
         if (Pocket::getInstance()->dirWelCMS()) {
             $urlBase .= Pocket::getInstance()->dirWelCMS();
         }
+        */
         return $urlBase . StringUtil::leftRemove($path, '/');
     }
 
