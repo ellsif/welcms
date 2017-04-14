@@ -215,7 +215,7 @@ class WelCoMeS
 
         for($i = 0; $i < count($array); $i+=2) {
             $key = $array[$i];
-            $val = $array($i+1) ?? null;
+            $val = $array[$i+1] ?? null;
             if (StringUtil::endsWith($key, '[]')) {
                 $result[StringUtil::rightRemove($key, '[]')] = [$val];
             } else {
