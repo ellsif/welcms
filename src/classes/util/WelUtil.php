@@ -483,4 +483,17 @@ class WelUtil
         }
         return $result;
     }
+
+
+    /**
+     * Viewをロードします。
+     */
+    public static function loadView(string $viewPath, array $data = [])
+    {
+        if (!file_exists($viewPath)) {
+            throw new \Error("File ${viewPath} Not Found", 404);
+        }
+        extract($data);
+        include $viewPath;
+    }
 }

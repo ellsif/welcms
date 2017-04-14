@@ -26,7 +26,7 @@ class Printer
             $viewPath = Router::getViewPath($viewPath);
         }
         $data = $result ? $result->resultData() : [];
-        $this->loadView($viewPath, $data);
+        WelUtil::loadView($viewPath, $data);
     }
 
     /**
@@ -39,7 +39,7 @@ class Printer
             http_response_code(500);
         }
         if ($result->getView('json')) {
-            $this->loadView($result->getView('json'), $result->resultData());
+            WelUtil::loadView($result->getView('json'), $result->resultData());
         } else {
             echo json_encode(["result" =>$result->resultData()]);
         }
@@ -111,17 +111,5 @@ class Printer
     public function svg($result)
     {
 
-    }
-
-    /**
-     * Viewを読み込む。
-     */
-    protected function loadView(string $viewPath, array $data = [])
-    {
-        if (!file_exists($viewPath)) {
-            throw new \Error("File ${viewPath} Not Found", 404);
-        }
-        extract($data);
-        include $viewPath;
     }
 }

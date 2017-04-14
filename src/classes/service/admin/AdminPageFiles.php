@@ -48,7 +48,7 @@ trait AdminPageFiles
 
     $data = [];
     $data['files'] = $files;
-    $this->loadView($viewPath, $data);
+    WelUtil::loadView($viewPath, $data);
     return true;
   }
 
