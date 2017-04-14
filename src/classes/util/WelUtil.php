@@ -424,4 +424,61 @@ class WelUtil
         }
         return $urlBase . StringUtil::leftRemove($path, '/');
     }
+
+
+
+
+    /**
+     * パラメータの配列から連想配列を作ります。
+     *
+     * ## 説明
+     * "/service/action/var1/10/var2/100"のようなリクエストから得られる
+     * パラメータをハッシュにして返します。
+     *
+     * ## パラメータ
+     *
+     *     ['var1', '10', 'var2', '100', 'var2', '20', 'var3[]', '1', 'var3[]', '2', 'var4[foo]', 'foo', 'var4[bar]', 'bar']
+     *
+     * ## 返り値
+     * 奇数番をキー、偶数番を値とした連想配列を返します。
+     * $arrayのサイズが奇数の場合、最後の値はnullになります。
+     * キーが重複する場合は後で指定された値で上書きされます。
+     * ただし、キーの末尾が'[]'の場合、配列として、'[key]'の場合はハッシュとして追加されます。
+     *
+     *     [
+     *       'var1' => '10',
+     *       'var2' => '20',
+     *       'var3' => ['1', '2'],
+     *       'var4' => ['foo' => 'foo', 'bar' => 'bar']
+     *     ]
+     */
+    public static function getParamMap($array)
+    {
+        $result = [];
+
+        for($i = 0; $i < count($array); $i+=2) {
+            $key = $array[$i];
+            $val = $array[$i+1] ?? null;
+
+            if (StringUtil::endsWith($key, '[]')) {
+                $key = StringUtil::rightRemove($key, '[]');
+                if (isset($result[$key]) && is_array($result[$key])) {
+                    $result[$key][] = $val;
+                } else {
+                    $result[$key] = [$val];
+                }
+            } elseif (StringUtil::endsWith($key, ']') && ($pos = mb_strpos($key, '[')) > 0) {
+                $subKey = mb_substr($key, $pos+1, -1);
+                $key = mb_substr($key, 0, $pos);
+                if (isset($result[$key]) && is_array($result[$key])) {
+                    $result[$key][$subKey] = $val;
+                } else {
+                    $result[$key] = [$subKey => $val];
+                }
+            } else {
+                $result[$key] = $val;
+            }
+        }
+        return $result;
+    }
 }
