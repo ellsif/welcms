@@ -103,7 +103,11 @@ class SqliteAccess extends DataAccess
             throw new \Exception("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT COUNT(*) FROM " . $this->pdo->quote($name);
-        $stmt = $this->pdo->prepare($sql);
+        list($whereSql, $values) = $this->createWhereQuery($filter);
+        $stmt = $this->pdo->prepare($sql . ' ' . $whereSql);
+        foreach($values as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
         if ($stmt->execute()) {
             return $stmt->fetchColumn();
         } else {
@@ -146,34 +150,15 @@ class SqliteAccess extends DataAccess
      * @param array $options
      * @return array
      */
-    public function select(string $name, int $offset = 0, int $limit = -1, string $order = '', array $options = []) :array
+    public function select(string $name, int $offset = 0, int $limit = -1, string $order = '', array $filter = []) :array
     {
         if (!in_array($name, $this->tables)) {
             throw new \InvalidArgumentException("${name}テーブルは存在しません。", -1);
         }
-        $sql = "SELECT * FROM " . $this->pdo->quote($name);
-        $columns = [];
-        $values = [];
-        foreach($options as $key => $val) {
-            if (is_array($val)) {
-                // 配列はin句で処理
-                $inColumns = [];
-                foreach ($val as $idx => $_val) {
-                    $inColumns[] = ":${key}_${idx}";
-                    $values[":${key}_${idx}"] = $_val;
-                }
-                $columns[] = "${key} IN (" . implode(',', $inColumns) . ")";
-            } else {
-                $columns[] = "${key} = :${key}";
-                $values[":${key}"] = $val;
-            }
-        }
-        if (count($columns) > 0) {
-            $sql .= ' WHERE ' . implode(' AND ', $columns);
-        }
-        if ($order) {
-            $sql .= " ORDER BY ${order}";
-        }
+        $sql = "SELECT * FROM " . $this->pdo->quote($name) . ' ';
+        list($whereSql, $values) = $this->createWhereQuery($filter, $order, $limit, $offset);
+        $sql .= $whereSql;
+
         $stmt = $this->pdo->prepare($sql);
         foreach($values as $key => $val) {
             $stmt->bindValue($key, $val);
@@ -181,7 +166,7 @@ class SqliteAccess extends DataAccess
         if ($stmt->execute()) {
             $results = $stmt->fetchAll(PDO::FETCH_NAMED);
             $this->logger->log('debug', 'sql', WelUtil::getPdoDebug($stmt));
-            $this->logger->log('debug', 'sql', "options: " . json_encode($options));
+            $this->logger->log('debug', 'sql', "options: " . json_encode($filter));
             $this->logger->log('debug', 'sql', json_encode($results));
             return $results;
         } else {
@@ -479,5 +464,45 @@ class SqliteAccess extends DataAccess
             'timestamp' => 'TIMESTAMP',
         ];
         return $conv[$type] ?? 'TEXT';
+    }
+
+    /**
+     * SQLのWHERE以降を生成します。
+     */
+    private function createWhereQuery($filter, $order = '', $limit = -1, $offset = 0): array
+    {
+        $whereSql = '';
+        $columns = [];
+        $values = [];
+        foreach($filter as $key => $val) {
+            if (is_array($val)) {
+                // 配列はin句で処理
+                $inColumns = [];
+                foreach ($val as $idx => $_val) {
+                    $inColumns[] = ":${key}_${idx}";
+                    $values[":${key}_${idx}"] = $_val;
+                }
+                $columns[] = "${key} IN (" . implode(',', $inColumns) . ")";
+            } else {
+                $columns[] = "${key} = :${key}";
+                $values[":${key}"] = $val;
+            }
+        }
+
+        if (count($columns) > 0) {
+            $whereSql .= ' WHERE ' . implode(' AND ', $columns);
+        }
+        if ($order) {
+            $whereSql .= " ORDER BY ${order}";
+        }
+        // limitとoffset
+        if (($limit = intval($limit)) > 0) {
+            $whereSql .= " LIMIT ${limit}";
+        }
+        if (($offset = intval($offset)) > 0) {
+            $whereSql .= " OFFSET ${offset}";
+        }
+
+        return [$whereSql, $values];
     }
 }
