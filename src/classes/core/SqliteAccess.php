@@ -485,7 +485,7 @@ class SqliteAccess extends DataAccess
     /**
      * SQLのWHERE以降を生成します。
      */
-    protected function createWhereSql($filter): array
+    public function createWhereSql($filter): array
     {
         $whereSql = '';
         $columns = [];
