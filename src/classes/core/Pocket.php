@@ -57,6 +57,7 @@ class Pocket
                 'Charset' => 'utf8',
                 'SystemTables' => [],
                 'ApplicationTables' => [],
+                'Pdo' => null,
             ],
             'dir' => [
                 'WelCMS' => '',
@@ -363,6 +364,8 @@ class Pocket
      * @var string $dbPassword 現時点で未使用
      */
     public function dbPassword(...$val) { return $this->getset(__FUNCTION__, $val); }
+
+    public function dbPdo(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * DB名のgetter/setter。

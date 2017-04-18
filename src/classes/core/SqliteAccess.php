@@ -9,7 +9,6 @@ use \PDO;
 
 class SqliteAccess extends DataAccess
 {
-    private $logger = null;
     private $pdo = null;
     private $tables = [];
 
@@ -17,27 +16,33 @@ class SqliteAccess extends DataAccess
      * コンストラクタ。
      *
      * ## 説明
-     * SqliteAccessはコンストラクタでPDOの初期化を行います。
-     * TODO 呼ばれすぎなのでPocketに入れよう。
+     * PDOの初期化を行います。
      *
      * ## 例外/エラー
      * PDOの初期化に失敗した場合、Exceptionをthrowします。
      */
     public function __construct()
     {
-        $config = Pocket::getInstance();
+        $pocket = Pocket::getInstance();
 
-        $this->pdo = new PDO('sqlite:' . $config->dbDatabase());
+        if ($pocket->dbPdo()) {
+            $this->pdo = $pocket->dbPdo();
+        } else {
+            try {
+                $this->pdo = new PDO(
+                    'sqlite:' . $pocket->dbDatabase(),
+                    $pocket->dbUsername(),
+                    $pocket->dbPassword()
+                );
 
-        // TODO ロック解除待ち時間（が、ここじゃない気がする）
-        //$this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 20);
-        if (!$this->pdo) {
-            throw new Exception('PDOの初期化に失敗しました。');
+            } catch (\PDOException $e) {
+                throw new Exception('PDOの初期化に失敗しました。');
+            }
+
+            $this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 20);  // ロックされている場合の解除待ち
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pocket->dbPdo($this->pdo);
         }
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->tables = $this->getTables();
-        $this->logger = Logger::getInstance();
-        $this->logger->log('debug', 'debug', 'tables: ' . implode(',', $this->tables));
     }
 
     /**
@@ -73,7 +78,7 @@ class SqliteAccess extends DataAccess
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $this->pdo->quote($name) . ' (' . implode(',', $columnDefs) . ')';
         $stmt = $this->pdo->prepare($sql);
         if ($stmt->execute()) {
-            $this->tables[] = $name;
+            $this->tables(true); // テーブル一覧を更新する
             return true;
         }
         return false;
@@ -99,7 +104,7 @@ class SqliteAccess extends DataAccess
      */
     public function count(string $name, array $filter = [])
     {
-        if (!in_array($name, $this->tables)) {
+        if (!in_array($name, $this->tables())) {
             throw new \Exception("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT COUNT(*) FROM " . $this->pdo->quote($name);
@@ -114,7 +119,7 @@ class SqliteAccess extends DataAccess
         if ($stmt->execute()) {
             return $stmt->fetchColumn();
         } else {
-            $this->logger->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
+            Logger::getInstance()->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \Exception("${name}からのデータの取得に失敗しました。");
         }
     }
@@ -138,7 +143,7 @@ class SqliteAccess extends DataAccess
                 return null;
             }
         } else {
-            $this->logger->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
+            Logger::getInstance()->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \Exception("${name}からのデータの取得に失敗しました。");
         }
     }
@@ -155,7 +160,7 @@ class SqliteAccess extends DataAccess
      */
     public function select(string $name, int $offset = 0, int $limit = -1, string $order = '', array $filter = []) :array
     {
-        if (!in_array($name, $this->tables)) {
+        if (!in_array($name, $this->tables())) {
             throw new \InvalidArgumentException("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT * FROM " . $this->pdo->quote($name) . ' ';
@@ -181,12 +186,12 @@ class SqliteAccess extends DataAccess
         }
         if ($stmt->execute()) {
             $results = $stmt->fetchAll(PDO::FETCH_NAMED);
-            $this->logger->log('debug', 'sql', WelUtil::getPdoDebug($stmt));
-            $this->logger->log('debug', 'sql', "options: " . json_encode($filter));
-            $this->logger->log('debug', 'sql', json_encode($results));
+            Logger::getInstance()->log('debug', 'sql', WelUtil::getPdoDebug($stmt));
+            Logger::getInstance()->log('debug', 'sql', "options: " . json_encode($filter));
+            Logger::getInstance()->log('debug', 'sql', json_encode($results));
             return $results;
         } else {
-            $this->logger->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
+            Logger::getInstance()->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \RuntimeException("${name}からのデータの取得に失敗しました。");
         }
     }
@@ -207,7 +212,7 @@ class SqliteAccess extends DataAccess
             $results = $stmt->fetchAll(PDO::FETCH_NAMED);
             return $results;
         } else {
-            $this->logger->log('error', "DataAccess", "データの取得に失敗しました。" . $stmt->errorCode());
+            Logger::getInstance()->log('error', "DataAccess", "データの取得に失敗しました。" . $stmt->errorCode());
             throw new \Exception("データの取得に失敗しました。");
         }
     }
@@ -233,7 +238,7 @@ class SqliteAccess extends DataAccess
      */
     public function insert(string $name, array $data) :int
     {
-        $this->logger->log('trace', 'DataAccess', "INSERT to ${name} start data:" . json_encode($data));
+        Logger::getInstance()->log('trace', 'DataAccess', "INSERT to ${name} start data:" . json_encode($data));
 
         $data = $this->addCreatedAt($data);
 
@@ -248,12 +253,12 @@ class SqliteAccess extends DataAccess
         foreach($columns as $column) {
             $stmt->bindValue(":${column}", $data[$column]);
         }
-        $this->logger->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         try {
             $stmt->execute();
         } catch(\Exception $e) {
             $errorInfo = $stmt->errorInfo();
-            $this->logger->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}へのINSERTに失敗しました。", 0, $e);
         }
         $id = $this->pdo->lastInsertId();
@@ -270,7 +275,7 @@ class SqliteAccess extends DataAccess
      */
     public function update(string $name, int $id, array $data) :bool
     {
-        $this->logger->log('trace', 'DataAccess', "UPDATE to ${name} data:" . json_encode($data));
+        Logger::getInstance()->log('trace', 'DataAccess', "UPDATE to ${name} data:" . json_encode($data));
 
         $data = $this->addUpdatedAt($data);
 
@@ -283,10 +288,10 @@ class SqliteAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
         $stmt->bindValue(':id', $id);
-        $this->logger->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            $this->logger->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のUPDATEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -319,10 +324,10 @@ class SqliteAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
 
-        $this->logger->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            $this->logger->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のUPDATEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -357,10 +362,10 @@ class SqliteAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
 
-        $this->logger->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            $this->logger->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のDELETEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -382,17 +387,19 @@ class SqliteAccess extends DataAccess
      *
      * @return array
      */
-    public function getTables() :array
+    public function tables($force = false) :array
     {
-        $tables = [];
-        $sql = "SELECT name FROM sqlite_master WHERE type = 'table'";
-        $stmt = $this->pdo->prepare($sql);
-        if ($stmt->execute()) {
-            foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $row) {
-                $tables[] = $row->name;
+        if ($force || empty($this->tables)) {
+            $this->tables = [];
+            $sql = "SELECT name FROM sqlite_master WHERE type = 'table'";
+            $stmt = $this->pdo->prepare($sql);
+            if ($stmt->execute()) {
+                foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $row) {
+                    $this->tables[] = $row->name;
+                }
             }
         }
-        return $tables;
+        return $this->tables;
     }
 
     /**
