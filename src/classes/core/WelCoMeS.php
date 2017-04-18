@@ -112,7 +112,11 @@ class WelCoMeS
 
             if ($serviceClass) {
                 $service = new $serviceClass();
-                $result = $service->$action(WelUtil::getParamMap($params));
+                $actionParams = WelUtil::getParamMap($params);
+                if ($pocket->varRequestMethod() === 'GET') {
+                    $actionParams = array_merge($actionParams, $_GET);
+                }
+                $result = $service->$action($actionParams);
             }
 
             // フォーマットに対応するPrinterを初期化
