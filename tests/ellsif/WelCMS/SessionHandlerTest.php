@@ -1,6 +1,7 @@
 <?php
 namespace ellsif\WelCms\Test;
 
+use ellsif\Logger;
 use ellsif\WelCMS\SessionHandler;
 use ellsif\WelCMS\Pocket;
 use ellsif\WelCMS\WelUtil;
@@ -30,6 +31,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         $pocket->dbDriver('sqlite');
         $pocket->dbDatabase(dirname(__FILE__, 3) . '/data/SessionHandlerTest.sqlite');
         $pocket->dirLog(dirname(__FILE__, 3) . '/logs/');
+        Logger::getInstance()->setLogDir($pocket->dirLog());
 
         // テストデータ作成
         $dataAccess = WelUtil::getDataAccess('sqlite');
@@ -76,6 +78,9 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
     }
     */
 
+    /**
+     * セッションの読み書きに成功することを確認する。
+     */
     public function testSessionReadWriteSuccess()
     {
         session_start();
@@ -92,6 +97,17 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(1, $sessions);
         $session = $sessions[0];
         $this->assertEquals('test1|i:100;test2|s:4:"test";', $session['data']);
+
+        // 同セッションに対しては上書きとなること
+        session_start();
+        $_SESSION['test1'] = 200;
+        $_SESSION['test2'] = 'update';
+        session_write_close();
+        $sessions = $sessionRepository->list(['sessid' => $sessionId]);
+        $this->assertCount(1, $sessions);
+        $session = $sessions[0];
+        $this->assertEquals('test1|i:200;test2|s:6:"update";', $session['data']);
+
     }
 
     // TODO GCのテストをしたい
