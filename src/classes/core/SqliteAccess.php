@@ -103,8 +103,11 @@ class SqliteAccess extends DataAccess
             throw new \Exception("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT COUNT(*) FROM " . $this->pdo->quote($name);
-        list($whereSql, $values) = $this->createWhereQuery($filter);
-        $stmt = $this->pdo->prepare($sql . ' ' . $whereSql);
+        list($whereSql, $values) = $this->createWhereSql($filter);
+        if ($whereSql) {
+            $sql .= ' WHERE ' . $whereSql;
+        }
+        $stmt = $this->pdo->prepare($sql);
         foreach($values as $key => $val) {
             $stmt->bindValue($key, $val);
         }
@@ -156,8 +159,21 @@ class SqliteAccess extends DataAccess
             throw new \InvalidArgumentException("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT * FROM " . $this->pdo->quote($name) . ' ';
-        list($whereSql, $values) = $this->createWhereQuery($filter, $order, $limit, $offset);
-        $sql .= $whereSql;
+        list($whereSql, $values) = $this->createWhereSql($filter, $order, $limit, $offset);
+        if ($whereSql) {
+            $sql .= ' WHERE ' . $whereSql;
+        }
+
+        if ($order) {
+            $sql .= " ORDER BY ${order}";
+        }
+        // limitとoffset
+        if (($limit = intval($limit)) > 0) {
+            $sql .= " LIMIT ${limit}";
+        }
+        if (($offset = intval($offset)) > 0) {
+            $sql .= " OFFSET ${offset}";
+        }
 
         $stmt = $this->pdo->prepare($sql);
         foreach($values as $key => $val) {
@@ -469,7 +485,7 @@ class SqliteAccess extends DataAccess
     /**
      * SQLのWHERE以降を生成します。
      */
-    private function createWhereQuery($filter, $order = '', $limit = -1, $offset = 0): array
+    protected function createWhereSql($filter): array
     {
         $whereSql = '';
         $columns = [];
@@ -490,19 +506,8 @@ class SqliteAccess extends DataAccess
         }
 
         if (count($columns) > 0) {
-            $whereSql .= ' WHERE ' . implode(' AND ', $columns);
+            $whereSql .= implode(' AND ', $columns);
         }
-        if ($order) {
-            $whereSql .= " ORDER BY ${order}";
-        }
-        // limitとoffset
-        if (($limit = intval($limit)) > 0) {
-            $whereSql .= " LIMIT ${limit}";
-        }
-        if (($offset = intval($offset)) > 0) {
-            $whereSql .= " OFFSET ${offset}";
-        }
-
         return [$whereSql, $values];
     }
 }
