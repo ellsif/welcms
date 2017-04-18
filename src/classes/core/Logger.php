@@ -35,6 +35,12 @@ class Logger
         }
     }
 
+    /**
+     * ログ出力を行います。
+     *
+     * ## 説明
+     *
+     */
     public function log($level, $label, $message)
     {
         if ($level == null) {
@@ -45,6 +51,10 @@ class Logger
         if ($logLevel !== FALSE &&  $logLevel <= array_search($this->logLevel, Logger::LOG_LEVELS)) {
             // ログ出力
             $log = WelUtil::getDateTime() . $this->delim . $level . $this->delim . $label . $this->delim . $message;
+            if ($level === 'debug' || $level === 'trace') {
+                $debug = debug_backtrace();
+                $log .= $this->delim . "file: " . $debug[0]['file'] . "(line: " . $debug[0]['line'] . ")";
+            }
             if ($this->logDir) {
                 $path = $this->logDir . WelUtil::getDate('Y-m') . '.log';
                 FileUtil::writeFile($path, $log);
