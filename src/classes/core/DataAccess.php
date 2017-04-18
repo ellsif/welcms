@@ -282,12 +282,12 @@ abstract class DataAccess
 
     public abstract function getColumns(string $tableName): array;
 
-    public abstract function getTables() :array;
+    public abstract function tables() :array;
 
     public abstract function convertType($type) :string;
 
     public function isTableExists($tableName): bool
     {
-        return in_array($tableName, $this->getTables());
+        return in_array($tableName, $this->tables());
     }
 }

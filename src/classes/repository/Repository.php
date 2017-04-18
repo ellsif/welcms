@@ -129,10 +129,10 @@ class Repository
             $pocket = Pocket::getInstance();
             $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
 
-            if (isset($saveData['id']) && is_numeric($saveData['id'])) {
+            if (isset($row['id']) && is_numeric($row['id'])) {
                 // 更新
                 Logger::getInstance()->log('debug', 'update', json_encode($saveData));
-                if (!$dataAccess->update($this->getEntityName(), $saveData['id'], $saveData)) {
+                if (!$dataAccess->update($this->getEntityName(), $row['id'], $saveData)) {
                     throw new \RuntimeException('データの更新に失敗しました。');
                 }
             } else {
