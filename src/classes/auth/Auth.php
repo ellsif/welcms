@@ -2,6 +2,8 @@
 
 namespace ellsif\WelCMS;
 
+use ellsif\util\StringUtil;
+
 abstract class Auth
 {
 
@@ -17,7 +19,7 @@ abstract class Auth
         if ($error->getCode() == 401) {
             $class = get_class($this);
             $class = substr($class, strrpos($class, '\\') + 1);
-            WelUtil::redirect('/' . strtolower($class) . '/login');
+            WelUtil::redirect(strtolower(StringUtil::rightRemove($class, 'Auth')) . '/login');
         } else {
             throw $error;
         }
