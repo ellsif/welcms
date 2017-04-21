@@ -60,6 +60,7 @@ class Pocket
                 'Pdo' => null,
             ],
             'dir' => [
+                'Root' => '',
                 'WelCMS' => '',
                 'System' => dirname(__FILE__, 3) . '/',
                 'App' => dirname(__FILE__, 4) . '/app/',

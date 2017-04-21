@@ -38,6 +38,7 @@ class ManagerService extends Service
 
             if (Auth::checkHash($data['password'], $hash)) {
                 $_SESSION['user_id'] = $data['userId'];
+                $pocket->loginManager($user);
                 WelUtil::redirect('/manager');
             }
         }
