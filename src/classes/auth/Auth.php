@@ -14,8 +14,10 @@ abstract class Auth
     {
         if ($_SESSION['manager_id']) {
             $managerRepo = WelUtil::getRepository('Manager');
-            $manager = $managerRepo->get($_SESSION['manager_id']);
-            Pocket::getInstance()->loginManager($manager);
+            $manager = $managerRepo->list(['managerId' => $_SESSION['manager_id']]);
+            if (count($manager) == 0) {
+                Pocket::getInstance()->loginManager($manager[0]);
+            }
         }
     }
 
