@@ -459,24 +459,25 @@ class WelUtil
         for($i = 0; $i < count($array); $i+=2) {
             $key = $array[$i];
             $val = $array[$i+1] ?? null;
+            $keys = [$key];
 
-            if (StringUtil::endsWith($key, '[]')) {
-                $key = StringUtil::rightRemove($key, '[]');
-                if (isset($result[$key]) && is_array($result[$key])) {
-                    $result[$key][] = $val;
-                } else {
-                    $result[$key] = [$val];
-                }
-            } elseif (StringUtil::endsWith($key, ']') && ($pos = mb_strpos($key, '[')) > 0) {
-                $subKey = mb_substr($key, $pos+1, -1);
-                $key = mb_substr($key, 0, $pos);
-                if (isset($result[$key]) && is_array($result[$key])) {
-                    $result[$key][$subKey] = $val;
-                } else {
-                    $result[$key] = [$subKey => $val];
-                }
+            // 配列の場合
+            if (($startPos = mb_strpos($key, '[')) < ($endPos = mb_strrpos($key, ']'))) {
+                $keys = [mb_substr($key, 0, $startPos)];
+                $keyStr = mb_substr($key, $startPos + 1, $endPos - $startPos - 1);
+                $subKeys = explode('][', $keyStr);
+                $keys = array_merge($keys, $subKeys);
+            }
+            $target =& $result;
+            for($j = 0; $j < count($keys) - 1; $j++) {
+                $key = $keys[$j];
+                if (!array_key_exists($key, $target)) $target[$key] = [];
+                $target =& $target[$key];
+            }
+            if ($keys[count($keys)-1] === '') {
+                $target[] = $val;
             } else {
-                $result[$key] = $val;
+                $target[$keys[count($keys)-1]] = $val;
             }
         }
         return $result;
