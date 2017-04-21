@@ -60,7 +60,7 @@ class Pocket
                 'Pdo' => null,
             ],
             'dir' => [
-                'Root' => '',
+                'WebRoot' => '',
                 'WelCMS' => '',
                 'System' => dirname(__FILE__, 3) . '/',
                 'App' => dirname(__FILE__, 4) . '/app/',
@@ -77,6 +77,7 @@ class Pocket
                 'FileAccessClass' => '\ellsif\LocalFileAccess', // ファイル管理に利用するファイルアクセスクラス
             ],
             'var' => [
+                'Root' => '',
                 'isAdminPage' => false,
                 'isPage' => false,
                 'isTopPage' => false,
@@ -419,7 +420,8 @@ class Pocket
      *
      *     /your/webroot/
      */
-    public function dirRoot(...$val) { return $this->getset(__FUNCTION__, $val); }
+    public function dirWebRoot(...$val) { return $this->getset(__FUNCTION__, $val); }
+    public function varRoot(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * システムディレクトリパスのgetter/setter。

@@ -420,8 +420,8 @@ class WelUtil
         }
         $urlBase .= '/';
 
-        if (Pocket::getInstance()->dirRoot()) {
-            $urlBase .= Pocket::getInstance()->dirRoot();
+        if (Pocket::getInstance()->varRoot()) {
+            $urlBase .= Pocket::getInstance()->varRoot();
         }
         return $urlBase . StringUtil::leftRemove($path, '/');
     }
