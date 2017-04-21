@@ -78,14 +78,14 @@ class ManagerServiceTest extends \PHPUnit\Framework\TestCase
         $settingRepo->activation('http://localhost:1349/', 'テストサイト', 'admin', 'password');
 
         // ユーザーを登録しておく
-        $userRepo = WelUtil::getRepository('User');
-        $userRepo->save([['userId' => 'manager', 'password' => Auth::getHashed('password')]]);
+        $managerRepo = WelUtil::getRepository('Manager');
+        $managerRepo->save([['managerId' => 'manager', 'password' => Auth::getHashed('password')]]);
 
         // ログイン処理開始
         $client = new Client(['cookies' => true]);
         $res = $client->post('http://localhost:1349/ManagerServiceTestLogin/manager/login/', [
             'form_params' => [
-                'userId' => 'manager',
+                'managerId' => 'manager',
                 'password' => 'password',
             ],
             'allow_redirects' => false,
