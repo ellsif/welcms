@@ -27,9 +27,17 @@ class WelUtilTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetParamMapSuccess()
     {
-        $param = ['var1', '10', 'var2', '100', 'var2', '20', 'var3[]', '1', 'var3[]', '2', 'var4[foo]', 'foooo', 'var4[bar]', 'barrr'];
+        $param = [
+            'var1', '10',
+            'var2', '100',
+            'var2', '20',
+            'var3[]', '1',
+            'var3[]', '2',
+            'var4[foo]', 'foooo',
+            'var4[bar][foo]', 'barrr'
+        ];
 
         $result = WelUtil::getParamMap($param);
-        $this->assertEquals('{"var1":"10","var2":"20","var3":["1","2"],"var4":{"foo":"foooo","bar":"barrr"}}', json_encode($result));
+        $this->assertEquals('{"var1":"10","var2":"20","var3":["1","2"],"var4":{"foo":"foooo","bar":{"foo":"barrr"}}}', json_encode($result));
     }
 }
