@@ -30,7 +30,7 @@ $formError = $config->varFormError();
                   echo Form::formStart(
                     '/manager/login', [],
                     [
-                      'userId' => ['rule' => 'required', 'msg' => 'ログインID : 必須入力です。'],
+                      'managerId' => ['rule' => 'required', 'msg' => 'ログインID : 必須入力です。'],
                       'password' => [
                         ['rule' => 'required', 'msg' => 'パスワード : 必須入力です。'],
                       ],
@@ -41,11 +41,11 @@ $formError = $config->varFormError();
                     // $port = intval($urlInfo['port']) !== 80 ? ':'.$urlInfo['port'] : '';
                     echo Form::formInput(
                       'ログインID',
-                      'userId',
+                      'managerId',
                       [
                         'placeholder' => 'admin@example.com',
-                        'value' => $data['userId']['value'] ?? '',
-                        'error' => $data['userId']['error'] ?? '',
+                        'value' => $data['managerId']['value'] ?? '',
+                        'error' => $data['managerId']['error'] ?? '',
                       ]
                     );
                     echo Form::formInput(

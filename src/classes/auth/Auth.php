@@ -8,6 +8,18 @@ abstract class Auth
 {
 
     /**
+     * 認証に必要な情報を初期化します。
+     */
+    public function __construct()
+    {
+        if ($_SESSION['manager_id']) {
+            $managerRepo = WelUtil::getRepository('Manager');
+            $manager = $managerRepo->get($_SESSION['manager_id']);
+            Pocket::getInstance()->loginManager($manager);
+        }
+    }
+
+    /**
      * 認証に失敗した場合のアクションを記述します。
      *
      * ## 説明

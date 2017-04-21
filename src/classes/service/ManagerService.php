@@ -26,19 +26,19 @@ class ManagerService extends Service
         $data = $_POST;
         $pocket = Pocket::getInstance();
 
-        $userRepo = WelUtil::getRepository('User');
-        $users = $userRepo->list(['userId' => $data['userId']]);
+        $managerRepo = WelUtil::getRepository('Manager');
+        $managers = $managerRepo->list(['managerId' => $data['managerId']]);
 
         // TODO バリデーションがいる
-        if (count($users) > 0) {
+        if (count($managers) > 0) {
 
             // ログイン処理を行う
-            $user = $users[0];
-            $hash = $user['password'];
+            $manager = $managers[0];
+            $hash = $manager['password'];
 
             if (Auth::checkHash($data['password'], $hash)) {
-                $_SESSION['user_id'] = $data['userId'];
-                $pocket->loginManager($user);
+                $_SESSION['manager_id'] = $data['managerId'];
+                $pocket->loginManager($manager);
                 WelUtil::redirect('/manager');
             }
         }

@@ -2,7 +2,7 @@
 
 namespace ellsif\WelCMS;
 
-class UserRepository extends Repository
+class ManagerRepository extends Repository
 {
     /**
      * カラムの定義
@@ -12,8 +12,8 @@ class UserRepository extends Repository
      * 自動的にテーブルが作成されます。
      */
     protected $columns = [
-        'userId' => [
-            'label'       => 'ユーザーID',
+        'managerId' => [
+            'label'       => '管理者ID',
             'type'        => 'string',
             'description' => 'ログインに利用するidです。後からの変更は出来ません。',
             'validation'  => [
@@ -49,7 +49,7 @@ class UserRepository extends Repository
             ],
         ],
         'info' => [
-            'label'       => 'ユーザー情報',
+            'label'       => '管理者情報',
             'type'        => 'string',
             'onSave'      => 'json_encode',
             'onRead'      => 'json_decode',
@@ -61,36 +61,5 @@ class UserRepository extends Repository
             'description' => 'API呼び出し時に利用するトークンです。',
         ]
     ];
-
-
-    /**
-     * usersテーブルからデータを取得する。
-     */
-    public function getUsers($isAdmin = false, $userId = null): array
-    {
-        $users = [];
-        if ($isAdmin) {
-            $users = $this->list(); // 管理者の場合は全件
-        } else if (intval($userId) > 0) {
-            // TODO likeの呼び方は現状使えない
-            $userId = intval($userId);
-            $users = $this->list(); // TODO 見せる範囲は同じグループのユーザー？？？？
-        }
-        return $users;
-    }
-
-    /**
-     * ユーザーIDのリストを元にusersテーブルからデータを取得する。
-     *
-     * ## 引数
-     * - userIds ユーザーIDの配列、またはユーザーIDのパイプ区切りの文字列（|1|2|3|）
-     */
-    public function getUsersByIds($userIds): array
-    {
-        if (!is_array($userIds)) {
-            $userIds = explode('|', trim($userIds, '|'));
-        }
-        return $this->list(['id' => $userIds], 'id ASC');
-    }
 
 }
