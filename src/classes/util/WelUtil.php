@@ -497,9 +497,28 @@ class WelUtil
 
     /**
      * 関数名から不適切な文字を削除します。
+     *
+     * ## 説明
+     * 文字列を先頭からチェックし、最初の不正な文字以降を削除します。
      */
     public static function safeFunction($functionName)
     {
-        return preg_replace('/[^0-9a-zA-Z_]/', '', $functionName);
+        $result = '';
+        if (mb_strlen($functionName) > 0) {
+            $ord = ord($functionName[0]);
+            if (($ord >= 0x41 && $ord <= 0x5a) || ($ord >= 0x61 && $ord <= 0x7a) || $ord == 0x5f) {
+                $result .= chr($ord);
+            }
+            for($i = 1; $i < strlen($functionName); $i++) {
+                $ord = ord($functionName[$i]);
+                if (($ord >= 0x41 && $ord <= 0x5a) || ($ord >= 0x61 && $ord <= 0x7a) ||
+                    ($ord >= 0x30 && $ord <= 0x39) || $ord == 0x5f) {
+                    $result .= chr($ord);
+                } else {
+                    return $result;
+                }
+            }
+        }
+        return $result;
     }
 }
