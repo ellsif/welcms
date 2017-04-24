@@ -100,7 +100,7 @@ class Router
         $dir = '';
         for($i = 0; $i < count($paths); $i++) {
             $service = $paths[$i];
-            $action = $paths[$i+1] ?? 'index';
+            $action = WelUtil::safeFunction($paths[$i+1] ?? 'index');
             $callable = $this->getCallableAction($service, $action, $dir);
             if ($callable) {
                 $pocket->varService($dir . $service);
