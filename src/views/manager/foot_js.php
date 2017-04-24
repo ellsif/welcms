@@ -17,5 +17,5 @@ $config = \ellsif\WelCMS\Pocket::getInstance();
 <script src="//<?php echo $urlInfo['host'] ?><?php echo $_port ?>/assets/admin/js/appendAdmin.js"></script>
 
 <?php foreach($config->varFooterJsAfter() as $js): ?>
-  <script src="//<?php echo $urlInfo['host'] ?><?php echo $_port ?>/welcms/<?php echo $js ?>"></script>
+  <script src="//<?php echo $urlInfo['host'] ?><?php echo $_port ?>/<?php echo $js ?>"></script>
 <?php endforeach; ?>
