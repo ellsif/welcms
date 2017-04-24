@@ -76,21 +76,33 @@ class Repository
     /**
      * id指定でデータを取得する。
      */
-    public function get(int $id)
+    public function get(int $id, $modif = true)
     {
         $pocket = Pocket::getInstance();
         $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
-        return $dataAccess->get($this->getEntityName(), $id);
+        $data = $dataAccess->get($this->getEntityName(), $id);
+        if ($data && $modif) {
+            $data = [$data];
+            $data = $this->modifOnLoad($data);
+            return $data[0];
+        } else {
+            return $data;
+        }
     }
 
     /**
      * データを取得する。
      */
-    public function list(array $filter = [], string $order = '', int $offset = 0, int $limit = -1): array
+    public function list(array $filter = [], string $order = '', int $offset = 0, int $limit = -1, $modif = true): array
     {
         $pocket = Pocket::getInstance();
         $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
-        return $dataAccess->select($this->getEntityName(), $offset, $limit, $order, $filter);
+        $list = $dataAccess->select($this->getEntityName(), $offset, $limit, $order, $filter);
+        if ($modif) {
+            return $this->modifOnLoad($list);
+        } else {
+            return $list;
+        }
     }
 
     /**
@@ -138,7 +150,7 @@ class Repository
             } else {
                 // 登録
                 Logger::getInstance()->log('debug', 'regist', json_encode($saveData));
-                $id = $dataAccess->insert($this->getEntityName(), $saveData);
+                $id = $dataAccess->insert($this->getEntityName(), $this->modifOnSave($saveData));
                 $row['id'] = $id;
                 Logger::getInstance()->log('debug', 'registed', "id = ${id}");
 
@@ -187,5 +199,71 @@ class Repository
     public function getDebugDump()
     {
         return json_encode($this->columns);
+    }
+
+    /**
+     * パイプ区切りの文字列を分割して配列にします。
+     */
+    public static function pipeExplode($str): array
+    {
+        $str = trim($str, '|');
+
+        if ($str === '') {
+            return [];
+        }
+        return explode('|', $str);
+    }
+
+    /**
+     * 配列をパイプ区切りの文字列にします。
+     */
+    public static function popeImplode($array): string
+    {
+        if (!is_array($array) || count($array) == 0) {
+            return '';
+        }
+        return '|' . implode('|', $array) . '|';
+    }
+
+    /**
+     * Load時にデータを編集します。
+     *
+     * ## 説明
+     * カラムの定義にonLoadの指定がある場合、該当のメソッドでデータを編集します。
+     */
+    protected function modifOnLoad(&$array): array
+    {
+        foreach($array as &$row) {
+            foreach($this->columns as $key => $attr) {
+                if (isset($row[$key]) && isset($attr['onLoad']) && is_callable($attr['onLoad'], false, $func)) {
+                    $row[$key] = $func($row[$key]);
+                }
+            }
+        }
+        return $array;
+    }
+
+    /**
+     * Save時にデータを編集します。
+     *
+     * ## 説明
+     * カラムの定義にonSaveの指定がある場合、該当のメソッドでデータを編集します。
+     */
+    protected function modifOnSave(&$array): array
+    {
+        foreach($this->columns as $key => $attr) {
+            if (isset($array[$key]) && isset($attr['onSave']) && is_callable($attr['onSave'])) {
+                $array[$key] = $attr['onSave']($array[$key]);
+            }
+        }
+        return $array;
+    }
+
+    /**
+     * 配列形式のjson_encodeを行います。
+     */
+    public static function json_decode($arg)
+    {
+        return \json_decode($arg, true);
     }
 }

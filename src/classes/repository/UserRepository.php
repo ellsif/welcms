@@ -51,8 +51,8 @@ class UserRepository extends Repository
         'info' => [
             'label'       => 'ユーザー情報',
             'type'        => 'string',
-            'onSave'      => 'json_encode',
-            'onRead'      => 'json_decode',
+            'onSave'      => '\json_encode',
+            'onLoad'      => '\ellsif\WelCMS\Repository::json_decode',
             'description' => '任意のユーザー情報をJSON形式で保存します。',
         ],
         'token' => [
