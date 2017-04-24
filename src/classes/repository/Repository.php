@@ -217,7 +217,7 @@ class Repository
     /**
      * 配列をパイプ区切りの文字列にします。
      */
-    public static function popeImplode($array): string
+    public static function pipeImplode($array): string
     {
         if (!is_array($array) || count($array) == 0) {
             return '';
