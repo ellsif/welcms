@@ -494,4 +494,12 @@ class WelUtil
         extract($data);
         include $viewPath;
     }
+
+    /**
+     * 関数名から不適切な文字を削除します。
+     */
+    public static function safeFunction($functionName)
+    {
+        return preg_replace('/[^0-9a-zA-Z_]/', '', $functionName);
+    }
 }
