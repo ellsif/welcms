@@ -103,6 +103,13 @@ class WelCoMeS
             $router = new Router();
             $router->routing();
 
+            // フォーマットに対応するPrinterを初期化
+            if (!$pocket->varPrinterFormat()) {
+                // フォーマットの判定失敗時
+                header("HTTP/1.1 404 Not Found");
+                exit(0);
+            }
+
             // 該当のServiceがあれば実行
             $serviceClass = $pocket->varServiceClass();
             $action = $pocket->varActionMethod();
@@ -119,12 +126,6 @@ class WelCoMeS
                 $result = $service->$action($actionParams);
             }
 
-            // フォーマットに対応するPrinterを初期化
-            if (!$pocket->varPrinterFormat()) {
-                // フォーマットの判定失敗時
-                header("HTTP/1.1 404 Not Found");
-                exit(0);
-            }
             $printerClass = $pocket->varPrinter();
             $printMethod = $pocket->varPrinterFormat();
             $printer = new $printerClass();
