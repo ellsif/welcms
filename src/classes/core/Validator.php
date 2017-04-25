@@ -228,7 +228,7 @@ class Validator {
             if ($result) {
                 return [$result, ''];
             } else {
-                $error = isset($rule['msg']) ? $rule['msg'] : Validator::getMessage($rule);
+                $error = isset($rule['msg']) ? $rule['msg'] : Validator::getMessage($func);
                 return [$result, $error];
             }
         }
