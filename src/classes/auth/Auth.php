@@ -12,7 +12,7 @@ abstract class Auth
      */
     public function __construct()
     {
-        if ($_SESSION['manager_id']) {
+        if (isset($_SESSION['manager_id']) && $_SESSION['manager_id']) {
             $managerRepo = WelUtil::getRepository('Manager');
             $manager = $managerRepo->list(['managerId' => $_SESSION['manager_id']]);
             if (count($manager) == 1) {
