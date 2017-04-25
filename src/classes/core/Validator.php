@@ -213,7 +213,7 @@ class Validator {
     private static function _valid(string $val, $rule) :array
     {
         if (is_string($rule) && method_exists('Validator', $rule)) {
-            return [Validator::$rule($val), Validator::DEFAULT_ERROR_MESSAGE];
+            return [Validator::$rule($val), Validator::getMessage($rule)];
         }
         if (is_array($rule) && isset($rule['rule'])) {
             $func = $rule['rule'];
@@ -238,6 +238,15 @@ class Validator {
     // エラーオブジェクト生成
     private static function err($msg) {
         return array('css_class'=>self::ERROR_CSS, 'message'=>$msg);
+    }
+
+    // エラーメッセージを取得（だが、ここはイマイチ）
+    protected static function getMessage($rule) {
+        $messages = [
+            'required' => '必須入力です。',
+            'unsignedInt' => '数値を入力してください。',
+        ];
+        return $messages[$rule] ?? '入力が不正です。';
     }
 
 }
