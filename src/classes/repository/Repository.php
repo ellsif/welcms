@@ -191,7 +191,7 @@ class Repository
         $pocket->varValidated(true);
         $pocket->varValid($results['valid']);
         $pocket->varFormData($results['results']);
-        $pocket->varFormTargetId(intval($_POST['id']));
+        // $pocket->varFormTargetId(intval($_POST['id']));
         //$pocket->varFormToken($form['token']);
     }
 
