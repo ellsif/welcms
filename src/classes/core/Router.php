@@ -36,8 +36,7 @@ class Router
 
         // 出力フォーマットをチェック
         if (!$this->routingSetFormat($paths)) {
-            // 不正なフォーマットが指定された場合は404
-            throw new \InvalidArgumentException('Not Found', 404);
+            return;
         }
 
         // 個別ページ処理
