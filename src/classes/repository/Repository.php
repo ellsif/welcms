@@ -266,4 +266,12 @@ class Repository
     {
         return \json_decode($arg, true);
     }
+
+    /**
+     * カラム定義を取得します。
+     */
+    public function getColumns(): array
+    {
+        return $this->columns;
+    }
 }
