@@ -169,7 +169,7 @@ class Repository
      * DBにルールが存在する場合はForm.validationのルールを利用しバリデーションを行います。
      * バリデーションの結果はPocketのvarFormDataに、エラーがあればvarFormErrorにArrayで格納されます。
      */
-    protected function validate(string $name, $data, $rules, $paramName = null)
+    public function validate($data, $rules, $paramName = null)
     {
         // TODO 今のところDBによるバリデーションは未実装
 

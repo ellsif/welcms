@@ -119,8 +119,16 @@ class Validator {
         return preg_match($preg, $val);
     }
 
+    /**
+     * 正の整数かチェック（0は許可）
+     */
+    public static function unsignedInt($val) :bool
+    {
+        return is_numeric($val) && intval($val) == $val && intval($val) >= 0;
+    }
+
     // 郵便番号
-    static function zipcode($zip1, $zip2) {
+    public static function zipcode($zip1, $zip2) {
         if (!preg_match('/^\d{3}$/', $zip1)) {
             return self::err('郵便番号の前半部分は数字3桁で入力してください。');
         } else if (!preg_match('/^\d{4}$/', $zip2)) {
