@@ -274,4 +274,42 @@ class Repository
     {
         return $this->columns;
     }
+
+    /**
+     * 特定のカラムの値に対応する名称を取得します。
+     *
+     * ## 説明
+     * $columns[$column]['values']定義を元に名称を取得します。
+     * 取得に失敗した場合は$valueを返します。
+     *
+     * ## 例
+     *
+     *     protected $columns = [
+     *         'state' => [
+     *             'label'      => 'ステータス',
+     *             'type'       => 'int',
+     *             'values'     => [
+     *                 '0' => '下書き',
+     *                 '1' => '公開',
+     *                 '-1' => '削除',
+     *             ]
+     *         ],
+     *     ];
+     *
+     *     $repo->label('state', '1');  // '公開'
+     */
+    public function getValueName($column, $value)
+    {
+        if (isset($this->columns[$column])) {
+            $column = $this->columns[$column];
+            if (isset($column['values']) && is_array($column['values'])) {
+                foreach ($column['values'] as $_val => $_name) {
+                    if ($value == $_val) {
+                        return $_name;
+                    }
+                }
+            }
+        }
+        return $value;
+    }
 }

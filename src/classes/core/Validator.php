@@ -120,10 +120,11 @@ class Validator {
     }
 
     /**
-     * 正の整数かチェック（0は許可）
+     * 正の整数かチェック（0、未入力は許可）
      */
     public static function unsignedInt($val) :bool
     {
+        if ($val == null || $val === '') return true;
         return is_numeric($val) && intval($val) == $val && intval($val) >= 0;
     }
 
@@ -167,7 +168,7 @@ class Validator {
      */
     public static function isValidStr(string $val) :bool
     {
-        return $val && is_string($val);
+        return is_string($val) && $val !== '';
     }
 
     /**
