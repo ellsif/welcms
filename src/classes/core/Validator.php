@@ -65,8 +65,8 @@ class Validator {
             $rules = [$rules];
         }
         foreach($rules as $rule) {
-            if (is_object($rule) && $rule instanceof \Closure) {
-                list($result, $error) = $rule($val);
+            if (is_object($rule['rule']) && $rule['rule'] instanceof \Closure) {
+                list($result, $error) = $rule['rule']($val);
             } else {
                 list($result, $error) = Validator::_valid($val, $rule);
             }
