@@ -25,7 +25,7 @@ class UserRepository extends Repository
             'label'       => 'パスワード',
             'type'        => 'string',
             'description' => '半角英数記号を入力してください。',
-            'onSave'      => '',  // 登録更新時に自動的にハッシュ化
+            'onSave'      => '',  // 登録更新時に自動的にハッシュ化する？
             'validation'  => [
                 ['rule' => 'required'],
             ],
