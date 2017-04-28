@@ -312,4 +312,20 @@ class Repository
         }
         return $value;
     }
+
+
+    /**
+     * バリデーションルールを取得します。
+     */
+    public function getValidationRules()
+    {
+        $rules = [];
+        foreach($this->columns as $name => $settings) {
+            if (isset($settings['validation'])) {
+                $rules[$name] = $settings['validation'];
+            }
+        }
+        return $rules;
+    }
+
 }
