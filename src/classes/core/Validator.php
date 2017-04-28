@@ -65,7 +65,7 @@ class Validator {
             $rules = [$rules];
         }
         foreach($rules as $rule) {
-            if (is_object($rule) && $rule instanceof Closure) {
+            if (is_object($rule) && $rule instanceof \Closure) {
                 list($result, $error) = $rule($val);
             } else {
                 list($result, $error) = Validator::_valid($val, $rule);
@@ -213,7 +213,7 @@ class Validator {
      */
     private static function _valid(string $val, $rule) :array
     {
-        if (is_string($rule) && method_exists('Validator', $rule)) {
+        if (is_string($rule) && method_exists(__NAMESPACE__ . '\Validator', $rule)) {
             return [Validator::$rule($val), Validator::getMessage($rule)];
         }
         if (is_array($rule) && isset($rule['rule'])) {
