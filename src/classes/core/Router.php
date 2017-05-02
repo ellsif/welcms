@@ -34,11 +34,6 @@ class Router
         $paths = $urlInfo['paths'];
         Logger::getInstance()->log('debug', 'routing', json_encode($paths));
 
-        // 出力フォーマットをチェック
-        if (!$this->routingSetFormat($paths)) {
-            return;
-        }
-
         // 個別ページ処理
         $pageEntity = WelUtil::getRepository('Page');
         $pages = $pageEntity->list(['path' => $pocket->varCurrentPath()]);
@@ -51,13 +46,18 @@ class Router
             return;
         }
 
-        // プリンタを選択
-        $this->routingSetPrinter();
-
         // サービスとアクションを取得
         if (!$this->setServiceAndAction($paths)) {
             throw new \InvalidArgumentException('Not Found', 404);
         }
+
+        // 出力フォーマットをチェック
+        if (!$this->routingSetFormat($paths)) {
+            return;
+        }
+
+        // プリンタを選択
+        $this->routingSetPrinter();
 
         // 認証を行う
         if ($pocket->varAuth()) {
@@ -99,11 +99,11 @@ class Router
         $dir = '';
         for($i = 0; $i < count($paths); $i++) {
             $service = $paths[$i];
-            $action = WelUtil::safeFunction($paths[$i+1] ?? 'index');
+            $action = WelUtil::safeFunction($paths[$i + 1] ?? 'index');
             $callable = $this->getCallableAction($service, $action, $dir);
             if ($callable) {
                 $pocket->varService($dir . $service);
-                $pocket->varAction(pathinfo($action, PATHINFO_FILENAME));
+                $pocket->varAction($action);
                 $pocket->varActionParams(array_splice($paths, $i + 2));
                 $pocket->varActionMethod($callable[0]);
                 $pocket->varAuth($callable[1]);
@@ -195,7 +195,8 @@ class Router
     public static function getViewPath(string $path = null)
     {
         $pocket = Pocket::getInstance();
-        $viewPath = $path ?? (lcfirst($pocket->varService() . '/' . $pocket->varAction()) . '.php');
+        $action = pathinfo($pocket->varAction(), PATHINFO_FILENAME);
+        $viewPath = $path ?? (lcfirst($pocket->varService() . '/' . $action) . '.php');
         if (file_exists($pocket->dirViewApp() . $viewPath)) {
             return $pocket->dirViewApp() . $viewPath;
         } elseif (file_exists($pocket->dirView() . $viewPath)) {
@@ -221,7 +222,7 @@ class Router
         $pocket->varServiceClass(FileUtil::getFqClassName('AdminService', [$pocket->dirApp(), $pocket->dirSystem()]));
         $pocket->varAction('activate');
 
-        list($actionMethod, $auth) = $this->getCallableAction($pocket->varService(), $pocket->varAction());
+        list($actionMethod, $auth) = $this->getCallableAction($pocket->varService(), 'activate');
         $pocket->varActionMethod($actionMethod);
         $pocket->varAuth($auth);
         $pocket->varPrinter(FileUtil::getFqClassName('Printer', [$pocket->dirApp(), $pocket->dirSystem()]));

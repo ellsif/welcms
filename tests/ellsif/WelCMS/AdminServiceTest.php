@@ -5,9 +5,6 @@ use ellsif\WelCMS\Pocket;
 use ellsif\WelCMS\WelUtil;
 use GuzzleHttp\Client;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class AdminServiceTest extends \PHPUnit\Framework\TestCase
 {
     /**

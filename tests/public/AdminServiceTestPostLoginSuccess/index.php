@@ -13,6 +13,7 @@ $pocket = Pocket::getInstance();
 $pocket->dbDatabase(dirname(__FILE__, 3) . '/data/AdminServiceTestPostLoginSuccess.sqlite');
 $pocket->dirSystem(dirname(__FILE__, 4) . '/src/');
 $pocket->dirWelCMS('AdminServiceTestPostLoginSuccess/');
+$pocket->varRoot('AdminServiceTestPostLoginSuccess/');
 $pocket->dirLog(dirname(__FILE__, 3) . '/logs/');
 $pocket->dirInitialize($pocket->dirSystem() . 'init/');
 

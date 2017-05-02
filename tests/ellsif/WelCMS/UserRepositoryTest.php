@@ -22,7 +22,9 @@ class UserRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public static function tearDownAfterClass()
     {
-        unlink(dirname(__FILE__, 3) . '/data/UserRepositoryTest.sqlite');
+        if (file_exists(dirname(__FILE__, 3) . '/data/UserRepositoryTest.sqlite')) {
+            unlink(dirname(__FILE__, 3) . '/data/UserRepositoryTest.sqlite');
+        }
     }
 
     protected function setUp()
