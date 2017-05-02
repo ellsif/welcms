@@ -105,7 +105,7 @@ class Router
             $callable = $this->getCallableAction($service, $actionMethod, $dir);
             if ($callable) {
                 $pocket->varService($dir . $service);
-                $pocket->varAction($actionExt ? ($action . '.' . $actionExt) : $action);
+                $pocket->varAction($actionExt ? ($actionMethod . '.' . $actionExt) : $actionMethod);
                 $pocket->varActionParams(array_splice($paths, $i + 2));
                 $pocket->varActionMethod($callable[0]);
                 $pocket->varAuth($callable[1]);
