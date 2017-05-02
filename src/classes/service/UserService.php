@@ -37,7 +37,7 @@ class UserService extends Service
             $hash = $user['password'];
 
             if (Auth::checkHash($data['password'], $hash)) {
-                $_SESSION['user_id'] = $data['userId'];
+                $_SESSION['user_id'] = $data['id'];
                 $pocket->loginUser($user);
                 WelUtil::redirect('/user');
             }
