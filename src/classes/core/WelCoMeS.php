@@ -145,7 +145,14 @@ class WelCoMeS
             $result = new ServiceResult();
             $result->setView($pocket->dirSystem() . 'views/404.php');
             $result->error($e->getMessage());
-            $printer->$printMethod($result);
+
+            $logger->log('error', 'system', "$printerClass::$printMethod called");
+            if ($printMethod) {
+                $printer->$printMethod($result);
+            } else {
+                header("HTTP/1.1 " . $e->getCode());
+                exit(0);
+            }
         }
     }
 
