@@ -101,7 +101,7 @@ class Router
             $service = $paths[$i];
             $action = $paths[$i + 1] ?? 'index';
             $actionMethod = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
-            $actionExt = pathinfo($paths[$i + 1], PATHINFO_EXTENSION);
+            $actionExt = pathinfo($action, PATHINFO_EXTENSION);
             $callable = $this->getCallableAction($service, $actionMethod, $dir);
             if ($callable) {
                 $pocket->varService($dir . $service);
