@@ -59,7 +59,7 @@ class UserService extends Service
     /**
      * マイページ。
      */
-    public function index($params)
+    public function indexUser($params)
     {
         return new ServiceResult();
     }
