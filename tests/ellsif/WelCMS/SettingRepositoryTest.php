@@ -20,7 +20,9 @@ class SettingRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public static function tearDownAfterClass()
     {
-        unlink(dirname(__FILE__, 3) . '/data/SettingRepositoryTest.sqlite');
+        if (file_exists(dirname(__FILE__, 3) . '/data/SettingRepositoryTest.sqlite')) {
+            unlink(dirname(__FILE__, 3) . '/data/SettingRepositoryTest.sqlite');
+        }
     }
 
     /**
