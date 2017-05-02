@@ -27,7 +27,7 @@ class UserService extends Service
         $pocket = Pocket::getInstance();
 
         $userRepo = WelUtil::getRepository('User');
-        $users = $userRepo->list(['userId' => $data['managerId']]);
+        $users = $userRepo->list(['userId' => $data['userId']]);
 
         // TODO バリデーションがいる、メールアドレスでも入れるように
         if (count($users) > 0) {
