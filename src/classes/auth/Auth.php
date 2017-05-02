@@ -22,8 +22,8 @@ abstract class Auth
         if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
             $userRepo = WelUtil::getRepository('User');
             $user = $userRepo->get($_SESSION['user_id']);
-            if (count($user) == 1) {
-                Pocket::getInstance()->loginUser($user[0]);
+            if ($user) {
+                Pocket::getInstance()->loginUser($user);
             }
         }
     }
