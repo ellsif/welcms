@@ -99,11 +99,12 @@ class Router
         $dir = '';
         for($i = 0; $i < count($paths); $i++) {
             $service = $paths[$i];
-            $action = WelUtil::safeFunction($paths[$i + 1] ?? 'index');
-            $callable = $this->getCallableAction($service, $action, $dir);
+            $actionMethod = WelUtil::safeFunction(pathinfo($paths[$i + 1], PATHINFO_FILENAME) ?? 'index');
+            $actionExt = pathinfo($paths[$i + 1], PATHINFO_EXTENSION);
+            $callable = $this->getCallableAction($service, $actionMethod, $dir);
             if ($callable) {
                 $pocket->varService($dir . $service);
-                $pocket->varAction($action);
+                $pocket->varAction($actionExt ? ($paths[$i + 1] . '.' . $actionExt) : $paths[$i + 1]);
                 $pocket->varActionParams(array_splice($paths, $i + 2));
                 $pocket->varActionMethod($callable[0]);
                 $pocket->varAuth($callable[1]);
