@@ -115,7 +115,7 @@ class Router
         }
 
         // 上記に無い場合はSiteServiceを利用
-        if (count($paths) < 1) {
+        if (count($paths) <= 1) {
             $service = 'site';
             $action = $paths[0] ?? 'index';
             $actionMethod = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
