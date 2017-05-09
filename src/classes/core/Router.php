@@ -97,6 +97,7 @@ class Router
         $pocket = Pocket::getInstance();
 
         $dir = '';
+        $paths = array_merge(['site'], $paths);
         for($i = 0; $i < count($paths); $i++) {
             $service = $paths[$i];
             $action = $paths[$i + 1] ?? 'index';
