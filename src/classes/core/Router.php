@@ -122,7 +122,7 @@ class Router
             $actionExt = pathinfo($action, PATHINFO_EXTENSION);
             $callable = $this->getCallableAction($service, $actionMethod, '');
             if ($callable) {
-                $pocket->varService($dir . $service);
+                $pocket->varService($service);
                 $pocket->varAction($actionExt ? ($actionMethod . '.' . $actionExt) : $actionMethod);
                 $pocket->varActionParams(array_splice($paths, $i + 2));
                 $pocket->varActionMethod($callable[0]);
