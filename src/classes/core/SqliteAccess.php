@@ -506,6 +506,8 @@ class SqliteAccess extends DataAccess
                     $values[":${key}_${idx}"] = $_val;
                 }
                 $columns[] = "${key} IN (" . implode(',', $inColumns) . ")";
+            } elseif ($val === null) {
+                $columns[] = "${key} IS NULL";
             } else {
                 $columns[] = "${key} = :${key}";
                 $values[":${key}"] = $val;
