@@ -8,27 +8,6 @@ abstract class Auth
 {
 
     /**
-     * 認証に必要な情報を初期化します。
-     */
-    public function __construct()
-    {
-        if (isset($_SESSION['manager_id']) && $_SESSION['manager_id']) {
-            $managerRepo = WelUtil::getRepository('Manager');
-            $manager = $managerRepo->list(['managerId' => $_SESSION['manager_id']]);
-            if (count($manager) == 1) {
-                Pocket::getInstance()->loginManager($manager[0]);
-            }
-        }
-        if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
-            $userRepo = WelUtil::getRepository('User');
-            $user = $userRepo->get($_SESSION['user_id']);
-            if ($user) {
-                Pocket::getInstance()->loginUser($user);
-            }
-        }
-    }
-
-    /**
      * 認証に失敗した場合のアクションを記述します。
      *
      * ## 説明
@@ -57,6 +36,27 @@ abstract class Auth
             $this->doAuthenticate();
         } catch(\Throwable $e) {
             $this->onAuthError($e);
+        }
+    }
+
+    /**
+     * ログイン情報を初期化します。
+     */
+    public static function setLoginUsers()
+    {
+        if (isset($_SESSION['manager_id']) && $_SESSION['manager_id']) {
+            $managerRepo = WelUtil::getRepository('Manager');
+            $manager = $managerRepo->list(['managerId' => $_SESSION['manager_id']]);
+            if (count($manager) == 1) {
+                Pocket::getInstance()->loginManager($manager[0]);
+            }
+        }
+        if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+            $userRepo = WelUtil::getRepository('User');
+            $user = $userRepo->get($_SESSION['user_id']);
+            if ($user) {
+                Pocket::getInstance()->loginUser($user);
+            }
         }
     }
 
