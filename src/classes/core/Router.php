@@ -116,20 +116,18 @@ class Router
         }
 
         // 上記に無い場合はSiteServiceを利用
-        if (count($paths) <= 1) {
-            $service = 'site';
-            $action = $paths[0] ?? 'index';
-            $actionMethod = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
-            $actionExt = pathinfo($action, PATHINFO_EXTENSION);
-            $callable = $this->getCallableAction($service, $actionMethod, '');
-            if ($callable) {
-                $pocket->varService($service);
-                $pocket->varAction($actionExt ? ($actionMethod . '.' . $actionExt) : $actionMethod);
-                $pocket->varActionParams(array_splice($paths, $i + 2));
-                $pocket->varActionMethod($callable[0]);
-                $pocket->varAuth($callable[1]);
-                return true;
-            }
+        $service = 'site';
+        $action = $paths[0] ?? 'index';
+        $actionMethod = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
+        $actionExt = pathinfo($action, PATHINFO_EXTENSION);
+        $callable = $this->getCallableAction($service, $actionMethod, '');
+        if ($callable) {
+            $pocket->varService($service);
+            $pocket->varAction($actionExt ? ($actionMethod . '.' . $actionExt) : $actionMethod);
+            $pocket->varActionParams(array_splice($paths, $i + 2));
+            $pocket->varActionMethod($callable[0]);
+            $pocket->varAuth($callable[1]);
+            return true;
         }
 
         return false;
