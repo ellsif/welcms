@@ -82,7 +82,6 @@ class Pocket
                 'isPage' => false,
                 'isTopPage' => false,
                 'Params' => [],
-                'Validated' => false,
                 'FormData' => [],
                 'FormError' => [],
                 'Plugins' => [],
@@ -603,10 +602,6 @@ class Pocket
 
     // POSTによって設定されたパラメータ
     //public function varPostParams(...$val) { return $this->getset(__FUNCTION__, $val); }
-
-    // 自動バリデーションが実行されたか（デフォルトfalse）
-    //  TODO バリデーション機能の実装については検討が必要になる・・・
-    public function varValidated(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     // バリデーションが行われた場合、バリデーションの結果(bool)
     // TODO これもバリデーションの設計が。。。

@@ -26,6 +26,9 @@ class Printer
             $viewPath = Router::getViewPath($viewPath);
         }
         $data = $result ? $result->resultData() : [];
+        if ($result->isError() && !isset($data['errors'])) {
+            $data['errors'] = $result->error();
+        }
         WelUtil::loadView($viewPath, $data);
     }
 

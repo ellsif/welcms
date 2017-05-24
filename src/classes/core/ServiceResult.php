@@ -1,8 +1,6 @@
 <?php
 
 namespace ellsif\WelCMS;
-use ellsif\Logger;
-
 
 /**
  * Serviceの実行結果
@@ -21,7 +19,6 @@ class ServiceResult
         return (is_array($this->errors) && count($this->errors) > 0);
     }
 
-
     /**
      * エラーのgetter/setter。
      */
@@ -36,7 +33,6 @@ class ServiceResult
         }
         return $this->errors;
     }
-
 
     /**
      * Service実行結果のgetter/setter。
