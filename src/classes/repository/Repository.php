@@ -164,9 +164,6 @@ class Repository
      * バリデーションを行う。
      *
      * ## 説明
-     * DBの登録情報を元にバリデーションを行います。
-     * DB(Formテーブル)に$nameに一致するバリデーション定義が存在しない場合、$rulesを利用してバリデーションを行います。
-     * DBにルールが存在する場合はForm.validationのルールを利用しバリデーションを行います。
      * バリデーションの結果はPocketのvarFormDataに、エラーがあればvarFormErrorにArrayで格納されます。
      */
     public function validate($data, $rules, $paramName = null)
@@ -182,13 +179,11 @@ class Repository
         } else {
             // 指定された項目に対するバリデーションが無い場合はバリデーションOKとする
             $pocket = Pocket::getInstance();
-            $pocket->varValidated(true);
             $pocket->varValid(true);
             return;
         }
 
         $pocket = Pocket::getInstance();
-        $pocket->varValidated(true);
         $pocket->varValid($results['valid']);
         $pocket->varFormData($results['results']);
         // $pocket->varFormTargetId(intval($_POST['id']));

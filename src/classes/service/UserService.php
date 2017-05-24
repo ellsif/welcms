@@ -48,16 +48,16 @@ class UserService extends Service
     }
 
     /**
-     * マネージャー画面用の404ページを表示
+     * ログアウトします。
      */
-    public function show404($data = [])
+    public function logoutUser($params)
     {
-        $config = Pocket::getInstance();
-        WelUtil::loadView($config->dirView() . 'user/404.php', $data);
+        $_SESSION['user_id'] = null;
+        WelUtil::redirect('/');
     }
 
     /**
-     * マイページ。
+     * マイページを表示します。
      */
     public function indexUser($params)
     {
