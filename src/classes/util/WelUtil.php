@@ -423,11 +423,11 @@ class WelUtil
         if (Pocket::getInstance()->varRoot()) {
             $urlBase .= Pocket::getInstance()->varRoot();
         }
+        $newPath = StringUtil::leftRemove($path, '/');
         if ($encode) {
-            return $urlBase . urlencode(StringUtil::leftRemove($path, '/'));
-        } else {
-            return $urlBase . StringUtil::leftRemove($path, '/');
+            $newPath = implode('/', array_map('urlencode', explode('/', $newPath)));
         }
+        return $urlBase . $newPath;
     }
 
 
