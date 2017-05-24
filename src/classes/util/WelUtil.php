@@ -411,7 +411,7 @@ class WelUtil
      * ベースURLを取得します。
      * TODO 階層下げた場合の対応が必要。
      */
-    public static function getUrl($path = '')
+    public static function getUrl($path = '', $encode = true)
     {
         $urlInfo = Pocket::getInstance()->varUrlInfo();
         $urlBase = $urlInfo['scheme'] . '://' . $urlInfo['host'];
@@ -423,7 +423,11 @@ class WelUtil
         if (Pocket::getInstance()->varRoot()) {
             $urlBase .= Pocket::getInstance()->varRoot();
         }
-        return $urlBase . StringUtil::leftRemove($path, '/');
+        if ($encode) {
+            return $urlBase . urlencode(StringUtil::leftRemove($path, '/'));
+        } else {
+            return $urlBase . StringUtil::leftRemove($path, '/');
+        }
     }
 
 
