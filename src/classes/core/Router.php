@@ -107,7 +107,7 @@ class Router
             if ($callable) {
                 $pocket->varService($dir . $service);
                 $pocket->varAction($actionExt ? ($actionMethod . '.' . $actionExt) : $actionMethod);
-                $pocket->varActionParams(array_splice($paths, $i + 2));
+                $pocket->varActionParams(array_map('urldecode', array_splice($paths, $i + 2)));
                 $pocket->varActionMethod($callable[0]);
                 $pocket->varAuth($callable[1]);
                 return true;
@@ -124,7 +124,7 @@ class Router
         if ($callable) {
             $pocket->varService($service);
             $pocket->varAction($actionExt ? ($actionMethod . '.' . $actionExt) : $actionMethod);
-            $pocket->varActionParams(array_splice($paths, 1));
+            $pocket->varActionParams(array_map('urldecode', array_splice($paths, 1)));
             $pocket->varActionMethod($callable[0]);
             $pocket->varAuth($callable[1]);
             return true;
