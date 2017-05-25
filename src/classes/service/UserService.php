@@ -29,6 +29,7 @@ class UserService extends Service
 
         $validator = new Validator($data);
         $validator->rule('required', 'userId');
+        $validator->rule('required', 'password');
         if ($validator->validate()) {
             $userRepo = WelUtil::getRepository('User');
             $users = $userRepo->list(['userId' => $data['userId']]);
@@ -54,8 +55,7 @@ class UserService extends Service
                 }
             }
         } else {
-            $errors = $validator->errors();
-            $result->error($errors['userId'] ?? 'login failed');
+            $result->error($validator->errors());
         }
         return $result;
     }
