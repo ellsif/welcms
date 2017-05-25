@@ -1,6 +1,7 @@
 <?php
 
 namespace ellsif\WelCMS;
+use Valitron\Validator;
 
 /**
  * ユーザー認証用コントローラ
@@ -26,24 +27,36 @@ class UserService extends Service
         $data = $_POST;
         $pocket = Pocket::getInstance();
 
-        $userRepo = WelUtil::getRepository('User');
-        $users = $userRepo->list(['userId' => $data['userId']]);
+        $validator = new Validator($data);
+        $validator->rule('required', 'userId');
+        if ($validator->validate()) {
+            $userRepo = WelUtil::getRepository('User');
+            $users = $userRepo->list(['userId' => $data['userId']]);
 
-        // TODO バリデーションがいる、メールアドレスでも入れるように
-        if (count($users) > 0) {
-
-            // ログイン処理を行う
-            $user = $users[0];
-            $hash = $user['password'];
-
-            if (Auth::checkHash($data['password'], $hash)) {
-                $_SESSION['user_id'] = $user['id'];
-                $pocket->loginUser($user);
-                WelUtil::redirect('/user');
+            if (count($users) == 0) {
+                $users = $userRepo->list(['email' => $data['userId']]);
             }
+            if (count($users) == 0) {
+                // ログインエラー
+                $result->error('Invalid Login ID');
+            } else {
+
+                // ログイン処理を行う
+                $user = $users[0];
+                $hash = $user['password'];
+
+                if (Auth::checkHash($data['password'], $hash)) {
+                    $_SESSION['user_id'] = $user['id'];
+                    $pocket->loginUser($user);
+                    WelUtil::redirect('/user');
+                } else {
+                    $result->error('Invalid password');
+                }
+            }
+        } else {
+            $errors = $validator->errors();
+            $result->error($errors['userId'] ?? 'login failed');
         }
-        // TODO エラーの処理方法は・・・？
-        $pocket->varFormError(['認証に失敗しました。']);
         return $result;
     }
 
