@@ -12,7 +12,8 @@
     }
   ],
   "require": {
-    "ellsif/util": "dev-master"
+    "ellsif/util": "dev-master",
+    "vlucas/valitron": "1.4.0"
   },
   "require-dev": {
     "phpunit/phpunit": "6.1.*",
