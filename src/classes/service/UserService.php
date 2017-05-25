@@ -30,6 +30,8 @@ class UserService extends Service
         $validator = new Validator($data);
         $validator->rule('required', 'userId');
         $validator->rule('required', 'password');
+
+        $result->resultData(['data' => $data]);
         if ($validator->validate()) {
             $userRepo = WelUtil::getRepository('User');
             $users = $userRepo->list(['userId' => $data['userId']]);
@@ -55,7 +57,6 @@ class UserService extends Service
                 }
             }
         } else {
-            $result->resultData(['data' => $data]);
             $result->error($validator->errors());
         }
         return $result;
