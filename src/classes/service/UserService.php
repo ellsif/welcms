@@ -55,6 +55,7 @@ class UserService extends Service
                 }
             }
         } else {
+            $result->resultData(['data' => $data]);
             $result->error($validator->errors());
         }
         return $result;
