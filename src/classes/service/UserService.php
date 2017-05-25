@@ -39,7 +39,7 @@ class UserService extends Service
             }
             if (count($users) == 0) {
                 // ログインエラー
-                $result->error('Invalid Login ID');
+                $result->error(['userId' => ['Invalid UserID']]);
             } else {
 
                 // ログイン処理を行う
@@ -51,7 +51,7 @@ class UserService extends Service
                     $pocket->loginUser($user);
                     WelUtil::redirect('/user');
                 } else {
-                    $result->error('Invalid password');
+                    $result->error(['password' => ['Invalid password']]);
                 }
             }
         } else {
