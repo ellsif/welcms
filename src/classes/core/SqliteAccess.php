@@ -342,7 +342,16 @@ class SqliteAccess extends DataAccess
      */
     public function delete(string $name, int $id) :bool
     {
-        // TODO: Implement delete() method.
+        $sql = 'DELETE ' . $this->pdo->quote($name) . ' WHERE id = :id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue('id', $id);
+        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        if (!$stmt->execute()) {
+            $errorInfo = $stmt->errorInfo();
+            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
+            throw new \Exception("${name}のDELETEに失敗しました。");
+        }
+        return $stmt->rowCount();
     }
 
     /**
