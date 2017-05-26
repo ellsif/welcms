@@ -342,7 +342,7 @@ class SqliteAccess extends DataAccess
      */
     public function delete(string $name, int $id) :bool
     {
-        $sql = 'DELETE ' . $this->pdo->quote($name) . ' WHERE id = :id';
+        $sql = 'DELETE FROM ' . $this->pdo->quote($name) . ' WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue('id', $id);
         Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
@@ -363,7 +363,7 @@ class SqliteAccess extends DataAccess
      */
     public function deleteAll(string $name, array $condition) :int
     {
-        $sql = 'DELETE ' . $this->pdo->quote($name) . ' WHERE ';
+        $sql = 'DELETE FROM ' . $this->pdo->quote($name) . ' WHERE ';
         list($columns, $params) = $this->parseConditions($condition);
         $sql .= implode(' AND ', $columns);
         $stmt = $this->pdo->prepare($sql);
