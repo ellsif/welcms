@@ -91,6 +91,21 @@ class Repository
     }
 
     /**
+     * id指定でデータを削除する
+     */
+    public function delete($id)
+    {
+        $id = intval($id);
+        if ($id) {
+            $pocket = Pocket::getInstance();
+            $dataAccess = WelUtil::getDataAccess($pocket->dbDriver());
+            return $dataAccess->delete($this->getEntityName(), $id);
+        }
+        return false;
+    }
+
+
+    /**
      * データを取得する。
      */
     public function list(array $filter = [], string $order = '', int $offset = 0, int $limit = -1, $modif = true): array
