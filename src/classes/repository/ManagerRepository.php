@@ -23,7 +23,8 @@ class ManagerRepository extends Repository
                     [
                         'rule' => 'uniqueManagerId',
                         'function' => function($field, $value, array $params, array $fields) {
-                            return $this->validateUniqueManagerId($value);
+                            $id = $fields['id'] ?? null;
+                            return $this->validateUniqueManagerId($value, $id);
                         },
                         'message' => 'is already in use',
                     ],
@@ -55,7 +56,8 @@ class ManagerRepository extends Repository
                     [
                         'rule' => 'uniqueManagerEmail',
                         'function' => function($field, $value, array $params, array $fields) {
-                            return $this->validateUniqueManagerEmail($value);
+                            $id = $fields['id'] ?? null;
+                            return $this->validateUniqueManagerEmail($value, $id);
                         },
                         'message' => 'is already in use',
                     ],
@@ -78,19 +80,19 @@ class ManagerRepository extends Repository
         parent::__construct($name);
     }
 
-    protected function validateUniqueManagerId($value)
+    protected function validateUniqueManagerId($value, $id)
     {
         $managerId = $value ?? '';
         $managerRepo = WelUtil::getRepository('Manager');
-        $count = $managerRepo->count(['managerId' => $managerId]);
-        return $count == 0;
+        $managers = $managerRepo->list(['managerId' => $managerId]);
+        return count($managers) == 0 || $managers[0]['id'] == $id;
     }
 
-    protected function validateUniqueManagerEmail($value)
+    protected function validateUniqueManagerEmail($value, $id)
     {
         $email = $value ?? '';
         $managerRepo = WelUtil::getRepository('Manager');
-        $count = $managerRepo->count(['email' => $email]);
-        return $count == 0;
+        $managers = $managerRepo->list(['email' => $email]);
+        return count($managers) == 0 || $managers[0]['id'] == $id;
     }
 }
