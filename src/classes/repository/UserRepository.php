@@ -21,10 +21,14 @@ class UserRepository extends Repository
                 'description' => 'ログインに利用するidです。後からの変更は出来ません。',
                 'validation'  => [
                     ['rule' => 'required'],
-                    'function' => function($field, $value, array $params, array $fields) {
-                        $id = $fields['id'] ?? null;
-                        return $this->validateUniqueLoginId($value, $id);
-                    },
+                    [
+                        'rule' => 'uniqueLoginId',
+                        'function' => function($field, $value, array $params, array $fields) {
+                            $id = $fields['id'] ?? null;
+                            return $this->validateUniqueLoginId($value, $id);
+                        },
+                        'message' => 'is already in use',
+                    ],
                 ],
             ],
             'password' => [
