@@ -57,6 +57,15 @@ class ManagerService extends Service
     }
 
     /**
+     * ログアウトします。
+     */
+    public function logoutManager($params)
+    {
+        $_SESSION['manager_id'] = null;
+        WelUtil::redirect('/');
+    }
+
+    /**
      * 管理画面ダッシュボード。
      */
     public function index($params)
