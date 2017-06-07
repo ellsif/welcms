@@ -51,9 +51,6 @@ class Router
             throw new \InvalidArgumentException('Not Found', 404);
         }
 
-        // 出力フォーマットをチェック
-        $this->routingSetFormat();
-
         $pocket->varUrlInfo($urlInfo);
 
         // プリンタを選択
@@ -96,11 +93,11 @@ class Router
         Logger::getInstance()->log('debug', 'routing', "setServiceAndAction paths: " . json_encode($paths));
 
         $pocket = Pocket::getInstance();
-
         $dir = '';
         for($i = 0; $i < count($paths); $i++) {
             $service = $paths[$i];
             $action = $paths[$i + 1] ?? 'index';
+
             $actionMethod = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
             $actionExt = pathinfo($action, PATHINFO_EXTENSION);
             $callable = $this->getCallableAction($service, $actionMethod, $dir);
@@ -110,6 +107,7 @@ class Router
                 $pocket->varActionParams(array_map('urldecode', array_splice($paths, $i + 2)));
                 $pocket->varActionMethod($callable[0]);
                 $pocket->varAuth($callable[1]);
+                $pocket->varPrinterFormat($this->getPrinterFormat($actionExt));
                 return true;
             }
             $dir .= $service . '/';
@@ -127,9 +125,10 @@ class Router
             $pocket->varActionParams(array_map('urldecode', array_splice($paths, 1)));
             $pocket->varActionMethod($callable[0]);
             $pocket->varAuth($callable[1]);
+            $pocket->varPrinterFormat($this->getPrinterFormat($actionExt));
             return true;
         }
-
+        $pocket->varPrinterFormat($this->getPrinterFormat(''));
         return false;
     }
 
@@ -249,24 +248,6 @@ class Router
     }
 
     /**
-     * リクエストから出力フォーマットを設定する。
-     */
-    private function routingSetFormat()
-    {
-        $config = Pocket::getInstance();
-        $format = 'html'; // デフォルトはhtml
-        $extension = pathinfo(Pocket::getInstance()->varAction(), PATHINFO_EXTENSION);
-        if ($extension) {
-            if (in_array($extension, $config->printFormats())) {
-                $format = $extension;
-            } elseif (!in_array($extension, ['php', 'html', 'htm'])) {
-                throw new \InvalidArgumentException('Not Found', 404);
-            }
-        }
-        $config->varPrinterFormat($format);
-    }
-
-    /**
      * Printerを設定する。
      *
      * ## 説明
@@ -293,4 +274,17 @@ class Router
         $pocket->varPrinter($printerFqClassName);
     }
 
+
+    protected function getPrinterFormat($extension)
+    {
+        $extension = mb_strtolower($extension);
+        if ($extension) {
+            if (in_array($extension, Pocket::getInstance()->printFormats())) {
+                return $extension;
+            } elseif (!in_array($extension, ['php', 'html', 'htm'])) {
+                throw new \InvalidArgumentException('Invalid file type ' . $extension, 404);
+            }
+        }
+        return 'html';
+    }
 }

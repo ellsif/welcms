@@ -51,7 +51,7 @@ class Logger
         if ($logLevel !== FALSE &&  $logLevel <= array_search($this->logLevel, Logger::LOG_LEVELS)) {
             // ログ出力
             $log = WelUtil::getDateTime() . $this->delim . $level . $this->delim . $label . $this->delim . $message;
-            if ($level === 'debug' || $level === 'trace') {
+            if ($level === 'debug' || $level === 'trace' || $level === 'error') {
                 $debug = debug_backtrace();
                 $log .= $this->delim . "file: " . $debug[0]['file'] . "(line: " . $debug[0]['line'] . ")";
             }
