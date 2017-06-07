@@ -95,9 +95,6 @@ class WelCoMeS
         session_start();
         register_shutdown_function('session_write_close');
 
-        // TODO プラグインの初期化は調整の余地あり
-        // $this->initPlugins();
-
         // Routerの初期化、ルーティング処理
         try {
             $router = new Router();
@@ -133,7 +130,11 @@ class WelCoMeS
 
         } catch(\Throwable $e) {
 
-            $logger->log('error', 'system', $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $logger->log(
+                'error',
+                'system',
+                $e->getMessage() . PHP_EOL . $e->getCode() . PHP_EOL . $e->getTraceAsString()
+            );
 
             // エラーを表示
             if (!$pocket->varPrinter()) {
@@ -272,26 +273,5 @@ EOT;
             throw new Exception('設定ファイルの読み込みに失敗しました。');
         }
         include_once $confPath;
-    }
-
-    /**
-     * プラグインの初期化を行う。
-     */
-    private function initPlugins()
-    {
-        $config = Pocket::getInstance();
-        $plugins = PluginHelper::getPlugins();
-        $varPlugins = [];
-        foreach($plugins as $key => $plugin) {
-            if (isset($plugin['current'])) {
-                $plugin = $plugin['current'];
-                $plugin = PluginHelper::loadPlugin(PluginHelper::getClassPath($plugin['name'], $plugin['version']));
-                if (isset($plugin['object'])) {
-                    $plugin['object']->init();
-                }
-                $varPlugins[] = $plugin;
-            }
-        }
-        $config->varPlugins($varPlugins);
     }
 }
