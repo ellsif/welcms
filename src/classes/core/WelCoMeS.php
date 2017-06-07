@@ -144,7 +144,11 @@ class WelCoMeS
             $printMethod = $pocket->varPrinterFormat();
             $printer = new $printerClass();
             $result = new ServiceResult();
-            $result->setView($pocket->dirSystem() . 'views/404.php');
+            try {
+                $result->setView(Router::getViewPath($e->getCode() . '.php'));
+            } catch(\Exception $e) {
+                $result->setView(Router::getViewPath('404.php'));
+            }
             $result->error($e->getMessage());
 
             $logger->log('error', 'system', "$printerClass::$printMethod called");
