@@ -11,7 +11,7 @@ class ManagerService extends Service
     /**
      * ログイン画面を表示します。
      */
-    public function login($params)
+    public function getLogin($params)
     {
         return new ServiceResult();
     }
@@ -48,6 +48,14 @@ class ManagerService extends Service
     }
 
     /**
+     * 管理画面ダッシュボード。
+     */
+    public function getIndexManager($params)
+    {
+        return new ServiceResult();
+    }
+
+    /**
      * マネージャー画面用の404ページを表示
      */
     public function show404($data = [])
@@ -59,17 +67,9 @@ class ManagerService extends Service
     /**
      * ログアウトします。
      */
-    public function logoutManager($params)
+    public function getLogoutManager($params)
     {
         $_SESSION['manager_id'] = null;
         WelUtil::redirect('/');
-    }
-
-    /**
-     * 管理画面ダッシュボード。
-     */
-    public function index($params)
-    {
-        return new ServiceResult();
     }
 }
