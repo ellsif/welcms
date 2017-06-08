@@ -182,7 +182,7 @@ class WelUtil
     public static function parseUrl(string $url) :array
     {
         if (!WelUtil::isUrl($url)) {
-            if (intval($_SERVER['REMOTE_PORT']) == 443) {
+            if (isset($_SERVER['HTTPS'])) {
                 $url = 'https://' . WelUtil::getHostname() . $url;
             } else {
                 $url = 'http://' . WelUtil::getHostname() . $url;
