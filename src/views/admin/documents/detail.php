@@ -1,6 +1,8 @@
 <?php
 namespace ellsif;
-use ellsif\WelCMS\Router;use ellsif\WelCMS\WelUtil;$config = WelCMS\Pocket::getInstance();
+use ellsif\WelCMS\Router;
+use ellsif\WelCMS\WelUtil;
+$config = WelCMS\Pocket::getInstance();
 
 // ページ表示用のデータを取得
 $doc = new Document();

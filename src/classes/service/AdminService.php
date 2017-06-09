@@ -134,5 +134,18 @@ class AdminService extends Service
         return $result;
     }
 
-    use AdminPageService, AdminPageTemplates, AdminPageFiles, AdminPluginService, AdminPageGroups, AdminPageUsers, AdminDatabaseService;
+    /**
+     * 管理者アカウント管理
+     */
+    public function getManagerAdmin($param)
+    {
+        $result = new ServiceResult();
+        $managerRepo = WelUtil::getRepository('Manager');
+        $result->resultData([
+            'managers' => $managerRepo->list()
+        ]);
+        return $result;
+    }
+
+    use AdminPageService, AdminPageTemplates, AdminPageFiles, AdminPluginService, AdminPageGroups, AdminDatabaseService;
 }
