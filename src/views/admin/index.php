@@ -1,16 +1,14 @@
 <?php
 namespace ellsif;
-use ellsif\WelCMS\Router;$config = WelCMS\Pocket::getInstance();
-$urlInfo = $config->varUrlInfo();
+use ellsif\WelCMS\Router;use ellsif\WelCMS\WelUtil;$config = WelCMS\Pocket::getInstance();
 ?><!DOCTYPE html>
 <html lang="ja-JP">
   <head>
-    <?php Router::getViewPath('admin/head.php') ?>
+    <?php WelUtil::loadView(Router::getViewPath('admin/head.php')) ?>
   </head>
   <body>
     <div id="wrapper">
-      <?php Router::getViewPath('admin/nav.php') ?>
-
+      <?php WelUtil::loadView(Router::getViewPath('admin/nav.php')) ?>
       <div id="page-wrapper">
         <div class="row">
           <div class="col-lg-12">
@@ -29,6 +27,6 @@ $urlInfo = $config->varUrlInfo();
         </div>
       </div>
     </div>
-    <?php Router::getViewPath('admin/foot_js.php') ?>
+    <?php WelUtil::loadView(Router::getViewPath('admin/foot_js.php')) ?>
   </body>
 </html>

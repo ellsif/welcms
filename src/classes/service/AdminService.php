@@ -113,9 +113,9 @@ class AdminService extends Service
     }
 
     /**
-     * 管理画面ダッシュボード。
+     * 管理画面ダッシュボードを表示する。
      */
-    public function index($params)
+    public function getIndexAdmin($params)
     {
         return new ServiceResult();
     }

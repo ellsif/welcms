@@ -1,4 +1,5 @@
 <?php
+$urlInfo = $pocket->varUrlInfo();
 $_port = $urlInfo['port'];
 if ($_port != 80) {
   $_port = ":${_port}";
