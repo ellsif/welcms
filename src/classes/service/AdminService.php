@@ -126,13 +126,10 @@ class AdminService extends Service
     public function getDocumentsAdmin($param)
     {
         $result = new ServiceResult();
-        if (empty($param)) {
-            // インデックスページを表示
-            $result->view('html', Router::getViewPath('admin/documents.php'));
-        } else {
+        if ($param) {
             $docPath = implode('/', $param);
             $result->resultData(['docPath' => $docPath]);
-            $result->view('html', Router::getViewPath('admin/documents/detail.php'));
+            $result->setView(Router::getViewPath('admin/documents/detail.php'));
         }
         return $result;
     }
