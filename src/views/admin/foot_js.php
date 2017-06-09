@@ -1,5 +1,5 @@
 <?php
-$urlInfo = $pocket->varUrlInfo();
+$urlInfo = \ellsif\WelCMS\Pocket::getInstance()->varUrlInfo();
 $_port = $urlInfo['port'];
 if ($_port != 80) {
   $_port = ":${_port}";
