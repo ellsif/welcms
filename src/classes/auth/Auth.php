@@ -11,6 +11,9 @@ abstract class Auth
      */
     public static function setLoginUsers()
     {
+        if ($_SESSION['is_admin'] === true) {
+            Pocket::getInstance()->isAdmin(true);
+        }
         if (isset($_SESSION['manager_id']) && $_SESSION['manager_id']) {
             $managerRepo = WelUtil::getRepository('Manager');
             $manager = $managerRepo->list(['managerId' => $_SESSION['manager_id']]);

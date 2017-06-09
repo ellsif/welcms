@@ -1,24 +1,23 @@
 <?php
-  namespace ellsif;
-  $config = WelCMS\Pocket::getInstance();
+namespace ellsif;
+use ellsif\WelCMS\Router;use ellsif\WelCMS\WelUtil;$config = WelCMS\Pocket::getInstance();
 
-  // ページ表示用のデータを取得
-  $doc = new Document();
-  $file = $docPath ?? '';
-  $document = $doc->getData($config->dirSystem() . $file);
+// ページ表示用のデータを取得
+$doc = new Document();
+$file = $docPath ?? '';
+$document = $doc->getData($config->dirSystem() . $file);
 
-  // CSS、JSを追加
-  $config->addCssAfter('system/assets/vendor/highlight/styles/tomorrow.css');
-  $config->addVarFooterJsAfter('system/assets/vendor/highlight/highlight.pack.js');
+// CSS、JSを追加
+$config->addCssAfter('system/assets/vendor/highlight/styles/tomorrow.css');
+$config->addVarFooterJsAfter('system/assets/vendor/highlight/highlight.pack.js');
 ?><!DOCTYPE html>
 <html lang="ja-JP">
   <head>
-    <?php include dirname(__FILE__, 2) . '/head.php' ?>
+    <?php WelUtil::loadView(Router::getViewPath('admin/head.php')) ?>
   </head>
   <body>
     <div id="wrapper">
-      <?php include dirname(__FILE__, 2) . '/nav.php' ?>
-
+      <?php WelUtil::loadView(Router::getViewPath('admin/nav.php')) ?>
       <div id="page-wrapper">
         <div class="row">
           <div class="col-lg-12">
@@ -78,7 +77,7 @@
         </div>
       </div>
     </div>
-    <?php include dirname(__FILE__, 2) . "/foot_js.php" ?>
+    <?php WelUtil::loadView(Router::getViewPath('admin/foot_js.php')) ?>
     <script>
       $(document).ready(function() {
         $('.doc-code,.doc-define').each(function(i, block) {
