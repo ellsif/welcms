@@ -27,7 +27,7 @@ $managers = $managers ?? [];
                       </tr>
                       <?php foreach($managers as $manager): ?>
                         <tr>
-                          <td><?php echo $manager['userId'] ?></td><td><?php echo $manager['name'] ?></td>
+                          <td><?php echo $manager['managerId'] ?></td><td><?php echo $manager['name'] ?></td>
                         </tr>
                       <?php endforeach; ?>
                     </table>
