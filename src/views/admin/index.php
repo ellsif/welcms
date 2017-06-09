@@ -1,15 +1,15 @@
 <?php
 namespace ellsif;
-$config = WelCMS\Pocket::getInstance();
+use ellsif\WelCMS\Router;$config = WelCMS\Pocket::getInstance();
 $urlInfo = $config->varUrlInfo();
 ?><!DOCTYPE html>
 <html lang="ja-JP">
   <head>
-    <?php include dirname(__FILE__) . '/head.php' ?>
+    <?php Router::getViewPath('admin/head.php') ?>
   </head>
   <body>
     <div id="wrapper">
-      <?php include dirname(__FILE__) . '/nav.php' ?>
+      <?php Router::getViewPath('admin/nav.php') ?>
 
       <div id="page-wrapper">
         <div class="row">
@@ -29,6 +29,6 @@ $urlInfo = $config->varUrlInfo();
         </div>
       </div>
     </div>
-    <?php include dirname(__FILE__) . "/foot_js.php" ?>
+    <?php Router::getViewPath('admin/foot_js.php') ?>
   </body>
 </html>
