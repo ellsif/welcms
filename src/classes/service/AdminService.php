@@ -170,7 +170,7 @@ class AdminService extends Service
         $validator->rule('required', ['managerId', 'password', 'email', 'name'])->message('{field}は必須です');
         $validator->rule('email', 'email')->message('{field}に正しいメールアドレスを指定してください。');
         $validator->rule('alphaNum', ['managerId', 'password'])->message('{field}は半角英数で入力してください。');
-        $validator->rule(['lengthMin', 6], 'password')->message('{field}は6文字以上で入力してください。');
+        $validator->rule('lengthMin', 'password', 6)->message('{field}は6文字以上で入力してください。');
         $managerRepo->validate($manager, $managerRepo->getValidationRules());
         if (Pocket::getInstance()->varValid()) {
             $manager['password'] = Auth::getHashed($manager['password']);
