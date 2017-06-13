@@ -21,10 +21,10 @@ $manager = $manager ?? [];
           <div class="col-lg-12">
             <div class="panel panel-default">
               <div class="panel-body">
-                <form id="validateForm" action="<?php echo WelUtil::getUrl('/user/registConfirm') ?>" method="post">
+                <form id="validateForm" action="<?php echo WelUtil::getUrl('/admin/manager') ?>" method="post">
                   <div class="form-group">
                     <label class="control-label">ログインID <span class="text-danger">*</span></label>
-                    <input type="text" value="" class="form-control" name="User[userId]" placeholder="半角英数">
+                    <input type="text" value="" class="form-control" name="Manager[managerId]" placeholder="半角英数">
                   </div>
                   <div class="form-group">
                     <label class="control-label">名前 <span class="text-danger">*</span></label>
@@ -32,13 +32,13 @@ $manager = $manager ?? [];
                   </div>
                   <div class="form-group">
                     <label class="control-label">Eメール <span class="text-danger">*</span></label>
-                    <input name="Manager[email]" type="text" value="<?php echo isset($manager['email']) ? $manager['email'] : '' ?>">
+                    <input class="form-control" name="Manager[email]" type="text" value="<?php echo isset($manager['email']) ? $manager['email'] : '' ?>">
                   </div>
                   <div class="form-group">
                     <label class="control-label">パスワード <span class="text-danger">*</span></label>
                     <input type="text" value="<?php echo isset($manager['email']) ? $manager['email'] : '' ?>" class="form-control js-password" name="Manager[password]">
                   </div>
-                  <input disabled type="submit" class="btn btn-lg btn-primary btn-block btn-submit" value="登録">
+                  <input type="submit" class="btn btn-lg btn-primary btn-submit" value="登録">
                 </form>
                 <?php if (count($managers)): ?>
                   <table class="table table-bordered">
@@ -47,7 +47,7 @@ $manager = $manager ?? [];
                     </tr>
                     <?php foreach($managers as $manager): ?>
                       <tr>
-                        <td><?php echo $manager['managerId'] ?></td><?php echo $manager['email'] ?></td><td><?php echo $manager['name'] ?></td>
+                        <td><?php echo $manager['managerId'] ?></td><td><?php echo $manager['email'] ?></td><td><?php echo $manager['name'] ?></td>
                       </tr>
                     <?php endforeach; ?>
                   </table>

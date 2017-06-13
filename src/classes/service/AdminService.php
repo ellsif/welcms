@@ -3,6 +3,7 @@
 namespace ellsif\WelCMS;
 
 use ellsif\Logger;
+use Valitron\Validator;
 
 /**
  * 管理画面表示用コントローラ
@@ -158,10 +159,24 @@ class AdminService extends Service
         if (!$manager) {
             throw new \InvalidArgumentException('パラメータが不正です。', 404);
         }
+
+        $validator = new Validator($manager);
+        $validator->labels(array(
+            'managerId' => 'ログインID',
+            'email' => 'メールアドレス',
+            'password' => 'パスワード',
+            'name' => '名前',
+        ));
+        $validator->rule('required', ['managerId', 'password', 'email', 'name'])->message('{field}は必須です');
+        $validator->rule('email', 'email')->message('{field}に正しいメールアドレスを指定してください。');
+        $validator->rule('alphaNum', ['managerId', 'password'])->message('{field}は半角英数で入力してください。');
+        $validator->rule(['lengthMin', 6], 'password')->message('{field}は6文字以上で入力してください。');
         $managerRepo->validate($manager, $managerRepo->getValidationRules());
         if (Pocket::getInstance()->varValid()) {
+            $manager['password'] = Auth::getHashed($manager['password']);
             $managerRepo->save([$manager]);
         } else {
+            $result->error($validator->errors());
             $result->resultData([
                 'managers' => $managerRepo->list(),
                 'manager' => $manager,
