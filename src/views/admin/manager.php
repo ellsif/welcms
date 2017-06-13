@@ -1,6 +1,7 @@
 <?php
 namespace ellsif\WelCMS;
 $managers = $managers ?? [];
+$manager = $manager ?? [];
 ?><!DOCTYPE html>
 <html lang="ja-JP">
   <head>
@@ -20,19 +21,38 @@ $managers = $managers ?? [];
           <div class="col-lg-12">
             <div class="panel panel-default">
               <div class="panel-body">
+                <form id="validateForm" action="<?php echo WelUtil::getUrl('/user/registConfirm') ?>" method="post">
+                  <div class="form-group">
+                    <label class="control-label">ログインID <span class="text-danger">*</span></label>
+                    <input type="text" value="" class="form-control" name="User[userId]" placeholder="半角英数">
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">名前 <span class="text-danger">*</span></label>
+                    <input type="text" value="" class="form-control" name="Manager[name]" placeholder="表示名">
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Eメール <span class="text-danger">*</span></label>
+                    <input name="Manager[email]" type="text" value="<?php echo isset($manager['email']) ? $manager['email'] : '' ?>">
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">パスワード <span class="text-danger">*</span></label>
+                    <input type="text" value="<?php echo isset($manager['email']) ? $manager['email'] : '' ?>" class="form-control js-password" name="Manager[password]">
+                  </div>
+                  <input disabled type="submit" class="btn btn-lg btn-primary btn-block btn-submit" value="登録">
+                </form>
                 <?php if (count($managers)): ?>
-                    <table class="table table-bordered">
+                  <table class="table table-bordered">
+                    <tr>
+                      <th>ログインID</th><th>Eメール</th><th>名前</th>
+                    </tr>
+                    <?php foreach($managers as $manager): ?>
                       <tr>
-                        <th>ログインID</th><th>名前</th>
+                        <td><?php echo $manager['managerId'] ?></td><?php echo $manager['email'] ?></td><td><?php echo $manager['name'] ?></td>
                       </tr>
-                      <?php foreach($managers as $manager): ?>
-                        <tr>
-                          <td><?php echo $manager['managerId'] ?></td><td><?php echo $manager['name'] ?></td>
-                        </tr>
-                      <?php endforeach; ?>
-                    </table>
+                    <?php endforeach; ?>
+                  </table>
                 <?php else: ?>
-                  <p>ダッシュボードです。</p>
+                  <p>管理者が登録されていません。</p>
                 <?php endif; ?>
               </div>
             </div>

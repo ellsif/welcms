@@ -147,5 +147,28 @@ class AdminService extends Service
         return $result;
     }
 
+    /**
+     * 管理者アカウント登録
+     */
+    public function postManagerAdmin($param)
+    {
+        $result = new ServiceResult();
+        $manager = $_POST['Manager'] ?? null;
+        $managerRepo = WelUtil::getRepository('Manager');
+        if (!$manager) {
+            throw new \InvalidArgumentException('パラメータが不正です。', 404);
+        }
+        $managerRepo->validate($manager, $managerRepo->getValidationRules());
+        if (Pocket::getInstance()->varValid()) {
+            $managerRepo->save([$manager]);
+        } else {
+            $result->resultData([
+                'managers' => $managerRepo->list(),
+                'manager' => $manager,
+            ]);
+        }
+        return $result;
+    }
+
     use AdminPageService, AdminPageTemplates, AdminPageFiles, AdminPluginService, AdminPageGroups, AdminDatabaseService;
 }
