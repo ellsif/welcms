@@ -28,4 +28,14 @@ register_shutdown_function(function() use ($pid) {
 });
 
 
+// サーバが起動するまで待つ
+do {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'http://' . WEB_SERVER_HOST . ':' . WEB_SERVER_PORT);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $f = curl_exec($ch);
+    curl_close($ch);
+    sleep(1);
+} while($f);
+
 require_once '../vendor/autoload.php';

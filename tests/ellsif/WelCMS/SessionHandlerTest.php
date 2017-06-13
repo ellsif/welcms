@@ -6,9 +6,6 @@ use ellsif\WelCMS\SessionHandler;
 use ellsif\WelCMS\Pocket;
 use ellsif\WelCMS\WelUtil;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 {
 
