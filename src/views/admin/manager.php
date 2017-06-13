@@ -21,7 +21,7 @@ $manager = $manager ?? [];
           <div class="col-lg-12">
             <div class="panel panel-default">
               <div class="panel-body">
-                <form id="validateForm" action="<?php echo WelUtil::getUrl('/admin/manager') ?>" method="post">
+                <form class="mb-3" id="validateForm" action="<?php echo WelUtil::getUrl('/admin/manager') ?>" method="post">
                   <div class="form-group">
                     <label class="control-label">ログインID <span class="text-danger">*</span></label>
                     <input type="text" value="" class="form-control" name="Manager[managerId]" placeholder="半角英数">

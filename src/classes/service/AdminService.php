@@ -175,6 +175,7 @@ class AdminService extends Service
         if (Pocket::getInstance()->varValid()) {
             $manager['password'] = Auth::getHashed($manager['password']);
             $managerRepo->save([$manager]);
+            WelUtil::redirect('admin/manager');
         } else {
             $result->error($validator->errors());
             $result->resultData([
