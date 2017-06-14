@@ -15,11 +15,11 @@ $manager = $manager ?? [];
           <div class="col-lg-12">
             <h1 class="page-header">管理者アカウント</h1>
           </div>
-          <?php ViewUtil::printErrors($errors ?? []); ?>
         </div>
 
         <div class="row">
           <div class="col-lg-12">
+            <?php ViewUtil::printErrors($errors ?? []); ?>
             <div class="panel panel-default">
               <div class="panel-body">
                 <form class="mb-3" id="validateForm" action="<?php echo WelUtil::getUrl('/admin/manager') ?>" method="post">
