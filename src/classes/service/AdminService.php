@@ -164,7 +164,8 @@ class AdminService extends Service
         $validator = ValitronUtil::getValidator(
             $manager,
             $managerRepo->getValidationRules(),
-            $managerRepo->getLabels()
+            $managerRepo->getLabels(),
+            'ja'
         );
         if ($validator->validate()) {
             $manager['password'] = Auth::getHashed($manager['password']);

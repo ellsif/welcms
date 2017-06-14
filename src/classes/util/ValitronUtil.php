@@ -6,7 +6,7 @@ use Valitron\Validator;
 
 class ValitronUtil
 {
-    // 日本語メッセージの対応
+    // 日本語メッセージの上書き
     protected const MESSAGES = [
         'required' => '{field} : 必須入力です。',
         'equals' => '',
@@ -17,7 +17,7 @@ class ValitronUtil
         'boolean' => '',
         'array' => '',
         'length' => '',
-        'lengthBetween' => '{field} : %d〜%d文字で入力してください',
+        'lengthBetween' => '{field} : %d〜%d文字で入力してください。',
         'lengthMin' => '',
         'lengthMax' => '',
         'min' => '',
