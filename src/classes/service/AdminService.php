@@ -161,7 +161,7 @@ class AdminService extends Service
         }
 
         ;
-        $validator = ValidationUtil::getValidator(
+        $validator = ValitronUtil::getValidator(
             $manager,
             $managerRepo->getValidationRules(),
             $managerRepo->getLabels()

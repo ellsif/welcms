@@ -351,7 +351,7 @@ class Repository
             if ($columns && !in_array($name, $columns)) {
                 continue;
             }
-            $rules[$name] = $settings['label'] ?? $name;
+            $labels[$name] = $settings['label'] ?? $name;
         }
         return $labels;
     }

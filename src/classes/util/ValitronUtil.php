@@ -4,8 +4,43 @@ namespace ellsif\WelCMS;
 
 use Valitron\Validator;
 
-class ValidationUtil
+class ValitronUtil
 {
+    // 日本語メッセージの対応
+    protected const MESSAGES = [
+        'required' => ' : 必須入力です。',
+        'equals' => '',
+        'different' => '',
+        'accepted' => '',
+        'numeric' => '',
+        'integer' => '',
+        'boolean' => '',
+        'array' => '',
+        'length' => '',
+        'lengthBetween' => '',
+        'lengthMin' => '',
+        'lengthMax' => '',
+        'min' => '',
+        'max' => '',
+        'in' => '',
+        'notIn' => '',
+        'ip' => '',
+        'email' => '',
+        'url' => '',
+        'urlActive' => '',
+        'alpha' => '',
+        'alphaNum' => '',
+        'slug' => '',
+        'regex' => '',
+        'date' => '',
+        'dateFormat' => '',
+        'dateBefore' => '',
+        'dateAfter' => '',
+        'contains' => '',
+        'creditCard' => '',
+        'instanceOf' => '',
+        'optional' => '',
+    ];
 
     /**
      * Valitronバリデータオブジェクトを取得します。
@@ -24,10 +59,14 @@ class ValidationUtil
                     if (isset($_validation['function'])) {
                         $func = $_validation['function'];
                         if (WelUtil::isClosure($func)) {
+                            $message = $_validation['message'] ?? null;
+                            if (!$message) {
+                                $message = ValitronUtil::MESSAGES[$rule] ?? null;
+                            }
                             Validator::addRule(
                                 $rule,
                                 $func,
-                                $_validation['message'] ?? null
+                                $message
                             );
                         }
                     }
