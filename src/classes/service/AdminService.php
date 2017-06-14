@@ -73,7 +73,7 @@ class AdminService extends Service
                 'adminID' => '管理者ID',
                 'adminPass' => '管理者パスワード',
             ]);
-            $validator->rule('require', ['adminID', 'adminPass'])->message('{field} : 必須入力です。');
+            $validator->rule('required', ['adminID', 'adminPass'])->message('{field} : 必須入力です。');
             if (!$validator->validate()) {
                 $result->error($validator->errors());
                 $result->resultData([
