@@ -1,7 +1,7 @@
 <?php
 $urlInfo = \ellsif\WelCMS\Pocket::getInstance()->varUrlInfo();
 $_port = $urlInfo['port'];
-if ($_port != 80) {
+if ($_port && $_port != 80) {
   $_port = ":${_port}";
 } else {
   $_port = '';

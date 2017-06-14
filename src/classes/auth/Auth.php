@@ -11,7 +11,7 @@ abstract class Auth
      */
     public static function setLoginUsers()
     {
-        if ($_SESSION['is_admin'] === true) {
+        if (($_SESSION['is_admin'] ?? false) === true) {
             Pocket::getInstance()->isAdmin(true);
         }
         if (isset($_SESSION['manager_id']) && $_SESSION['manager_id']) {

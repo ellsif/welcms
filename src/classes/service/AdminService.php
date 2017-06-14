@@ -9,28 +9,10 @@ use ellsif\Logger;
  */
 class AdminService extends Service
 {
-
-    /**
-     * 管理者認証処理を行う。
-     * 基底クラスのshow()メソッドを経由した場合のみ、ここの処理を通る。
-     * ログイン画面などはshow()を経由せず直接login()を呼ぶ。
-     *
-     * @param $param
-     * @return bool
-     */
-    public function authenticate($param) :bool
-    {
-        //
-        $config = Pocket::getInstance();
-        $auth = $_SESSION['is_admin'] === TRUE;
-
-        return $auth;
-    }
-
     /**
      * アクティベーションページを表示します。
      */
-    public function activate($params)
+    public function getActivate($params)
     {
         if (Pocket::getInstance()->settingActivated()) {
             WelUtil::redirect('admin/');
@@ -67,7 +49,7 @@ class AdminService extends Service
     /**
      * ログイン画面を表示します。
      */
-    public function login($params)
+    public function getLogin($params)
     {
         return new ServiceResult();
     }
@@ -104,15 +86,6 @@ class AdminService extends Service
     }
 
     /**
-     * 管理画面用の404ページを表示
-     */
-    public function show404($data = [])
-    {
-        $config = Pocket::getInstance();
-        WelUtil::loadView($config->dirView() . 'admin/404.php', $data);
-    }
-
-    /**
      * 管理画面ダッシュボードを表示する。
      */
     public function getIndexAdmin($params)
@@ -123,19 +96,64 @@ class AdminService extends Service
     /**
      * 関数リファレンスを表示する。
      */
+    // TODO 修正が必要
+    /*
     public function getDocumentsAdmin($param)
     {
         $result = new ServiceResult();
-        if (empty($param)) {
-            // インデックスページを表示
-            $result->view('html', Router::getViewPath('admin/documents.php'));
-        } else {
+        if ($param) {
             $docPath = implode('/', $param);
             $result->resultData(['docPath' => $docPath]);
-            $result->view('html', Router::getViewPath('admin/documents/detail.php'));
+            $result->setView(Router::getViewPath('admin/documents/detail.php'));
+        }
+        return $result;
+    }
+    */
+
+    /**
+     * マネージャーアカウント管理画面を表示します。
+     */
+    public function getManagerAdmin($param)
+    {
+        $result = new ServiceResult();
+        $managerRepo = WelUtil::getRepository('Manager');
+        $result->resultData([
+            'managers' => $managerRepo->list()
+        ]);
+        return $result;
+    }
+
+    /**
+     * マネージャーアカウント登録を行います。
+     */
+    public function postManagerAdmin($param)
+    {
+        $result = new ServiceResult();
+        $manager = $_POST['Manager'] ?? null;
+        $managerRepo = WelUtil::getRepository('Manager');
+        if (!$manager) {
+            throw new \InvalidArgumentException('パラメータが不正です。', 404);
+        }
+
+        $validator = ValitronUtil::getValidator(
+            $manager,
+            $managerRepo->getValidationRules(),
+            $managerRepo->getLabels(),
+            'ja'
+        );
+        if ($validator->validate()) {
+            $manager['password'] = Auth::getHashed($manager['password']);
+            $managerRepo->save([$manager]);
+            WelUtil::redirect('admin/manager');
+        } else {
+            $result->error($validator->errors());
+            $result->resultData([
+                'managers' => $managerRepo->list(),
+                'manager' => $manager,
+            ]);
         }
         return $result;
     }
 
-    use AdminPageService, AdminPageTemplates, AdminPageFiles, AdminPluginService, AdminPageGroups, AdminPageUsers, AdminDatabaseService;
+    // use AdminPageService, AdminPageTemplates, AdminPageFiles, AdminPluginService, AdminPageGroups, AdminDatabaseService;
 }

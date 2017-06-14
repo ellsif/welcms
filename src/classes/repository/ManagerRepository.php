@@ -15,9 +15,9 @@ class ManagerRepository extends Repository
          */
         $this->columns = [
             'managerId' => [
-                'label'       => '管理者ID',
+                'label'       => 'ログインID',
                 'type'        => 'string',
-                'description' => 'ログインに利用するidです。後からの変更は出来ません。',
+                'description' => 'ログイン時に利用するidです。後からの変更は出来ません。',
                 'validation'  => [
                     ['rule' => 'required'],
                     [
@@ -26,7 +26,7 @@ class ManagerRepository extends Repository
                             $id = $fields['id'] ?? null;
                             return $this->validateUniqueManagerId($value, $id);
                         },
-                        'message' => 'is already in use',
+                        'message' => '{field} : 既に利用されています。',
                     ],
                 ],
             ],
@@ -37,6 +37,10 @@ class ManagerRepository extends Repository
                 'onSave'      => '',  // 登録更新時に自動的にハッシュ化
                 'validation'  => [
                     ['rule' => 'required'],
+                    [
+                        'rule' => 'lengthBetween',
+                        'option' => [6, 32],
+                    ],
                 ],
             ],
             'name' => [
@@ -59,7 +63,7 @@ class ManagerRepository extends Repository
                             $id = $fields['id'] ?? null;
                             return $this->validateUniqueManagerEmail($value, $id);
                         },
-                        'message' => 'is already in use',
+                        'message' => '{field} : 既に利用されています。',
                     ],
                     ['rule' => 'email'],
                 ],

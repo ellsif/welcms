@@ -7,9 +7,6 @@ use ellsif\WelCMS\WelCoMeS;
 use ellsif\WelCMS\WelUtil;
 use GuzzleHttp\Client;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class WelCoMeSTest extends \PHPUnit\Framework\TestCase
 {
 

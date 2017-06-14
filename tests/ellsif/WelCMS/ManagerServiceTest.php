@@ -6,9 +6,6 @@ use ellsif\WelCMS\Pocket;
 use ellsif\WelCMS\WelUtil;
 use GuzzleHttp\Client;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class ManagerServiceTest extends \PHPUnit\Framework\TestCase
 {
     /**
@@ -22,7 +19,7 @@ class ManagerServiceTest extends \PHPUnit\Framework\TestCase
     {
         self::$dbFiles = [
             'testLoginSuccess'     => dirname(__FILE__, 3) . '/data/ManagerServiceTestLogin.sqlite',
-            'testPostLoginSuccess' => dirname(__FILE__, 3) . '/data/ManagerServiceTestLogin.sqlite',
+            'testPostLoginSuccess' => dirname(__FILE__, 3) . '/data/ManagerServiceTestPostLogin.sqlite',
         ];
 
         foreach(self::$dbFiles as $methodName => $path) {
@@ -83,7 +80,7 @@ class ManagerServiceTest extends \PHPUnit\Framework\TestCase
 
         // ログイン処理開始
         $client = new Client(['cookies' => true]);
-        $res = $client->post('http://localhost:1349/ManagerServiceTestLogin/manager/login/', [
+        $res = $client->post('http://localhost:1349/ManagerServiceTestPostLogin/manager/login/', [
             'form_params' => [
                 'managerId' => 'manager',
                 'password' => 'password',
@@ -93,10 +90,10 @@ class ManagerServiceTest extends \PHPUnit\Framework\TestCase
 
         // ログイン後にリダイレクトされる
         $this->assertEquals(301, $res->getStatusCode());
-        $this->assertEquals('http://localhost:1349/ManagerServiceTestLogin/manager', $res->getHeaderLine('Location'));
+        $this->assertEquals('http://localhost:1349/ManagerServiceTestPostLogin/manager', $res->getHeaderLine('Location'));
 
         // 管理者のダッシュボードの表示
-        $res = $client->get('http://localhost:1349/ManagerServiceTestLogin/manager/');
+        $res = $client->get('http://localhost:1349/ManagerServiceTestPostLogin/manager/');
         $this->assertEquals(200, $res->getStatusCode());
     }
 }
