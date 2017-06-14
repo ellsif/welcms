@@ -4,9 +4,36 @@ namespace ellsif\WelCMS;
 class ViewUtil
 {
     /**
+     * Flashメッセージを登録します。
+     */
+    public static function addFlash($message, $level = 'info')
+    {
+        Pocket::getInstance()->addFlash($message, $level);
+    }
+
+    /**
+     * Flashメッセージを表示します。
+     */
+    public static function printFlash()
+    {
+        $flash = Pocket::getInstance()->varFlash();
+        if ($flash && is_array($flash) && count($flash)) {
+            foreach($flash as $level => $messages) {
+                echo '<div class="alert alert-' . ViewUtil::htmlEscape($level) . '"><ul>';
+                foreach($messages as $message) {
+                    echo '<li>';
+                    ViewUtil::echo($message);
+                    echo '</li>';
+                }
+                echo '</ul></div>';
+            }
+        }
+    }
+
+    /**
      * エラーメッセージを表示します。
      */
-    public static function printErrors($errors)
+    public static function printErrors($errors, $class = 'alert alert-danger')
     {
         if ($errors) {
             $errorMessages = [];
@@ -16,10 +43,9 @@ class ViewUtil
                 }
             }
             if (count($errorMessages)) {
-                echo '<div class="col-lg-12">';
                 echo '<div class="alert alert-danger">';
                 echo '<ul><li>' . implode('</li><li>', $errorMessages) . '</li></ul>';
-                echo '</div></div>';
+                echo '</div>';
             }
         }
     }
@@ -27,8 +53,19 @@ class ViewUtil
     /**
      * HTMLエスケープした文字列を出力します。
      */
-    public static function echo($str, $flags = ENT_COMPAT | ENT_HTML401)
+    public static function echo($str, $flags = null)
     {
-        echo htmlspecialchars($str, $flags);
+        echo ViewUtil::htmlEscape($str, $flags);
+    }
+
+    /**
+     * HTMLエスケープします。
+     */
+    public static function htmlEscape($str, $flags = null)
+    {
+        if ($flags == null) {
+            $flags = ENT_COMPAT | ENT_HTML401;
+        }
+        return htmlspecialchars($str, $flags);
     }
 }
