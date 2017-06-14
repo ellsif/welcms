@@ -73,7 +73,7 @@ class ValitronUtil
                     }
                 }
                 if (isset($_validation['option'])) {
-                    $_rule = $validator->rule($rule, $name, $_validation['option']);
+                    $_rule = call_user_func_array([$validator, 'rule'], array_merge([$rule, $name], $_validation['option']));
                 } else {
                     $_rule = $validator->rule($rule, $name);
                 }
