@@ -19,13 +19,13 @@ class ViewUtil
         $flash = Pocket::getInstance()->varFlash();
         if ($flash && is_array($flash) && count($flash)) {
             foreach($flash as $level => $messages) {
-                echo '<div class="col-lg-12"><div class="alert alert-' . ViewUtil::htmlEscape($level) . '"><ul>';
+                echo '<div class="alert alert-' . ViewUtil::htmlEscape($level) . '"><ul>';
                 foreach($messages as $message) {
                     echo '<li>';
                     ViewUtil::echo($message);
                     echo '</li>';
                 }
-                echo '</ul></div></div>';
+                echo '</ul></div>';
             }
         }
     }
@@ -33,7 +33,7 @@ class ViewUtil
     /**
      * エラーメッセージを表示します。
      */
-    public static function printErrors($errors)
+    public static function printErrors($errors, $class = 'alert alert-danger')
     {
         if ($errors) {
             $errorMessages = [];
@@ -43,10 +43,9 @@ class ViewUtil
                 }
             }
             if (count($errorMessages)) {
-                echo '<div class="col-lg-12">';
                 echo '<div class="alert alert-danger">';
                 echo '<ul><li>' . implode('</li><li>', $errorMessages) . '</li></ul>';
-                echo '</div></div>';
+                echo '</div>';
             }
         }
     }
