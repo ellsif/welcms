@@ -20,11 +20,9 @@ $formError = $config->varFormError();
           </div>
         </div>
         <div class="row">
-          <div class="col-lg-8">
-          <?php ViewUtil::printFlash() ?>
-          <?php ViewUtil::printErrors($errors ?? []) ?>
-          </div>
           <div class="col-lg-8 col-lg-offset-2">
+            <?php ViewUtil::printFlash() ?>
+            <?php ViewUtil::printErrors($errors ?? []) ?>
             <div class="panel panel-default">
               <div class="panel-body">
                 <?php
