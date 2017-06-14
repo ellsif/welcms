@@ -56,13 +56,13 @@ class ValitronUtil
             foreach ($_validations as $_validation) {
                 if (isset($_validation['rule'])) {
                     $rule = $_validation['rule'];
+                    $func = $_validation['function'];
+                    $message = $_validation['message'] ?? null;
+                    if (!$message) {
+                        $message = ValitronUtil::MESSAGES[$rule] ?? null;
+                    }
                     if (isset($_validation['function'])) {
-                        $func = $_validation['function'];
                         if (WelUtil::isClosure($func)) {
-                            $message = $_validation['message'] ?? null;
-                            if (!$message) {
-                                $message = ValitronUtil::MESSAGES[$rule] ?? null;
-                            }
                             Validator::addRule(
                                 $rule,
                                 $func,
@@ -71,9 +71,12 @@ class ValitronUtil
                         }
                     }
                     if (isset($_validation['option'])) {
-                        $validator->rule($rule, $name, $_validation['option']);
+                        $_rule = $validator->rule($rule, $name, $_validation['option']);
                     } else {
-                        $validator->rule($rule, $name);
+                        $_rule = $validator->rule($rule, $name);
+                    }
+                    if ($message) {
+                        $_rule->message($message);
                     }
                 }
             }
