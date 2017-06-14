@@ -38,13 +38,6 @@
   $data = $config->varFormData();
   $formError = $config->varFormError();
 
-
-  // Riotコンポーネントを利用
-  // TODO 出来ればWebPartに置き換えたい
-  $config->addRiotJs(Router::getUrl('admin/parts/ImageInput'));
-  $config->addRiotJs(Router::getUrl('admin/parts/FileUpload'));
-  $config->addRiotJs(Router::getUrl('admin/parts/Modal'));
-
 ?><!DOCTYPE html>
 <html lang="ja-JP">
   <head>

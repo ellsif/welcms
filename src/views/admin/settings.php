@@ -4,12 +4,6 @@ use ellsif\WelCMS\Router;
 $config = WelCMS\Pocket::getInstance();
 $urlInfo = $config->varUrlInfo();
 $url = Router::getInstance();
-
-// Riotコンポーネントを利用
-$config->addRiotJs($url->getUrl('admin/parts/ImageInput'));
-$config->addRiotJs($url->getUrl('admin/parts/FileUpload'));
-$config->addRiotJs($url->getUrl('admin/parts/Modal'));
-
 ?><!DOCTYPE html>
 <html lang="ja-JP">
 <head>

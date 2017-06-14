@@ -86,15 +86,11 @@ class Pocket
                 'FormError' => [],
                 'Plugins' => [],
                 'FormToken' => '',
-                'AlertError' => [],
-                'AlertWarning' => [],
-                'AlertInfo' => [],
-                'AlertSuccess' => [],
+                'Flash' => [],
                 'FooterJsBefore' => [],
                 'FooterJsAfter' => [],
                 'CssBefore' => [],
                 'CssAfter' => [],
-                'RiotJs' => [],
                 'Options' => [],
                 'Action' => null,
                 'ActionMethod' => null,
@@ -700,91 +696,16 @@ class Pocket
     // TODO プラグインの扱いも検討必要
     public function varPlugins(...$val) { return $this->getset(__FUNCTION__, $val); }
 
-    /**
-     * 画面に表示するアラートメッセージ（エラー）のgetter/setter。
-     *
-     * ## 説明
-     * 画面に表示するアラートメッセージを格納する配列の設定/取得を行います。<br>
-     * アクション内でエラーが発生した場合はappendAlert()によりエラーメッセージを追加します。
-     *
-     * ## 例
-     * エラーメッセージの取得。
-     *
-     *     $config = Config::getInstance();
-     *     foreach ($config->varAlertError() as $error) {
-     *       echo $error;
-     *     }
-     *
-     * エラーメッセージの追加。
-     *
-     *     $config->appendAlert('メールアドレスの形式が不正です。', 'error');
-     *
-     */
-    public function varAlertError(...$val) { return $this->getset(__FUNCTION__, $val); }
+    public function varFlash(...$val) { return $this->getset(__FUNCTION__, $val); }
 
-    /**
-     * 画面に表示するアラートメッセージ（警告）のgetter/setter。
-     *
-     * ## 説明
-     *
-     */
-    public function varAlertWarning(...$val) { return $this->getset(__FUNCTION__, $val); }
-
-    /**
-     * 画面に表示するアラートメッセージ（インフォ）のgetter/setter。
-     */
-    public function varAlertInfo(...$val) { return $this->getset(__FUNCTION__, $val); }
-
-    /**
-     * 画面に表示するアラートメッセージ（成功）のgetter/setter。
-     */
-    public function varAlertSuccess(...$val) { return $this->getset(__FUNCTION__, $val); }
-
-    /**
-     * アラートメッセージを追加する。
-     *
-     * ## 説明
-     * エラーレベルを指定してアラートメッセージを追加します。
-     * メッセージはvarAlert[ErrorLevel]メソッド（varAlertError, varAlertInfo, varAlertWarning, varAlertSuccess）から取得します。
-     *
-     * ## パラメータ
-     * <dl>
-     *   <dt>message</dt>
-     *   <dd>
-     *     任意のメッセージを指定します。
-     *   </dd>
-     *   <dt>level</dt>
-     *   <dd>
-     *     エラーレベルを指定します。error, warning, success, infoの指定が可能です。それ以外が指定された場合はinfoとして処理されます。
-     *   </dd>
-     * </dl>
-     *
-     * ## 例
-     *
-     *     $config = Config::getInstance();
-     *     $config->appendAlert('フォームの有効期限はあと'.$min.'分です。');  // 省略時はinfoで登録
-     *     $config->appendAlert('メールアドレスの形式が不正です。', 'error');
-     */
-    public function appendAlert(string $message, string $level = 'info')
+    public function addFlash(string $message, string $level = 'info')
     {
-        $config = Pocket::getInstance();
-        if (strcasecmp($level, 'error') === 0) {
-            $alerts = $config->varAlertError();
-            $alerts[] = $message;
-            $config->varAlertError($alerts);
-        } elseif (strcasecmp($level, 'warning') === 0) {
-            $alerts = $config->varAlertWarning();
-            $alerts[] = $message;
-            $config->varAlertWarning($alerts);
-        } elseif (strcasecmp($level, 'success') === 0) {
-            $alerts = $config->varAlertSuccess();
-            $alerts[] = $message;
-            $config->varAlertSuccess($alerts);
-        } else {
-            $alerts = $config->varAlertInfo();
-            $alerts[] = $message;
-            $config->varAlertInfo($alerts);
+        $flash = $this->config['var']['Flash'] ?? [];
+        if (!isset($flash[$level]) || !is_array($flash[$level])) {
+            $flash[$level] = [];
         }
+        $flash[$level][] = $message;
+        $this->config['var']['Flash'] = $flash;
     }
 
     /**
@@ -809,8 +730,6 @@ class Pocket
     public function varFooterJsBefore(...$val) { return $this->getset(__FUNCTION__, $val); }
     public function varFooterJsAfter(...$val) { return $this->getset(__FUNCTION__, $val); }
 
-    public function varRiotJs(...$val) { return $this->getset(__FUNCTION__, $val); }
-
     // 自由に使って下さい
     public function varOptions(...$val) { return $this->getset(__FUNCTION__, $val); }
 
@@ -830,9 +749,4 @@ class Pocket
     public function addVarFooterJsAfter($path) {
         $this->config['var']['FooterJsAfter'][] = $path;
     }
-
-    public function addRiotJs($path) {
-        $this->config['var']['RiotJs'][] = $path;
-    }
-
 }

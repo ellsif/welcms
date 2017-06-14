@@ -3,6 +3,7 @@
 namespace ellsif\WelCMS;
 
 use ellsif\Logger;
+use Valitron\Validator;
 
 /**
  * 管理画面表示用コントローラ
@@ -61,28 +62,47 @@ class AdminService extends Service
     {
         $result = new ServiceResult();
         $data = $_POST;
-
-        $pocket = Pocket::getInstance();
-
         $settingRepo = WelUtil::getRepository('Setting');
-        $settings = $settingRepo->list(['name' => 'adminPass']);
+        $settingPass = $settingRepo->list(['name' => 'adminPass']);
+        $settingId = $settingRepo->list(['name' => 'adminID']);
 
-        // TODO バリデーションがいる
-        if (count($settings) > 0 && isset($settings[0]['value'])) {
-
+        if (count($settingPass) > 0 && isset($settingPass[0]['value']) &&
+            count($settingId) > 0 && isset($settingId[0]['value'])) {
+            $validator = new Validator($data);
+            $validator->labels([
+                'adminID' => '管理者ID',
+                'adminPass' => '管理者パスワード',
+            ]);
+            $validator->rule('require', ['adminID', 'adminPass'])->message('{field} : 必須入力です。');
+            if (!$validator->validate()) {
+                $result->error($validator->errors());
+                $result->resultData([
+                    'adminID' => $data['adminID'],
+                    'adminPass' => $data['adminPass'],
+                ]);
+                return $result;
+            }
             // ログイン処理を行う
-            $hash = $settings[0]['value'];
-
-            if (Auth::checkHash($data['adminPass'], $hash)) {
+            $hash = $settingPass[0]['value'];
+            if ($data['adminID'] == $settingId[0]['value'] && Auth::checkHash($data['adminPass'], $hash)) {
                 $_SESSION['is_admin'] = TRUE;
                 WelUtil::redirect('/admin');
             } else {
-                $pocket->varFormError(['認証に失敗しました。']);
+                Pocket::getInstance()->addFlash('認証に失敗しました。', 'danger');
             }
         } else {
-            throw new Exception('認証情報の取得に失敗しました。設定を見直して下さい。');
+            throw new \RuntimeException('認証情報の取得に失敗しました。設定を見直して下さい。');
         }
         return $result;
+    }
+
+    /**
+     * ログアウトします。
+     */
+    public function getLogoutManager($params)
+    {
+        $_SESSION['is_admin'] = null;
+        WelUtil::redirect('/');
     }
 
     /**
@@ -134,7 +154,6 @@ class AdminService extends Service
         if (!$manager) {
             throw new \InvalidArgumentException('パラメータが不正です。', 404);
         }
-
         $validator = ValitronUtil::getValidator(
             $manager,
             $managerRepo->getValidationRules(),
