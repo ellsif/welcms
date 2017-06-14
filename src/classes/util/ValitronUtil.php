@@ -7,7 +7,7 @@ use Valitron\Validator;
 class ValitronUtil
 {
     // 日本語メッセージの上書き
-    protected const MESSAGES = [
+    const MESSAGES = [
         'required' => '{field} : 必須入力です。',
         'equals' => '',
         'different' => '',
