@@ -3,35 +3,16 @@
 namespace ellsif\WelCMS;
 
 use ellsif\Logger;
-use Valitron\Validator;
 
 /**
  * 管理画面表示用コントローラ
  */
 class AdminService extends Service
 {
-
-    /**
-     * 管理者認証処理を行う。
-     * 基底クラスのshow()メソッドを経由した場合のみ、ここの処理を通る。
-     * ログイン画面などはshow()を経由せず直接login()を呼ぶ。
-     *
-     * @param $param
-     * @return bool
-     */
-    public function authenticate($param) :bool
-    {
-        //
-        $config = Pocket::getInstance();
-        $auth = $_SESSION['is_admin'] === TRUE;
-
-        return $auth;
-    }
-
     /**
      * アクティベーションページを表示します。
      */
-    public function activate($params)
+    public function getActivate($params)
     {
         if (Pocket::getInstance()->settingActivated()) {
             WelUtil::redirect('admin/');
@@ -68,7 +49,7 @@ class AdminService extends Service
     /**
      * ログイン画面を表示します。
      */
-    public function login($params)
+    public function getLogin($params)
     {
         return new ServiceResult();
     }
@@ -105,15 +86,6 @@ class AdminService extends Service
     }
 
     /**
-     * 管理画面用の404ページを表示
-     */
-    public function show404($data = [])
-    {
-        $config = Pocket::getInstance();
-        WelUtil::loadView($config->dirView() . 'admin/404.php', $data);
-    }
-
-    /**
      * 管理画面ダッシュボードを表示する。
      */
     public function getIndexAdmin($params)
@@ -124,6 +96,8 @@ class AdminService extends Service
     /**
      * 関数リファレンスを表示する。
      */
+    // TODO 修正が必要
+    /*
     public function getDocumentsAdmin($param)
     {
         $result = new ServiceResult();
@@ -134,9 +108,10 @@ class AdminService extends Service
         }
         return $result;
     }
+    */
 
     /**
-     * 管理者アカウント管理
+     * マネージャーアカウント管理画面を表示します。
      */
     public function getManagerAdmin($param)
     {
@@ -149,7 +124,7 @@ class AdminService extends Service
     }
 
     /**
-     * 管理者アカウント登録
+     * マネージャーアカウント登録を行います。
      */
     public function postManagerAdmin($param)
     {
@@ -160,7 +135,6 @@ class AdminService extends Service
             throw new \InvalidArgumentException('パラメータが不正です。', 404);
         }
 
-        ;
         $validator = ValitronUtil::getValidator(
             $manager,
             $managerRepo->getValidationRules(),
@@ -181,5 +155,5 @@ class AdminService extends Service
         return $result;
     }
 
-    use AdminPageService, AdminPageTemplates, AdminPageFiles, AdminPluginService, AdminPageGroups, AdminDatabaseService;
+    // use AdminPageService, AdminPageTemplates, AdminPageFiles, AdminPluginService, AdminPageGroups, AdminDatabaseService;
 }

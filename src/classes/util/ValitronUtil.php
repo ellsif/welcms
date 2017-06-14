@@ -25,7 +25,7 @@ class ValitronUtil
         'in' => '',
         'notIn' => '',
         'ip' => '',
-        'email' => '',
+        'email' => '{field} : 正しいメールアドレスを入力してください。',
         'url' => '',
         'urlActive' => '',
         'alpha' => '',
