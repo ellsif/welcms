@@ -15,6 +15,7 @@ $manager = $manager ?? [];
           <div class="col-lg-12">
             <h1 class="page-header">管理者アカウント</h1>
           </div>
+          <?php ViewUtil::printErrors($errors ?? []); ?>
         </div>
 
         <div class="row">
@@ -24,11 +25,11 @@ $manager = $manager ?? [];
                 <form class="mb-3" id="validateForm" action="<?php echo WelUtil::getUrl('/admin/manager') ?>" method="post">
                   <div class="form-group">
                     <label class="control-label">ログインID <span class="text-danger">*</span></label>
-                    <input type="text" value="" class="form-control" name="Manager[managerId]" placeholder="半角英数">
+                    <input type="text" value="<?php echo isset($manager['managerId']) ? $manager['managerId'] : '' ?>" class="form-control" name="Manager[managerId]" placeholder="半角英数">
                   </div>
                   <div class="form-group">
                     <label class="control-label">名前 <span class="text-danger">*</span></label>
-                    <input type="text" value="" class="form-control" name="Manager[name]" placeholder="表示名">
+                    <input type="text" value="<?php echo isset($manager['name']) ? $manager['name'] : '' ?>" class="form-control" name="Manager[name]" placeholder="表示名">
                   </div>
                   <div class="form-group">
                     <label class="control-label">Eメール <span class="text-danger">*</span></label>
@@ -36,7 +37,7 @@ $manager = $manager ?? [];
                   </div>
                   <div class="form-group">
                     <label class="control-label">パスワード <span class="text-danger">*</span></label>
-                    <input type="text" value="<?php echo isset($manager['email']) ? $manager['email'] : '' ?>" class="form-control js-password" name="Manager[password]">
+                    <input type="text" value="<?php echo isset($manager['password']) ? $manager['password'] : '' ?>" class="form-control js-password" name="Manager[password]">
                   </div>
                   <input type="submit" class="btn btn-lg btn-primary btn-submit" value="登録">
                 </form>

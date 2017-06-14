@@ -525,4 +525,27 @@ class WelUtil
         }
         return $result;
     }
+
+    /**
+     * 連想配列の値を取得します。
+     * キーが不正な場合はデフォルト値を返します。
+     * キーに配列を指定した場合、配列の要素を順に操作し見つかった値を返します。
+     */
+    public static function val($array, $key, $default = '')
+    {
+        if (is_array($key)) {
+            $_array = $array;
+            foreach($key as $k) {
+                if (isset($_array[$k])) {
+                    $_array = $_array[$k];
+                } else {
+                    return $default;
+                }
+            }
+            return $_array;
+        }
+        return $array[$key] ?? $default;
+    }
+
+
 }
