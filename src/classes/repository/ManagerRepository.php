@@ -26,7 +26,7 @@ class ManagerRepository extends Repository
                             $id = $fields['id'] ?? null;
                             return $this->validateUniqueManagerId($value, $id);
                         },
-                        'message' => ' : 既に利用されています。',
+                        'message' => '{field} : 既に利用されています。',
                     ],
                 ],
             ],
@@ -59,7 +59,7 @@ class ManagerRepository extends Repository
                             $id = $fields['id'] ?? null;
                             return $this->validateUniqueManagerEmail($value, $id);
                         },
-                        'message' => ' : 既に利用されています。',
+                        'message' => '{field} : 既に利用されています。',
                     ],
                     ['rule' => 'email'],
                 ],

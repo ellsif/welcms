@@ -8,7 +8,7 @@ class ValitronUtil
 {
     // 日本語メッセージの対応
     protected const MESSAGES = [
-        'required' => ' : 必須入力です。',
+        'required' => '{field} : 必須入力です。',
         'equals' => '',
         'different' => '',
         'accepted' => '',
