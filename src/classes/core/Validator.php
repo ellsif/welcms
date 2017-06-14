@@ -3,6 +3,8 @@
 namespace ellsif\WelCMS;
 
 // バリデーション用のクラス
+// TODO 今後バリデーションは外部に移す。
+// 本クラスにはチェック用のstaticメソッドのみ入れる事にする。
 class Validator {
 
     const ENCODE = 'utf-8';

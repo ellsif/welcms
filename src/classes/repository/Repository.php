@@ -341,4 +341,18 @@ class Repository
         return $rules;
     }
 
+    /**
+     * 値とラベルの対応リストを取得します。
+     */
+    public function getLabels($columns = null)
+    {
+        $labels = [];
+        foreach($this->columns as $name => $settings) {
+            if ($columns && !in_array($name, $columns)) {
+                continue;
+            }
+            $rules[$name] = $settings['label'] ?? $name;
+        }
+        return $labels;
+    }
 }

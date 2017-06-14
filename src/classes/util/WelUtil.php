@@ -6,6 +6,7 @@ use ellsif\FileAccess;
 use ellsif\util\FileUtil;
 use ellsif\SqliteAccess;
 use ellsif\util\StringUtil;
+use Valitron\Validator;
 
 class WelUtil
 {
@@ -547,5 +548,8 @@ class WelUtil
         return $array[$key] ?? $default;
     }
 
-
+    public static function isClosure($func)
+    {
+        return is_object($func) && $func instanceof \Closure;
+    }
 }

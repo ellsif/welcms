@@ -160,18 +160,13 @@ class AdminService extends Service
             throw new \InvalidArgumentException('パラメータが不正です。', 404);
         }
 
-        $validator = new Validator($manager);
-        $validator->labels(array(
-            'managerId' => 'ログインID',
-            'email' => 'メールアドレス',
-            'password' => 'パスワード',
-            'name' => '名前',
-        ));
-        $validator->rule('required', ['managerId', 'password', 'email', 'name'])->message('{field}は必須です');
-        $validator->rule('email', 'email')->message('{field}に正しいメールアドレスを指定してください。');
-        $validator->rule('alphaNum', ['managerId', 'password'])->message('{field}は半角英数で入力してください。');
-        $validator->rule('lengthMin', 'password', 6)->message('{field}は6文字以上で入力してください。');
-        if (Pocket::getInstance()->varValid()) {
+        ;
+        $validator = ValidationUtil::getValidator(
+            $manager,
+            $managerRepo->getValidationRules(),
+            $managerRepo->getLabels()
+        );
+        if ($validator->validate()) {
             $manager['password'] = Auth::getHashed($manager['password']);
             $managerRepo->save([$manager]);
             WelUtil::redirect('admin/manager');
