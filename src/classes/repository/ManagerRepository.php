@@ -37,6 +37,10 @@ class ManagerRepository extends Repository
                 'onSave'      => '',  // 登録更新時に自動的にハッシュ化
                 'validation'  => [
                     ['rule' => 'required'],
+                    [
+                        'rule' => 'lengthBetween',
+                        'option' => [6, 32],
+                    ],
                 ],
             ],
             'name' => [

@@ -17,7 +17,7 @@ class ValitronUtil
         'boolean' => '',
         'array' => '',
         'length' => '',
-        'lengthBetween' => '',
+        'lengthBetween' => '{field} : %d〜%d文字で入力してください',
         'lengthMin' => '',
         'lengthMax' => '',
         'min' => '',
@@ -45,9 +45,9 @@ class ValitronUtil
     /**
      * Valitronバリデータオブジェクトを取得します。
      */
-    public static function getValidator($param, $validations, $labels = null)
+    public static function getValidator($param, $validations, $labels = null, $lang = null)
     {
-        $validator = new Validator($param);
+        $validator = new Validator($param, [], $lang);
 
         if ($labels) {
             $validator->labels($labels);
