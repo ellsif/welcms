@@ -6,6 +6,8 @@ use ellsif\util\StringUtil;
 
 abstract class Auth
 {
+    protected abstract function doAuthenticate();
+
     /**
      * ログイン情報を初期化します。
      */
@@ -47,8 +49,6 @@ abstract class Auth
             throw $error;
         }
     }
-
-    protected abstract function doAuthenticate();
 
     /**
      * 認証処理を行う。
