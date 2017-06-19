@@ -16,8 +16,6 @@ class ManagerAuth extends Auth
      */
     protected function doAuthenticate()
     {
-        if (!Pocket::getInstance()->loginManager()) {
-            throw new \RuntimeException('Not Authorized', 401);
-        }
+        return !(Pocket::getInstance()->loginManager());
     }
 }

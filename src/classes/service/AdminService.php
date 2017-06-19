@@ -35,7 +35,7 @@ class AdminService extends Service
         $data = $_POST;
         $settingRepo = WelUtil::getRepository('Setting');
         $settingRepo->validateActivation($data);
-        Logger::getInstance()->log('debug', 'activate',
+        Logger::getInstance()->putLog('debug', 'activate',
             Pocket::getInstance()->varValid() ? 'valid' : 'invalid ' . json_encode(Pocket::getInstance()->varFormData()));
         if (Pocket::getInstance()->varValid()) {
             // アクティベーション処理

@@ -77,26 +77,21 @@ class WelCoMeS
     {
         $pocket = Pocket::getInstance();
 
-        // Loggerを起動
         $logger = Logger::getInstance();
-        $logger->setLogLevel('trace');
-        $logger->setLogDir($pocket->dirLog());
-
-        // Settingテーブルから設定値をロード
-        $this->loadSettings();
-
-        // 初期化完了後、ログレベルを設定値に合わせる
         $logger->setLogLevel($pocket->logLevel());
         $logger->setLogDir($pocket->dirLog());
 
-        // セッション開始
-        $sessionHandler = new SessionHandler();
-        session_set_save_handler($sessionHandler, true);
-        session_start();
-        register_shutdown_function('session_write_close');
-
-        // Routerの初期化、ルーティング処理
         try {
+            // Settingテーブルから設定値をロード
+            $this->loadSettings();
+
+            // セッション開始
+            $sessionHandler = new SessionHandler();
+            session_set_save_handler($sessionHandler, true);
+            session_start();
+            register_shutdown_function('session_write_close');
+
+            // Routerの初期化、ルーティング処理
             $router = new Router();
             $router->routing();
 
@@ -112,80 +107,50 @@ class WelCoMeS
             $action = $pocket->varActionMethod();
             $params = $pocket->varActionParams();
             $result = null;
-            $logger->log('debug', 'main', "${serviceClass}::${action} called");
 
-            if ($serviceClass) {
-                $service = new $serviceClass();
-                $actionParams = WelUtil::getParamMap($params);
-                if ($pocket->varRequestMethod() === 'GET') {
-                    $actionParams = array_merge($actionParams, $_GET);
-                }
-                $result = $service->$action($actionParams);
+            $logger->putLog('debug', 'WelCMS', "${serviceClass}::${action} called");
+            $service = new $serviceClass();
+            $actionParams = WelUtil::getParamMap($params);
+            if (strcasecmp($pocket->varRequestMethod(), 'GET') === 0) {
+                $actionParams = array_merge($actionParams, $_GET);
             }
+            $result = $service->$action($actionParams);
 
             $printerClass = $pocket->varPrinter();
             $printMethod = $pocket->varPrinterFormat();
             $printer = new $printerClass();
             $printer->$printMethod($result);
 
-        } catch(\Throwable $e) {
+        } catch(\Exception $e) {
 
-            $logger->log(
+            Logger::log(
                 'error',
-                'system',
+                'WelCMS',
                 $e->getMessage() . PHP_EOL . $e->getCode() . PHP_EOL . $e->getTraceAsString()
             );
 
             // エラーを表示
-            if (!$pocket->varPrinter()) {
-                $pocket->varPrinter(FileUtil::getFqClassName('Printer', [$pocket->dirApp(), $pocket->dirSystem()]));
-            }
-            $printerClass = $pocket->varPrinter();
-            $printMethod = $pocket->varPrinterFormat();
-            $printer = new $printerClass();
-            $result = new ServiceResult();
-            try {
-                $result->setView(Router::getViewPath($e->getCode() . '.php'));
-            } catch(\Exception $e) {
-                $result->setView(Router::getViewPath('404.php'));
-            }
-            $result->error($e->getMessage());
-
-            $logger->log('error', 'system', "$printerClass::$printMethod called");
-            if ($printMethod) {
-                $printer->$printMethod($result);
-            } else {
+            if (!$this->errorPage($e)) {
+                // TODO 次バージョンではExceptionをthrowする。
                 header("HTTP/1.1 " . $e->getCode());
                 exit(0);
             }
         }
     }
 
-    protected function showPage()
+    /**
+     * 設定ファイルをロードする
+     */
+    protected function loadConfig($confPath)
     {
-        $config = Pocket::getInstance();
-        $url = Router::getInstance();
-
-        if ($url->isShowActivate()) {
-            require_once $config->dirWelCMS() . '/classes/admin/AdminPage.php';
-            $adminPage = new AdminService();
-            if (isPost()) {
-                $activated = $this->execActivation();
-            }
-            if ($activated) {
-                // アクティベーション完了時、管理画面に遷移
-                $_SESSION['is_admin'] = TRUE;
-                $url->redirect('/admin');
-            } else {
-                $adminPage->activate();
-            }
-        } else {
-            $url->showPage();
+        if (!file_exists($confPath)) {
+            throw new \LogicException('設定ファイルの読み込みに失敗しました。');
         }
+        include_once $confPath;
     }
 
     /**
-     * Settingテープルから設定をロード
+     * Settingテープルから設定をロードします。
      */
     protected function loadSettings()
     {
@@ -208,74 +173,32 @@ class WelCoMeS
     }
 
     /**
-     * ページを表示
+     * エラーページを表示します。
      */
-    protected function _showPage()
+    protected  function errorPage(\Exception $e) :bool
     {
-        $config = Pocket::getInstance();
-
-        // ページ表示用のConfigを初期化
-
-        // templatesを取得
-        require_once $config->dirWelCMS() . '/classes/Template.php';
-        require_once $config->dirWelCMS() . '/classes/HtmlTemplate.php';
-
-        // contentsを取得
-
-        // temptalesとcontentsからoutputを生成
-
-        // output出力
-        $html = <<< EOT
-EOT;
-        $template = new HtmlTemplate();
-        $data = $template->parse($html);
-
-        echo $template->getString($data, [
-            'aboutLink' => ['path' => '/about.html'],
-            'varTest1' => ['body_type'=>'text', 'text'=>'テストだよ'],
-            'pageTitle' => ['body_type'=>'text', 'text'=>'WelCMSへようこそ！'],
-            'leadText' => ['body_type'=>'text', 'text'=>'WelCMSはWebサイト制作者向けの簡単CMSです。'],
-            'context' => ['body_type'=>'text', 'text'=>"WelCMSを使えば、静的なHTMLで作られたホームページを存外簡単にCMS化することができます。\n実際にやってみると存外大変かもしれません。"],
-        ]);
-    }
-
-
-    private function execActivation() :bool
-    {
-        $pocket = Pocket::getInstance();
-        $formData = $pocket->varFormData();
-        if (!$pocket->varValid()) {
-            return false;
+        $printerClass = Pocket::getInstance()->varPrinter();
+        if (!$printerClass) {
+            $printerClass = FileUtil::getFqClassName(
+                'Printer', [Pocket::getInstance()->dirApp(), Pocket::getInstance()->dirSystem()]
+            );
+        }
+        $printMethod = Pocket::getInstance()->varPrinterFormat() ?? 'html';
+        $printer = new $printerClass();
+        $result = new ServiceResult();
+        $result->error($e->getMessage());
+        try {
+            $result->setView(Router::getViewPath($e->getCode() . '.php'));
+        } catch(\LogicException $e) {
+            $result->setView(Router::getViewPath('error.php'));
         }
 
-        // 有効化
-        $salt = getSalt();
-        $adminPass = $formData['AdminPass'][1];
-        $hashed = getHashed($adminPass, $salt, 1);  // TODO 暗号化のバージョン管理は未実装
-
-        $dataAccess = getDataAccess($pocket->dbDriver());
-        $dataAccess->insert('Setting', array('label' => 'サイトURL', 'name' => 'UrlHome', 'value' => $formData['UrlHome'][1], 'use_in_page' => 1));
-        $dataAccess->insert('Setting', array('label' => 'サイト名', 'name' => 'SiteName', 'value' => $formData['SiteName'][1], 'use_in_page' => 1));
-        $dataAccess->insert('Setting', array('label' => '管理者ID', 'name' => 'AdminID', 'value' => $formData['AdminID'][1], 'use_in_page' => 1));
-        $dataAccess->insert('Setting', array('label' => 'Hash', 'name' => 'Hash', 'value' => $hashed, 'use_in_page' => 0));
-
-        // アクティベート済み
-        $activate = $dataAccess->updateAll('Setting', ['value' => 1], ['name' => 'Activated']);
-
-        // Configを更新
-        $pocket->settingUrlHome($formData['UrlHome'][1]);
-
-        return $activate > 0;
-    }
-
-    /**
-     * 設定ファイルをロードする
-     */
-    private function loadConfig($confPath)
-    {
-        if (!file_exists($confPath)) {
-            throw new Exception('設定ファイルの読み込みに失敗しました。');
+        if ($printMethod) {
+            Logger::log('error', 'WelCMS', "$printerClass::$printMethod called");
+            $printer->$printMethod($result);
+            return true;
         }
-        include_once $confPath;
+        return false;
     }
+
 }

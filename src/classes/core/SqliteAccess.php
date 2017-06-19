@@ -119,7 +119,7 @@ class SqliteAccess extends DataAccess
         if ($stmt->execute()) {
             return $stmt->fetchColumn();
         } else {
-            Logger::getInstance()->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
+            Logger::getInstance()->putLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \Exception("${name}からのデータの取得に失敗しました。");
         }
     }
@@ -143,7 +143,7 @@ class SqliteAccess extends DataAccess
                 return null;
             }
         } else {
-            Logger::getInstance()->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
+            Logger::getInstance()->putLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \Exception("${name}からのデータの取得に失敗しました。");
         }
     }
@@ -186,12 +186,12 @@ class SqliteAccess extends DataAccess
         }
         if ($stmt->execute()) {
             $results = $stmt->fetchAll(PDO::FETCH_NAMED);
-            Logger::getInstance()->log('debug', 'sql', WelUtil::getPdoDebug($stmt));
-            Logger::getInstance()->log('debug', 'sql', "options: " . json_encode($filter));
-            Logger::getInstance()->log('debug', 'sql', json_encode($results));
+            Logger::getInstance()->putLog('debug', 'sql', WelUtil::getPdoDebug($stmt));
+            Logger::getInstance()->putLog('debug', 'sql', "options: " . json_encode($filter));
+            Logger::getInstance()->putLog('debug', 'sql', json_encode($results));
             return $results;
         } else {
-            Logger::getInstance()->log('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
+            Logger::getInstance()->putLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \RuntimeException("${name}からのデータの取得に失敗しました。");
         }
     }
@@ -212,7 +212,7 @@ class SqliteAccess extends DataAccess
             $results = $stmt->fetchAll(PDO::FETCH_NAMED);
             return $results;
         } else {
-            Logger::getInstance()->log('error', "DataAccess", "データの取得に失敗しました。" . $stmt->errorCode());
+            Logger::getInstance()->putLog('error', "DataAccess", "データの取得に失敗しました。" . $stmt->errorCode());
             throw new \Exception("データの取得に失敗しました。");
         }
     }
@@ -238,7 +238,7 @@ class SqliteAccess extends DataAccess
      */
     public function insert(string $name, array $data) :int
     {
-        Logger::getInstance()->log('trace', 'DataAccess', "INSERT to ${name} start data:" . json_encode($data));
+        Logger::getInstance()->putLog('trace', 'DataAccess', "INSERT to ${name} start data:" . json_encode($data));
 
         $data = $this->addCreatedAt($data);
 
@@ -253,12 +253,12 @@ class SqliteAccess extends DataAccess
         foreach($columns as $column) {
             $stmt->bindValue(":${column}", $data[$column]);
         }
-        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         try {
             $stmt->execute();
         } catch(\Exception $e) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}へのINSERTに失敗しました。", 0, $e);
         }
         $id = $this->pdo->lastInsertId();
@@ -275,7 +275,7 @@ class SqliteAccess extends DataAccess
      */
     public function update(string $name, int $id, array $data) :bool
     {
-        Logger::getInstance()->log('trace', 'DataAccess', "UPDATE to ${name} data:" . json_encode($data));
+        Logger::getInstance()->putLog('trace', 'DataAccess', "UPDATE to ${name} data:" . json_encode($data));
 
         $data = $this->addUpdatedAt($data);
 
@@ -288,10 +288,10 @@ class SqliteAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
         $stmt->bindValue(':id', $id);
-        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のUPDATEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -324,10 +324,10 @@ class SqliteAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
 
-        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のUPDATEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -345,10 +345,10 @@ class SqliteAccess extends DataAccess
         $sql = 'DELETE FROM ' . $this->pdo->quote($name) . ' WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue('id', $id);
-        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のDELETEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -371,10 +371,10 @@ class SqliteAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
 
-        Logger::getInstance()->log('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->log('error', 'DataAccess', $errorInfo[2]);
+            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のDELETEに失敗しました。");
         }
         return $stmt->rowCount();

@@ -16,8 +16,6 @@ class AdminAuth extends Auth
      */
     protected function doAuthenticate()
     {
-        if (!Pocket::getInstance()->isAdmin()) {
-            throw new \RuntimeException('Not Authorized', 401);
-        }
+        return !(Pocket::getInstance()->isAdmin());
     }
 }

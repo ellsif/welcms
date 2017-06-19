@@ -33,59 +33,11 @@ abstract class Auth
     }
 
     /**
-     * 認証に失敗した場合のアクションを記述します。
-     *
-     * ## 説明
-     * デフォルトでは所定のログインURLへのリダイレクトになります。<br>
-     * 例）AdminAuthの場合はadmin/login
-     */
-    protected function onAuthError(\Throwable $error)
-    {
-        if ($error->getCode() == 401) {
-            $class = get_class($this);
-            $class = substr($class, strrpos($class, '\\') + 1);
-            WelUtil::redirect(strtolower(StringUtil::rightRemove($class, 'Auth')) . '/login');
-        } else {
-            throw $error;
-        }
-    }
-
-    /**
-     * 認証処理を行う。
-     */
-    public function authenticate()
-    {
-        try {
-            $this->doAuthenticate();
-        } catch(\Throwable $e) {
-            $this->onAuthError($e);
-        }
-    }
-
-    /**
      * ハッシュ化に使うsaltを取得します。
      */
     public static function getSalt($length = 48) :string
     {
         return bin2hex(openssl_random_pseudo_bytes($length / 2));
-    }
-
-    /**
-     * 一時トークンを発行します。
-     */
-    public static function getToken(int $expire = 3600, int $version = 0): string
-    {
-        // TODO 未実装
-        return '';
-    }
-
-    /**
-     * 一時トークンのチェックを行います。
-     */
-    public static function checkToken(string $token): bool
-    {
-        // TODO 未実装
-        return false;
     }
 
     /**
@@ -116,5 +68,47 @@ abstract class Auth
             }
         }
         return false;
+    }
+
+    /**
+     * 一時トークンを発行します。
+     */
+    public static function getToken(int $expire = 3600, int $version = 0): string
+    {
+        // TODO 未実装
+        throw new \BadMethodCallException('getToken() is Unimplemented');
+    }
+
+    /**
+     * 一時トークンのチェックを行います。
+     */
+    public static function checkToken(string $token): bool
+    {
+        // TODO 未実装
+        throw new \BadMethodCallException('checkToken() is Unimplemented');
+    }
+
+    /**
+     * 認証処理を行う。
+     */
+    public function authenticate()
+    {
+        if (!$this->doAuthenticate()) {
+            $this->onAuthError();
+        }
+    }
+
+    /**
+     * 認証に失敗した場合のアクションを記述します。
+     *
+     * ## 説明
+     * デフォルトでは所定のログインURLへのリダイレクトになります。<br>
+     * 例）AdminAuthの場合はadmin/login
+     */
+    protected function onAuthError()
+    {
+        $class = get_class($this);
+        $class = substr($class, strrpos($class, '\\') + 1);
+        WelUtil::redirect(strtolower(StringUtil::rightRemove($class, 'Auth')) . '/login');
     }
 }

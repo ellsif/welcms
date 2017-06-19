@@ -82,7 +82,7 @@ class Form
     public static function formStart(string $action, $attributes = [], array $validationRules = []) :string
     {
         $logger = Logger::getInstance();
-        $logger->log('trace', 'Helper', 'formStart called');
+        $logger->putLog('trace', 'Helper', 'formStart called');
         $config = Pocket::getInstance();
 
         $_attributes = [

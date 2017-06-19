@@ -16,8 +16,6 @@ class UserAuth extends Auth
      */
     protected function doAuthenticate()
     {
-        if (!Pocket::getInstance()->loginUser()) {
-            throw new \RuntimeException('Not Authorized', 401);
-        }
+        return !(Pocket::getInstance()->loginUser());
     }
 }

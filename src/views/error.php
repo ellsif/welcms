@@ -1,5 +1,5 @@
 <?php
-header("HTTP/1.1 404 Not Found");
+header("HTTP/1.1 500 Internal Server Error");
 $errors = $errors ?? [];
 ?><!DOCTYPE html>
 <html lang="ja-JP">
@@ -13,7 +13,6 @@ $errors = $errors ?? [];
             <h1 class="page-header">System Error</h1>
           </div>
         </div>
-
         <div class="row">
           <div class="col-lg-12">
             <div class="panel panel-default">
