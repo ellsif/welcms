@@ -144,7 +144,7 @@ class WelCoMeS
     protected function loadConfig($confPath)
     {
         if (!file_exists($confPath)) {
-            throw new \LogicException('設定ファイルの読み込みに失敗しました。');
+            throw new \LogicException('設定ファイルの読み込みに失敗しました。' . $confPath);
         }
         include_once $confPath;
     }

@@ -21,7 +21,7 @@ class Logger
 
     public static function log($level, $label, $message)
     {
-        Logger::getInstance()->log($level, $label, $message);
+        Logger::getInstance()->putLog($level, $label, $message);
     }
 
     public function setLogDir($path)
