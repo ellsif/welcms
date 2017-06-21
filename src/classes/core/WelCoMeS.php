@@ -95,6 +95,17 @@ class WelCoMeS
             $router = new Router();
             $router->routing();
 
+            // 認証を行う
+            Auth::setLoginUsers();
+            if ($pocket->varAuth()) {
+                $authClass = FileUtil::getFqClassName(
+                    $pocket->varAuth() . 'Auth',
+                    [ $pocket->dirApp(), $pocket->dirSystem() ]
+                );
+                $auth = new $authClass();
+                $auth->authenticate();
+            }
+
             // フォーマットに対応するPrinterを初期化
             if (!$pocket->varPrinterFormat()) {
                 // フォーマットの判定失敗時

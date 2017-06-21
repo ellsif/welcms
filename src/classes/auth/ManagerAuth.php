@@ -16,6 +16,6 @@ class ManagerAuth extends Auth
      */
     protected function doAuthenticate()
     {
-        return !(Pocket::getInstance()->loginManager());
+        return Pocket::getInstance()->loginManager();
     }
 }

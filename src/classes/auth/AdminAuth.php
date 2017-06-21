@@ -16,6 +16,6 @@ class AdminAuth extends Auth
      */
     protected function doAuthenticate()
     {
-        return !(Pocket::getInstance()->isAdmin());
+        return Pocket::getInstance()->isAdmin();
     }
 }

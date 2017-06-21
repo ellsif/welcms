@@ -16,6 +16,6 @@ class UserAuth extends Auth
      */
     protected function doAuthenticate()
     {
-        return !(Pocket::getInstance()->loginUser());
+        return Pocket::getInstance()->loginUser();
     }
 }

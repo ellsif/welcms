@@ -56,17 +56,6 @@ class Router
 
         // プリンタを選択
         $this->routingSetPrinter();
-
-        // 認証を行う
-        Auth::setLoginUsers();
-        if ($pocket->varAuth()) {
-            $authClass = FileUtil::getFqClassName(
-                $pocket->varAuth() . 'Auth',
-                [ $pocket->dirApp(), $pocket->dirSystem() ]
-            );
-            $auth = new $authClass();
-            $auth->authenticate();
-        }
     }
 
     /**
