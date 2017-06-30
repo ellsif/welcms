@@ -80,7 +80,7 @@ class WelCoMeS
         $logger = Logger::getInstance();
         $logger->setLogLevel($pocket->logLevel());
         $logger->setLogDir($pocket->dirLog());
-
+        $obStarted = false;
         try {
             // Settingテーブルから設定値をロード
             $this->loadSettings();
@@ -130,7 +130,9 @@ class WelCoMeS
             $printerClass = $pocket->varPrinter();
             $printMethod = $pocket->varPrinterFormat();
             $printer = new $printerClass();
+            $obStarted = ob_start();
             $printer->$printMethod($result);
+            ob_end_flush();
 
         } catch(\Exception $e) {
 
@@ -141,6 +143,7 @@ class WelCoMeS
             );
 
             // エラーを表示
+            if ($obStarted) ob_end_clean();
             if (!$this->errorPage($e)) {
                 // TODO 次バージョンではExceptionをthrowする。
                 header("HTTP/1.1 " . $e->getCode());
