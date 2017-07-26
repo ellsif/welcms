@@ -416,7 +416,7 @@ class WelUtil
     {
         $urlInfo = Pocket::getInstance()->varUrlInfo();
         $urlBase = $urlInfo['scheme'] . '://' . $urlInfo['host'];
-        if (intval($urlInfo['port']) != 80) {
+        if (intval($urlInfo['port']) != 80 && $urlInfo['port']) {
             $urlBase .= ':' . $urlInfo['port'];
         }
         $urlBase .= '/';
