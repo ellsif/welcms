@@ -463,6 +463,7 @@ class WelUtil
         for($i = 0; $i < count($array); $i+=2) {
             $key = $array[$i];
             $val = $array[$i+1] ?? null;
+            if ($val) $val = rawurldecode($val);
             $keys = [$key];
 
             // 配列の場合
