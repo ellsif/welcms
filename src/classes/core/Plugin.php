@@ -39,9 +39,9 @@ abstract class Plugin
    */
   function init() {
     $logger = Logger::getInstance();
-    $logger->log('debug', 'plugin', 'initialize ' . $this->getName() . ' start');
+    $logger->putLog('debug', 'plugin', 'initialize ' . $this->getName() . ' start');
     $this->initialize();
-    $logger->log('debug', 'plugin', 'initialize ' . $this->getName() . ' end');
+    $logger->putLog('debug', 'plugin', 'initialize ' . $this->getName() . ' end');
   }
 
   /**

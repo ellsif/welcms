@@ -416,7 +416,7 @@ class WelUtil
     {
         $urlInfo = Pocket::getInstance()->varUrlInfo();
         $urlBase = $urlInfo['scheme'] . '://' . $urlInfo['host'];
-        if (intval($urlInfo['port']) != 80) {
+        if (intval($urlInfo['port']) != 80 && $urlInfo['port']) {
             $urlBase .= ':' . $urlInfo['port'];
         }
         $urlBase .= '/';
@@ -463,6 +463,7 @@ class WelUtil
         for($i = 0; $i < count($array); $i+=2) {
             $key = $array[$i];
             $val = $array[$i+1] ?? null;
+            if ($val) $val = rawurldecode($val);
             $keys = [$key];
 
             // 配列の場合

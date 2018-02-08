@@ -74,7 +74,7 @@ class SettingRepository extends Repository
             ],
         ];
         $logger = Logger::getInstance();
-        $logger->log('debug', 'activation', json_encode($data));
+        $logger->putLog('debug', 'activation', json_encode($data));
         $validationResult = Validator::validAll($data, $rules);
         Pocket::getInstance()->varValid($validationResult['valid']);
         Pocket::getInstance()->varFormData($validationResult['results']);

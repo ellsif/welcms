@@ -12,14 +12,10 @@ class AdminAuth extends Auth
      * 認証処理を行います。
      *
      * ## 説明
-     * システム管理ユーザー以外のみ許可します。
+     * システム管理ユーザーログインしていない場合はログイン画面にリダイレクトします。
      */
     protected function doAuthenticate()
     {
-        $config = Pocket::getInstance();
-
-        if (!$config->isAdmin()) {
-            throw new \RuntimeException('Not Authorized', 401);
-        }
+        return Pocket::getInstance()->isAdmin();
     }
 }

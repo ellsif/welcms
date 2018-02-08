@@ -7,10 +7,31 @@ use ellsif\util\FileUtil;
 use ellsif\util\StringUtil;
 
 /**
- * URLルーティング
+ * ルータクラス
  */
 class Router
 {
+    /**
+     * Viewファイルのパスを判定し、取得する。
+     *
+     * ## 説明
+     * アプリケーションディレクトリとシステムディレクトリに同名のファイルが存在する場合は、
+     * アプリケーションディレクトリのViewファイルを優先的に利用します。
+     */
+    public static function getViewPath(string $path = null)
+    {
+        $pocket = Pocket::getInstance();
+        $action = pathinfo($pocket->varAction(), PATHINFO_FILENAME);
+        $viewPath = $path ?? (lcfirst($pocket->varService() . '/' . $action) . '.php');
+        if (file_exists($pocket->dirViewApp() . $viewPath)) {
+            return $pocket->dirViewApp() . $viewPath;
+        } elseif (file_exists($pocket->dirView() . $viewPath)) {
+            return $pocket->dirView() . $viewPath;
+        } elseif (file_exists($viewPath)) {
+            return $viewPath;
+        }
+        throw new \DomainException($viewPath . ' Not Found', 404);
+    }
 
     /**
      * ルーティングを行う。
@@ -23,46 +44,18 @@ class Router
         $pocket = Pocket::getInstance();
         $this->initialize();
 
-        // アクティベーション処理
-        $activated = (intval($pocket->settingActivated()) != 0);
-        if (!$activated) {
-            $this->routingActivation();
-            return;
-        }
-
         $urlInfo = $pocket->varUrlInfo();
         $paths = $urlInfo['paths'];
-        Logger::getInstance()->log('debug', 'routing', json_encode($paths));
-
-        // 個別ページ処理
-        $pageEntity = WelUtil::getRepository('Page');
-        $pages = $pageEntity->list(['path' => $pocket->varCurrentPath()]);
-        if (count($pages) > 0) {
-            $page = $pages[0];
-
-            WelUtil::authenticatePage($page);
-            $pocket->varIsPage(true);
-            $this->routingSetPrinter();
-            return;
-        }
+        Logger::log('debug', 'WelCMS', 'routing start' . PHP_EOL. json_encode($paths));
 
         // サービスとアクションを取得
         if (!$this->setServiceAndAction($paths)) {
-            throw new \InvalidArgumentException('Not Found', 404);
+            throw new \DomainException('Not Found', 404);
         }
-
         $pocket->varUrlInfo($urlInfo);
 
         // プリンタを選択
         $this->routingSetPrinter();
-
-        // 認証を行う
-        Auth::setLoginUsers();
-        if ($pocket->varAuth()) {
-            $authClass = FileUtil::getFqClassName($pocket->varAuth() . 'Auth', [$pocket->dirApp(), $pocket->dirSystem()]);
-            $auth = new $authClass();
-            $auth->authenticate();
-        }
     }
 
     /**
@@ -77,7 +70,7 @@ class Router
 
         $urlInfo = WelUtil::parseUrl($_SERVER['REQUEST_URI']);
         $config->varUrlInfo($urlInfo);
-        $config->varRequestMethod(strtoupper($_SERVER['REQUEST_METHOD']));
+        $config->varRequestMethod($_SERVER['REQUEST_METHOD']);
         $config->varCurrentUrl($_SERVER['REQUEST_URI']);
         $config->varCurrentPath(implode('/', $urlInfo['paths']));
     }
@@ -90,7 +83,7 @@ class Router
      */
     protected function setServiceAndAction($paths)
     {
-        Logger::getInstance()->log('debug', 'routing', "setServiceAndAction paths: " . json_encode($paths));
+        Logger::getInstance()->putLog('debug', 'routing', "setServiceAndAction paths: " . json_encode($paths));
 
         $pocket = Pocket::getInstance();
         $dir = '';
@@ -144,8 +137,8 @@ class Router
     protected function getCallableAction(string $service, string $action, string $dir = '')
     {
         $pocket = Pocket::getInstance();
-        Logger::getInstance()->log('debug', 'routing', "service: ${service} action: ${action}");
-        Logger::getInstance()->log('debug', 'routing', "search: ".$pocket->dirApp() . 'classes/service/' . $dir);
+        Logger::getInstance()->putLog('debug', 'routing', "service: ${service} action: ${action}");
+        Logger::getInstance()->putLog('debug', 'routing', "search: ".$pocket->dirApp() . 'classes/service/' . $dir);
 
         $className = FileUtil::getFqClassName(
             StringUtil::toCamel($service) . 'Service',
@@ -175,76 +168,6 @@ class Router
             }
         }
         return null;
-    }
-
-    /**
-     * クラスをrequireする。
-     */
-    protected function requireClass(string $dir, string $className): string
-    {
-        $config = Pocket::getInstance();
-        $appPath = $config->dirApp() . $dir . $className . '.php';
-        $sysPath = $config->dirSystem() . $dir . $className . '.php';
-        $usePath = false;
-        if (file_exists($appPath)) {
-            $usePath = $appPath;
-        } elseif(file_exists($sysPath)) {
-            $usePath = $sysPath;
-        }
-
-        if ($usePath) {
-            require_once $usePath;
-            $nameSpace = FileUtil::getNameSpace($usePath);
-            $fillClassName = $nameSpace . "\\" . $className;
-            if (class_exists($fillClassName)) {
-                return $fillClassName;
-            }
-        }
-        return '';
-    }
-
-    /**
-     * Viewファイルのパスを判定し、取得する。
-     *
-     * ## 説明
-     * アプリケーションディレクトリとシステムディレクトリに同名のファイルが存在する場合は、
-     * アプリケーションディレクトリのViewファイルを優先的に利用します。
-     */
-    public static function getViewPath(string $path = null)
-    {
-        $pocket = Pocket::getInstance();
-        $action = pathinfo($pocket->varAction(), PATHINFO_FILENAME);
-        $viewPath = $path ?? (lcfirst($pocket->varService() . '/' . $action) . '.php');
-        if (file_exists($pocket->dirViewApp() . $viewPath)) {
-            return $pocket->dirViewApp() . $viewPath;
-        } elseif (file_exists($pocket->dirView() . $viewPath)) {
-            return $pocket->dirView() . $viewPath;
-        } elseif (file_exists($viewPath)) {
-            return $viewPath;
-        }
-        throw new \InvalidArgumentException($viewPath . ' Not Found', 404);
-    }
-
-    /**
-     * アクティベーションページを表示するためのルーティング処理。
-     */
-    protected function routingActivation()
-    {
-        $pocket = Pocket::getInstance();
-        $ext = pathinfo($pocket->varCurrentPath(), PATHINFO_EXTENSION);
-        if ($ext && strcasecmp($ext, 'php') !== 0) {
-            // faviconなどへのリクエストは無視（ファイルが存在しない場合のみ通る）
-            throw new \InvalidArgumentException('Not Found', 404);
-        }
-        $pocket->varService('Admin');
-        $pocket->varServiceClass(FileUtil::getFqClassName('AdminService', [$pocket->dirApp(), $pocket->dirSystem()]));
-        $pocket->varAction('activate');
-
-        list($actionMethod, $auth) = $this->getCallableAction($pocket->varService(), 'activate');
-        $pocket->varActionMethod($actionMethod);
-        $pocket->varAuth($auth);
-        $pocket->varPrinter(FileUtil::getFqClassName('Printer', [$pocket->dirApp(), $pocket->dirSystem()]));
-        $pocket->varPrinterFormat('html');
     }
 
     /**

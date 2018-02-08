@@ -9,17 +9,13 @@ namespace ellsif\WelCMS;
 class ManagerAuth extends Auth
 {
     /**
-     * 認証処理を行う。
+     * 認証処理を行います。
      *
      * ## 説明
-     * 管理ユーザー、システム管理ユーザー以外の場合は例外をThrowする。
+     * 管理ユーザーログインしていない場合はログイン画面にリダイレクトします。
      */
     protected function doAuthenticate()
     {
-        $config = Pocket::getInstance();
-
-        if (!$config->loginManager() && !$config->isAdmin()) {
-            throw new \RuntimeException('Not Authorized', 401);
-        }
+        return Pocket::getInstance()->loginManager();
     }
 }

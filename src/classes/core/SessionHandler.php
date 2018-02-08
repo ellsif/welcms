@@ -83,7 +83,7 @@ class SessionHandler implements \SessionHandlerInterface
         if (count($sessions) > 0) {
             $id = intval($sessions[0]['id']);
         }
-        Logger::getInstance()->log('debug', 'session', "id = $id sessid = $session_id count = ".count($sessions));
+        Logger::getInstance()->putLog('debug', 'session', "id = $id sessid = $session_id count = ".count($sessions));
         if ($sessionRepository->save([
                 ['id' => $id, 'sessid' => $session_id, 'data' => $session_data]
             ]) > 0) {

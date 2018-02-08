@@ -24,6 +24,7 @@
       "ellsif\\": [
         "src/",
         "src/classes/core/",
+        "src/classes/exception/",
         "src/classes/auth/",
         "src/classes/util/",
         "src/classes/repository/",
@@ -32,6 +33,7 @@
       "ellsif\\WelCMS\\": [
         "src/",
         "src/classes/core/",
+        "src/classes/exception/",
         "src/classes/auth/",
         "src/classes/util/",
         "src/classes/repository/",

@@ -19,6 +19,11 @@ class Logger
 
     const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'];
 
+    public static function log($level, $label, $message)
+    {
+        Logger::getInstance()->putLog($level, $label, $message);
+    }
+
     public function setLogDir($path)
     {
         if ($path) {
@@ -41,7 +46,7 @@ class Logger
      * ## 説明
      *
      */
-    public function log($level, $label, $message)
+    public function putLog($level, $label, $message)
     {
         if ($level == null) {
             $level = $this->logLevel;

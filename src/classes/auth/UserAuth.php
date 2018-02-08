@@ -9,17 +9,13 @@ namespace ellsif\WelCMS;
 class UserAuth extends Auth
 {
     /**
-     * 認証処理を行う。
+     * 認証処理を行います。
      *
      * ## 説明
-     * ログインユーザー、または管理ユーザー、システム管理ユーザー以外の場合はログイン画面にリダイレクト。
+     * ユーザーログインしていない場合はログイン画面にリダイレクトします。
      */
     protected function doAuthenticate()
     {
-        $config = Pocket::getInstance();
-
-        if (!$config->loginUser() && !$config->loginManager() && !$config->isAdmin()) {
-            throw new \RuntimeException('Not Authorized', 401);
-        }
+        return Pocket::getInstance()->loginUser();
     }
 }
