@@ -43,9 +43,9 @@ class Pocket
 
     private $installDirectory;
 
-    private $errors;
+    private $timeZone;
 
-    private $_locked;
+    private $errors;
 
     protected function __construct()
     {
@@ -53,6 +53,7 @@ class Pocket
         $this->dataAccessObjects = [];
         $this->printers = [];
         $this->errors = [];
+        $this->timeZone = date_default_timezone_get();
     }
 
     /**
@@ -274,6 +275,21 @@ class Pocket
         return $this->indexPath;
     }
 
+    /**
+     * TimeZoneをSETします。
+     */
+    public function setTimeZone(string $timeZone): Pocket {
+        $this->timeZone = $timeZone;
+        return self::instance();
+    }
+
+    /**
+     * TimeZoneをGETします。
+     */
+    public function getTimeZone(): ?string {
+        return $this->timeZone;
+    }
+
     public function reset()
     {
         $this->config = [
@@ -331,7 +347,7 @@ class Pocket
                 'session' => [],
                 'runMode' => 'development',
                 'logLevel' => 'debug',
-                'timeZone' => 'Asia/Tokyo',
+                'timeZone' => '',
                 'noticeMethods' => ['Email'],
                 'printFormats' => ['json','xml','svg','pdf','atom','csv'],
                 'loginUser' => null,
@@ -484,15 +500,6 @@ class Pocket
      * ログレベルの変更は基本的にconf.phpで行います。デフォルトの設定はdebugです。
      */
     public function logLevel(...$val) { return $this->getset(__FUNCTION__, $val); }
-
-    /**
-     * タイムゾーンのgetter/setter。
-     *
-     * ## 説明
-     * システムが利用するタイムゾーンを取得/設定します。
-     * デフォルトはAsia/Tokyoとなります。本設定は日付取得のユーティリティ関数から参照されます。
-     */
-    public function timeZone(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * 通知手段のgetter/setter。

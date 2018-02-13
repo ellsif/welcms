@@ -108,8 +108,7 @@ class WelUtil
      */
     public static function getDate($format = 'Y-m-d')
     {
-        $config = Pocket::getInstance();
-        date_default_timezone_set($config->timeZone());
+        date_default_timezone_set(welPocket()->getTimeZone());
         return date($format);
     }
 
@@ -122,8 +121,7 @@ class WelUtil
      */
     public static function getTime()
     {
-        $config = Pocket::getInstance();
-        date_default_timezone_set($config->timeZone());
+        date_default_timezone_set(welPocket()->getTimeZone());
         return date('H:i:s');
     }
 
@@ -136,8 +134,7 @@ class WelUtil
      */
     public static function getDateTime()
     {
-        $config = Pocket::getInstance();
-        date_default_timezone_set($config->timeZone());
+        date_default_timezone_set(welPocket()->getTimeZone());
         return date('Y-m-d H:i:s');
     }
 
