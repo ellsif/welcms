@@ -89,9 +89,6 @@ class WelCoMeS
 
         $obStarted = false;
         try {
-            // Settingテーブルから設定値をロード
-            $this->loadSettings();
-
             session_start();
 
             // Routerの初期化、ルーティング
