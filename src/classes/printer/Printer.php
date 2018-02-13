@@ -23,6 +23,6 @@ abstract class Printer
     public function getName(): string
     {
         $class = get_class($this);
-        return StringUtil::rightRemove(substr($class, strrpos($class, '\\') + 1), 'Printer');
+        return strtolower(StringUtil::rightRemove(substr($class, strrpos($class, '\\') + 1), 'Printer'));
     }
 }

@@ -106,7 +106,7 @@ class Router
      */
     protected function setCallable(Route &$route, string $service, string $action, string $dir = ''): bool
     {
-        welLog('debug', 'Router', "search: ".welPocket()->getAppPath() . 'service/' . $dir);
+        welLog('debug', 'Router', 'search: service/' . $dir);
 
         $fqClassName = FileUtil::getFqClassName(
             StringUtil::toCamel($service) . 'Service',

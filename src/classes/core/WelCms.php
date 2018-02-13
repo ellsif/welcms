@@ -130,17 +130,21 @@ class WelCoMeS
             welLog(
                 'error',
                 'WelCMS',
-                $e->getMessage() . PHP_EOL . $e->getCode() . PHP_EOL . $e->getTraceAsString()
+                $e->getCode() . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()
             );
 
             // エラーを表示
-            if ($obStarted) ob_end_clean();
+            if ($obStarted) {
+                ob_end_clean();
+            }
+            /*
             if (!$this->errorPage($e)) {
                 // TODO 次バージョンではExceptionをthrowする。
                 // TODO 本当はエラーハンドラに渡す
                 header("HTTP/1.1 " . $e->getCode());
                 exit(0);
             }
+            */
         }
     }
 
