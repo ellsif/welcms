@@ -124,7 +124,7 @@ class Router
             $authList[] = $auth->getName();
         }
         $authList[] = '';
-        $httpMethod = [strtolower($route->getRequestMethod()), ''];
+        $httpMethod = strtolower($route->getRequestMethod());
 
         $route->setService($fqClassName);
         foreach($authList as $auth) {
