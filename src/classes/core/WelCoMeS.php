@@ -4,7 +4,6 @@ namespace ellsif\WelCMS;
 
 use ellsif\util\FileUtil;
 use ellsif\util\StringUtil;
-use SebastianBergmann\CodeCoverage\RuntimeException;
 
 /**
  * システムのコアクラス。
@@ -17,7 +16,8 @@ class WelCoMeS
 
     public function __construct()
     {
-        // nothing to do
+        require_once dirname(__FILE__, 2) . '/classes/func.php';
+        require_once dirname(__FILE__, 2) . '/classes/helper.php';
     }
 
     /**
