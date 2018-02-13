@@ -16,8 +16,8 @@ class WelCoMeS
 
     public function __construct()
     {
-        require_once dirname(__FILE__, 2) . '/classes/func.php';
-        require_once dirname(__FILE__, 2) . '/classes/helper.php';
+        require_once dirname(__FILE__, 3) . '/functions/func.php';
+        require_once dirname(__FILE__, 3) . '/functions/helper.php';
     }
 
     /**
