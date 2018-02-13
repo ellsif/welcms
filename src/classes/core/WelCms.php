@@ -120,7 +120,7 @@ class WelCms
             $result = $service->$action(new ActionParams($route));
 
             // 結果を出力
-            $printer = welPocket()->getPrinter($route['printerFormat']);
+            $printer = welPocket()->getPrinter($route->getType());
             $obStarted = ob_start();
             $printer->print($result);
             ob_end_flush();
