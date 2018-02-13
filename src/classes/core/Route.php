@@ -120,7 +120,7 @@ class Route
     /**
      * サービスクラスの完全修飾名をGETします。
      */
-    public function getService(): string
+    public function getService(): ?string
     {
         return $this->service;
     }
@@ -136,7 +136,7 @@ class Route
     /**
      * アクションメソッド名を取得します。
      */
-    public function getAction(): string
+    public function getAction(): ?string
     {
         return $this->action;
     }
@@ -146,7 +146,7 @@ class Route
         $this->auth = $auth;
     }
 
-    public function getAuth(): string
+    public function getAuth(): ?string
     {
         return $this->auth;
     }
