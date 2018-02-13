@@ -11,7 +11,7 @@ use ellsif\util\StringUtil;
  * ## 説明
  * システムの動作全体を統括するクラスです。
  */
-class WelCoMeS
+class WelCms
 {
 
     public function __construct()
