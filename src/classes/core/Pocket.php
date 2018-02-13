@@ -213,7 +213,7 @@ class Pocket
      * システムディレクトリの絶対パスをSETします。
      */
     public function setSysPath(string $sysPath): Pocket {
-        $this->sysPath = $sysPath;
+        $this->sysPath = StringUtil::suffix($sysPath, '/');
         return self::instance();
     }
 
@@ -228,7 +228,7 @@ class Pocket
      * アプリケーションディレクトリの絶対パスをSETします。
      */
     public function setAppPath(string $appPath): Pocket {
-        $this->appPath = $appPath;
+        $this->appPath = StringUtil::suffix($appPath, '/');
         return self::instance();
     }
 
@@ -264,7 +264,7 @@ class Pocket
      * indexファイル格納ディレクトリの絶対パスをSETします。
      */
     public function setIndexPath(string $indexPath): Pocket {
-        $this->indexPath = $indexPath;
+        $this->indexPath = StringUtil::suffix($indexPath, '/');
         return self::instance();
     }
 

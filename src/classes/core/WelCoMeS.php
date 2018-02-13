@@ -92,7 +92,7 @@ class WelCoMeS
 
             // Routerの初期化、ルーティング
             $router = new Router();
-            $route = $router->routing();
+            $route = $router->routing($_SERVER['REQUEST_URI']);
             $printerType = $route->getType() ? $route->getType() : 'html';
             if (!welPocket()->getPrinter($printerType)) {
                 throw new Exception($printerType . ' Printer Not Found', 0, null, null, 404);

@@ -43,9 +43,9 @@ class Router
     /**
      * ルーティングを行う。
      */
-    public function routing(): Route
+    public function routing($requestUri): Route
     {
-        $route = new Route($_SERVER['REQUEST_URI']);
+        $route = new Route($requestUri);
         welLog('debug', 'Router', 'routing start: ' . json_encode($route->getPaths()));
 
         $this->setServiceAndAction($route);
@@ -90,7 +90,7 @@ class Router
             $route->setType($actionExt);
         } else {
             throw new Exception(
-                'no route was found for ' . json_encode($route->getRequestUri()),
+                'no route was found for ' . $route->getRequestUri(),
                 0, null, null, 404
             );
         }
