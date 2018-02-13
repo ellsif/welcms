@@ -73,11 +73,10 @@ class WelCoMeS
      */
     public function main($indexPath)
     {
-        $pocket = Pocket::getInstance();
         welPocket()->setSysPath(dirname(__FILE__, 2));
         welPocket()->setIndexPath(StringUtil::suffix($indexPath, '/'));
         if (!welPocket()->getAppPath()) {
-            welPocket()->setAppPath(realpath($indexPath . '../app/'));
+            welPocket()->setAppPath(realpath($indexPath . '/../app/'));
         } else {
             welPocket()->setAppPath(StringUtil::suffix(welPocket()->getAppPath(), '/'));
         }
@@ -207,7 +206,7 @@ class WelCoMeS
         if (!welPocket()->getLogger()) {
             welPocket()->setLogger(
                 new Logger(
-                    StringUtil::suffix(welPocket()->getAppPath(), '/') . 'app/logs/'
+                    StringUtil::suffix(welPocket()->getAppPath(), '/') . 'logs/'
                 )
             );
         }
