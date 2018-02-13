@@ -151,9 +151,9 @@ class Route
         return $this->auth;
     }
 
-    public function setType(string $type = 'html')
+    public function setType(string $type)
     {
-        $this->type = $type;
+        $this->type = $type ? $type : 'html';
     }
 
     public function getType(): string
