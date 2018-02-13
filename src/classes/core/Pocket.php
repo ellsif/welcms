@@ -51,6 +51,7 @@ class Pocket
     {
         $this->loggers = [];
         $this->dataAccessObjects = [];
+        $this->printers = [];
         $this->errors = [];
     }
 
