@@ -218,7 +218,7 @@ class Pocket
     /**
      * システムディレクトリの絶対パスをGETします。
      */
-    public function getSysPath(): string {
+    public function getSysPath(): ?string {
         return $this->sysPath;
     }
 
@@ -233,7 +233,7 @@ class Pocket
     /**
      * アプリケーションディレクトリの絶対パスをGETします。
      */
-    public function getAppPath(): string {
+    public function getAppPath(): ?string {
         return $this->appPath;
     }
 
@@ -254,7 +254,7 @@ class Pocket
     /**
      * アプリケーションディレクトリのドキュメントルートからの相対パスをGETします。
      */
-    public function getInstallDirectory(): string {
+    public function getInstallDirectory(): ?string {
         return $this->installDirectory;
     }
 
@@ -269,7 +269,7 @@ class Pocket
     /**
      * indexファイル格納ディレクトリの絶対パスをGETします。
      */
-    public function getIndexPath(): string {
+    public function getIndexPath(): ?string {
         return $this->indexPath;
     }
 
