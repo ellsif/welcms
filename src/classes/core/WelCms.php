@@ -120,7 +120,9 @@ class WelCms
             $result = $service->$action(new ActionParams($route));
 
             // 結果を出力
-            $printer = welPocket()->getPrinter($route->getType());
+            if (!($printer = welPocket()->getPrinter($route->getType()))) {
+                throw new Exception($route->getType(). ' Printer not found');
+            }
             $obStarted = ob_start();
             $printer->print($result);
             ob_end_flush();
