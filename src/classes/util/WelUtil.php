@@ -150,96 +150,6 @@ class WelUtil
         return $debug;
     }
 
-
-    /**
-     * URLをパースする。
-     *
-     * ## 説明
-     * parse_url()のパース結果に幾つか項目を追加して返します。
-     *
-     * ## パラメータ
-     *
-     * ## 返り値
-     * 正しいURLでない場合は空配列を返します。
-     * パースに成功した場合、連想配列を返します。連想配列には以下の要素が含まれる可能性があります。
-     *
-     * - scheme
-     * - host
-     * - port
-     * - user
-     * - pass
-     * - path
-     * - query ("?"以降)
-     * - fragment ("#"以降)
-     * - paths (pathを"/"で分割した配列)
-     * - params (queryを分割した連想配列)
-     *
-     * ## 変更履歴
-     * - 初回実装
-     *
-     * ## 例
-     *
-     */
-    public static function parseUrl(string $url) :array
-    {
-        if (!WelUtil::isUrl($url)) {
-            if (isset($_SERVER['HTTPS'])) {
-                $url = 'https://' . WelUtil::getHostname() . $url;
-            } else {
-                $url = 'http://' . WelUtil::getHostname() . $url;
-            }
-        }
-        $urlInfo = parse_url($url);
-        if ($urlInfo !== FALSE) {
-            $path = $urlInfo['path'];
-            if (Pocket::getInstance()->dirWelCMS()) {
-                // index.phpがルートディレクトリに無い場合
-                $path = StringUtil::leftRemove($path, '/' . Pocket::getInstance()->dirWelCMS());
-                $urlInfo['path'] = $path;
-            }
-            $paths = array_filter(explode('/', $path), "strlen");
-            $urlInfo['paths'] = array_values($paths);
-
-            $urlInfo['params'] = [];
-            if (isset($urlInfo['query'])) {
-                $urlInfo['params'] = WelUtil::parseQuery($urlInfo['query']);
-            }
-            return $urlInfo;
-        } else {
-            return [];
-        }
-    }
-
-    // queryをパースする
-    public static function parseQuery(string $query) :array
-    {
-        $results = [];
-        $params = explode('&', $query);
-        foreach ($params as $param) {
-            list($name, $val) = explode('=', $param);
-            if (strpos($name, '[]') > 0) {
-                $name = substr($name, 0, strrpos($name, "[]"));
-                if (!isset($results[$name])) {
-                    $results[$name] = [];
-                }
-                $results[$name][] = $val;
-            } else {
-                $results[$name] = $val;
-            }
-        }
-        return $results;
-    }
-
-    // ホスト名を取得する
-    public static function getHostname() :string
-    {
-        if ($_SERVER['HTTP_HOST']) {
-            return $_SERVER['HTTP_HOST'];
-        } else {
-            return 'unknownhost';
-        }
-    }
-
     /**
      * データ配列を連想配列に変換する
      *
@@ -405,7 +315,7 @@ class WelUtil
         $url = (WelUtil::isUrl($path)) ? $path : WelUtil::getUrl() . StringUtil::leftRemove($path, '/');
         header("HTTP/1.1 ${code}");
         header( "Location: " . $url);
-        exit;
+        exit(0);
     }
 
     /**

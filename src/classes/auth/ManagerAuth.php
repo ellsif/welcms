@@ -10,12 +10,9 @@ class ManagerAuth extends Auth
 {
     /**
      * 認証処理を行います。
-     *
-     * ## 説明
-     * 管理ユーザーログインしていない場合はログイン画面にリダイレクトします。
      */
-    protected function doAuthenticate()
+    public function isAuthenticated(): bool
     {
-        return Pocket::getInstance()->loginManager();
+        return isset($_SESSION['manager_id']) && $_SESSION['manager_id'];
     }
 }

@@ -2,9 +2,9 @@
 
 namespace ellsif\WelCMS;
 
-use ellsif\Logger;
 use ellsif\util\FileUtil;
 use ellsif\util\StringUtil;
+use SebastianBergmann\CodeCoverage\RuntimeException;
 
 /**
  * システムのコアクラス。
@@ -15,11 +15,9 @@ use ellsif\util\StringUtil;
 class WelCoMeS
 {
 
-    public function __construct($confPath = null)
+    public function __construct()
     {
-        if ($confPath) {
-            $this->loadConfig($confPath);
-        }
+        // nothing to do
     }
 
     /**
@@ -73,70 +71,67 @@ class WelCoMeS
      *
      *     welcms/views/html/user/info.php
      */
-    public function main()
+    public function main($indexPath)
     {
         $pocket = Pocket::getInstance();
+        welPocket()->setSysPath(dirname(__FILE__, 2));
+        welPocket()->setIndexPath(StringUtil::suffix($indexPath, '/'));
+        if (!welPocket()->getAppPath()) {
+            welPocket()->setAppPath(realpath($indexPath . '../app/'));
+        } else {
+            welPocket()->setAppPath(StringUtil::suffix(welPocket()->getAppPath(), '/'));
+        }
 
-        $logger = Logger::getInstance();
-        $logger->setLogLevel($pocket->logLevel());
-        $logger->setLogDir($pocket->dirLog());
+        $this->initLogger();
+        $this->initErrorHandler();
+        $this->initPrinter();
+        $this->initRouter();
+
         $obStarted = false;
         try {
             // Settingテーブルから設定値をロード
             $this->loadSettings();
 
-            // セッション開始
-            $sessionHandler = new SessionHandler();
-            session_set_save_handler($sessionHandler, true);
             session_start();
-            register_shutdown_function('session_write_close');
 
-            // Routerの初期化、ルーティング処理
+            // Routerの初期化、ルーティング
             $router = new Router();
-            $router->routing();
-
-            // 認証を行う
-            Auth::setLoginUsers();
-            if ($pocket->varAuth()) {
-                $authClass = FileUtil::getFqClassName(
-                    $pocket->varAuth() . 'Auth',
-                    [ $pocket->dirApp(), $pocket->dirSystem() ]
-                );
-                $auth = new $authClass();
-                $auth->authenticate();
+            $route = $router->routing();
+            $printerType = $route->getType() ? $route->getType() : 'html';
+            if (!welPocket()->getPrinter($printerType)) {
+                throw new Exception($printerType . ' Printer Not Found', 0, null, null, 404);
             }
 
-            // フォーマットに対応するPrinterを初期化
-            if (!$pocket->varPrinterFormat()) {
-                // フォーマットの判定失敗時
-                header("HTTP/1.1 404 Not Found");
-                exit(0);
+            if ($route->getAuth()) {
+                $this->initAuth();
+                $auth = welPocket()->getAuth($route->getAuth());
+                if (!$auth) {
+                    throw new Exception($auth . 'Auth Not Found');
+                }
+                if (!$auth->isAuthenticated()) {
+                    $auth->onAuthError($route['printerFormat']);
+                    exit(0);
+                }
             }
 
-            // 該当のServiceがあれば実行
-            $serviceClass = $pocket->varServiceClass();
-            $action = $pocket->varActionMethod();
-            $params = $pocket->varActionParams();
-            $result = null;
+            $serviceClass = $route->getService();
+            $action = $route->getAction();
+            if (!$serviceClass || !$action) {
+                throw new Exception('Service or Action not found');
+            }
 
-            $logger->putLog('debug', 'WelCMS', "${serviceClass}::${action} called");
             $service = new $serviceClass();
-            $actionParams = WelUtil::getParamMap($params);
-            if (strcasecmp($pocket->varRequestMethod(), 'GET') === 0) {
-                $actionParams = array_merge($actionParams, $_GET);
-            }
-            $result = $service->$action($actionParams);
+            $result = $service->$action(new ActionParams($route));
 
-            $printerClass = $pocket->varPrinter();
-            $printMethod = $pocket->varPrinterFormat();
-            $printer = new $printerClass();
+            // 結果を出力
+            $printer = welPocket()->getPrinter($route['printerFormat']);
             $obStarted = ob_start();
-            $printer->$printMethod($result);
+            $printer->print($result);
             ob_end_flush();
-
+            session_write_close();
         } catch(\Exception $e) {
 
-            Logger::log(
+            welLog(
                 'error',
                 'WelCMS',
                 $e->getMessage() . PHP_EOL . $e->getCode() . PHP_EOL . $e->getTraceAsString()
@@ -146,21 +141,11 @@ class WelCoMeS
             if ($obStarted) ob_end_clean();
             if (!$this->errorPage($e)) {
                 // TODO 次バージョンではExceptionをthrowする。
+                // TODO 本当はエラーハンドラに渡す
                 header("HTTP/1.1 " . $e->getCode());
                 exit(0);
             }
         }
-    }
-
-    /**
-     * 設定ファイルをロードする
-     */
-    protected function loadConfig($confPath)
-    {
-        if (!file_exists($confPath)) {
-            throw new \LogicException('設定ファイルの読み込みに失敗しました。' . $confPath);
-        }
-        include_once $confPath;
     }
 
     /**
@@ -215,4 +200,64 @@ class WelCoMeS
         return false;
     }
 
+    /**
+     * Loggerが設定されていない場合、デフォルトのLoggerで初期化します。
+     *
+     * デフォルトのログ出力先は/app/logs/になります。
+     */
+    protected function initLogger()
+    {
+        if (!welPocket()->getLogger()) {
+            welPocket()->setLogger(
+                new Logger(
+                    StringUtil::suffix(welPocket()->getAppPath(), '/') . 'app/logs/'
+                )
+            );
+        }
+    }
+
+    /**
+     * ErrorHandlerが設定されていない場合、デフォルトのErrorHandlerで初期化します。
+     */
+    protected function initErrorHandler()
+    {
+        if (!welPocket()->getErrorHandler()) {
+            welPocket()->setErrorHandler(new ErrorHandler());
+        }
+    }
+
+    /**
+     * Routerが設定されていない場合、デフォルトのRouterで初期化します。
+     */
+    protected function initRouter()
+    {
+        if (!welPocket()->getRouter()) {
+            welPocket()->setRouter(new Router());
+        }
+    }
+
+    /**
+     * Printerが設定されていない場合、HtmlとJsonプリンタで初期化します。
+     */
+    protected function initPrinter()
+    {
+        if (!welPocket()->getPrinter()) {
+            welPocket()
+                ->addPrinter(new HtmlPrinter())
+                ->addPrinter(new JsonPrinter());
+        }
+    }
+
+    /**
+     * Authが設定されていない場合、デフォルトのAuthで初期化します。
+     */
+    protected function initAuth()
+    {
+        if (!welPocket()->getAuthObjects()) {
+            welPocket()
+                ->addAuth(new AdminAuth())
+                ->addAuth(new ManagerAuth())
+                ->addAuth(new UserAuth());
+        }
+    }
 }

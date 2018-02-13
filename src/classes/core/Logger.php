@@ -1,5 +1,5 @@
 <?php
-namespace ellsif;
+namespace ellsif\WelCMS;
 
 use ellsif\util\FileUtil;
 use ellsif\util\StringUtil;
@@ -7,15 +7,14 @@ use ellsif\WelCMS\WelUtil;
 
 class Logger
 {
-    use Singleton;
-    public static function getInstance() : Logger
-    {
-        return self::instance();
-    }
-
     private $logLevel = 'debug';
     private $logDir = null;
     private $delim = '    ';
+
+    public function __construct(string $logDir)
+    {
+        $this->logDir = $logDir;
+    }
 
     const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'];
 
@@ -24,11 +23,10 @@ class Logger
         Logger::getInstance()->putLog($level, $label, $message);
     }
 
-    public function setLogDir($path)
+    public function setLogDir($path): Logger
     {
-        if ($path) {
-            $this->logDir = StringUtil::suffix($path, '/');
-        }
+        $this->logDir = StringUtil::suffix($path, '/');
+        return self::instance();
     }
 
     public function setLogLevel($logLevel)

@@ -1,7 +1,6 @@
 <?php
 
 namespace ellsif\WelCMS;
-use ellsif\Singleton;
 use ellsif\util\StringUtil;
 
 /**
@@ -24,6 +23,37 @@ class Pocket
 {
     use Singleton;
 
+    private $config;
+
+    private $router;
+
+    private $loggers;
+
+    private $dataAccessObjects;
+
+    private $printers;
+
+    private $errorHandler;
+
+    private $indexPath;
+
+    private $sysPath;
+
+    private $appPath;
+
+    private $installDirectory;
+
+    private $errors;
+
+    private $_locked;
+
+    protected function __construct()
+    {
+        $this->loggers = [];
+        $this->dataAccessObjects = [];
+        $this->errors = [];
+    }
+
     /**
      * インスタンスを取得する。
      */
@@ -32,17 +62,215 @@ class Pocket
         return self::instance();
     }
 
-    // 設定の実体
-    private $config;
-
-    private $_locked;
-
-    // 設定のプレフィックス
-    const PREFS = ['db', 'dir', 'var', 'setting'];
-
-    protected function __construct()
+    /**
+     * LoggerをSETします。
+     */
+    public function setLogger(Logger $logger, string $type = 'default'): Pocket
     {
-        $this->reset();
+        $this->loggers[$type] = $logger;
+        return self::instance();
+    }
+
+    /**
+     * LoggerをGETします。
+     */
+    public function getLogger($type = 'default'): ?Logger
+    {
+        return $this->loggers[$type] ?? null;
+    }
+
+    /**
+     * RouterをSETします。
+     */
+    public function setRouter(Router $router): Pocket
+    {
+        $this->router = $router;
+        return self::instance();
+    }
+
+    /**
+     * RouterをGETします。
+     */
+    public function getRouter(): ?Router
+    {
+        return $this->router;
+    }
+
+    /**
+     * ErrorHandlerをSETします。
+     */
+    public function setErrorHandler(ErrorHandler $errorHandler): Pocket
+    {
+        $this->errorHandler = $errorHandler;
+        return self::instance();
+    }
+
+    /**
+     * ErrorHandlerをGETします。
+     */
+    public function getErrorHandler(): ?ErrorHandler
+    {
+        return $this->errorHandler;
+    }
+
+    /**
+     * DataAccessをSETします。
+     */
+    public function setDataAccess(DataAccess $dataAccess, string $type = 'default'): Pocket
+    {
+        $this->dataAccessObjects[$type] = $dataAccess;
+        return self::instance();
+    }
+
+    /**
+     * DataAccessをGETします。
+     */
+    public function getDataAccess(string $type = 'default'): ?DataAccess
+    {
+        return $this->dataAccessObjects[$type] ?? null;
+    }
+
+    /**
+     * Printerを追加します。
+     */
+    public function addPrinter(Printer $printer): Pocket
+    {
+        $this->printers[] = $printer;
+        return self::instance();
+    }
+
+    /**
+     * PrinterをGETします。
+     */
+    public function getPrinter(string $type = 'html'): ?Printer
+    {
+        foreach($this->printers as $printer) {
+            if ($printer->getName() === $type) {
+                return $printer;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Printerのリストを取得します。
+     */
+    public function getPrinters(): array
+    {
+        return $this->printers;
+    }
+
+    /**
+     * Authを追加します。
+     */
+    public function addAuth(Auth $auth): Pocket
+    {
+        $this->dataAccessObjects[] = $auth;
+        return self::instance();
+    }
+
+    /**
+     * AuthをGETします。
+     */
+    public function getAuth(string $name): ?Auth
+    {
+        foreach($this->dataAccessObjects as $auth) {
+            if ($auth->getName() === $name) {
+                return $auth;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Authのリストを取得します。
+     */
+    public function getAuthObjects(): array
+    {
+        return $this->dataAccessObjects;
+    }
+
+    /**
+     * エラー情報を追加します。
+     */
+    public function addError($error): Pocket
+    {
+        $this->errors[] = $error;
+        return self::instance();
+    }
+
+    /**
+     * エラー情報をGETします。
+     */
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * システムディレクトリの絶対パスをSETします。
+     */
+    public function setSysPath(string $sysPath): Pocket {
+        $this->sysPath = $sysPath;
+        return self::instance();
+    }
+
+    /**
+     * システムディレクトリの絶対パスをGETします。
+     */
+    public function getSysPath(): string {
+        return $this->sysPath;
+    }
+
+    /**
+     * アプリケーションディレクトリの絶対パスをSETします。
+     */
+    public function setAppPath(string $appPath): Pocket {
+        $this->appPath = $appPath;
+        return self::instance();
+    }
+
+    /**
+     * アプリケーションディレクトリの絶対パスをGETします。
+     */
+    public function getAppPath(): string {
+        return $this->appPath;
+    }
+
+    /**
+     * アプリケーションディレクトリのドキュメントルートからの相対パスをSETします。
+     * 先頭の"/"は不要、末尾の"/"は必要です。（SET時に加工されます）
+     */
+    public function setInstallDirectory(string $installDirectory): Pocket {
+        $installDirectory = trim($installDirectory, '/');
+        if ($installDirectory) {
+            $this->installDirectory = $installDirectory . '/';
+        } else {
+            $this->installDirectory = '';
+        }
+        return self::instance();
+    }
+
+    /**
+     * アプリケーションディレクトリのドキュメントルートからの相対パスをGETします。
+     */
+    public function getInstallDirectory(): string {
+        return $this->installDirectory;
+    }
+
+    /**
+     * indexファイル格納ディレクトリの絶対パスをSETします。
+     */
+    public function setIndexPath(string $indexPath): Pocket {
+        $this->indexPath = $indexPath;
+        return self::instance();
+    }
+
+    /**
+     * indexファイル格納ディレクトリの絶対パスをGETします。
+     */
+    public function getIndexPath(): string {
+        return $this->indexPath;
     }
 
     public function reset()
@@ -155,9 +383,6 @@ class Pocket
      * $configへのアクセッサ。
      * publicメンバとして定義してある変数名のみ設定可能。
      * lock済みの場合例外をthrowする。
-     *
-     * @param string $name
-     * @param $value
      */
     protected function _set(string $name, $value)
     {
@@ -426,16 +651,6 @@ class Pocket
      * デフォルトはsystemとなります。
      */
     public function dirSystem(...$val) { return $this->getset(__FUNCTION__, $val); }
-
-    /**
-     * アプリケーションディレクトリパスのgetter/setter。
-     *
-     * ## 説明
-     * アプリケーションディレクトリのパスを取得、設定します。
-     * アプリケーションディレクトリはシステムディレクトリと同じ構成とし、カスタマイズ用のファイルを格納します。<br>
-     * 同名のファイルが存在する場合、アプリケーションディレクトリ以下のファイルがシステムディレクトリより優先して利用されます。<br>
-     */
-    public function dirApp(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     /**
      * プラグインディレクトリパスのgetter/setter。

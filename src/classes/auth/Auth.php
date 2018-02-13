@@ -6,7 +6,15 @@ use ellsif\util\StringUtil;
 
 abstract class Auth
 {
-    protected abstract function doAuthenticate();
+    /**
+     * 認証が完了しているかどうかを判定する。
+     */
+    public abstract function isAuthenticated(): bool;
+
+    /**
+     * 認証済みの場合、ユーザー情報を取得する。
+     */
+    public abstract function getUserData(bool $secure = true);
 
     /**
      * ログイン情報を初期化します。
@@ -72,6 +80,8 @@ abstract class Auth
 
     /**
      * 一時トークンを発行します。
+     *
+     * REST APIなどに利用する予定。
      */
     public static function getToken(int $expire = 3600, int $version = 0): string
     {
@@ -81,6 +91,8 @@ abstract class Auth
 
     /**
      * 一時トークンのチェックを行います。
+     *
+     * REST APIなどに利用する予定。
      */
     public static function checkToken(string $token): bool
     {
@@ -89,26 +101,29 @@ abstract class Auth
     }
 
     /**
-     * 認証処理を行う。
+     * Authの名称を取得します。
      */
-    public function authenticate()
+    public function getName(): string
     {
-        if (!$this->doAuthenticate()) {
-            $this->onAuthError();
-        }
+        $class = get_class($this);
+        return StringUtil::rightRemove(substr($class, strrpos($class, '\\') + 1), 'Auth');
     }
 
     /**
      * 認証に失敗した場合のアクションを記述します。
      *
      * ## 説明
-     * デフォルトでは所定のログインURLへのリダイレクトになります。<br>
+     * htmlとして要求された場合、ログインURLへのリダイレクトになります。<br>
      * 例）AdminAuthの場合はadmin/login
+     *
+     * それ以外のフォーマットの場合、401例外をthrowする。
      */
-    protected function onAuthError()
+    public function onAuthError($printerFormat)
     {
-        $class = get_class($this);
-        $class = substr($class, strrpos($class, '\\') + 1);
-        WelUtil::redirect(strtolower(StringUtil::rightRemove($class, 'Auth')) . '/login');
+        if ($printerFormat === 'html') {
+            WelUtil::redirect(strtolower($this->getName()) . '/login', 302);
+        } else {
+
+        }
     }
 }

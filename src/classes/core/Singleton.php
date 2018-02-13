@@ -1,6 +1,6 @@
 <?php
 
-namespace ellsif;
+namespace ellsif\WelCMS;
 
 trait Singleton
 {

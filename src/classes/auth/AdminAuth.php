@@ -9,13 +9,19 @@ namespace ellsif\WelCMS;
 class AdminAuth extends Auth
 {
     /**
-     * 認証処理を行います。
+     * 認証処理済みかどうか。
      *
      * ## 説明
      * システム管理ユーザーログインしていない場合はログイン画面にリダイレクトします。
      */
-    protected function doAuthenticate()
+    public function isAuthenticated(): bool
     {
-        return Pocket::getInstance()->isAdmin();
+        return isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
     }
+
+    public function getUserData()
+    {
+
+    }
+
 }
