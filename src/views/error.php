@@ -19,8 +19,11 @@ $errors = $errors ?? [];
                 <?php foreach($errors as $error): ?>
                   <p><?php echo htmlspecialchars($error, ENT_QUOTES) ?></p>
                 <?php endforeach; ?>
+                <?php if (isset($e)) : ?>
+                  <p><?php echo $e->getMessage(); ?></p>
+                <?php endif ?>
                 <pre>
-                  <?php if (isset($e)) echo $e->getMessage(); ?>
+                  <?php if (isset($e)) echo $e->getTraceAsString(); ?>
                 </pre>
               </div>
             </div>
