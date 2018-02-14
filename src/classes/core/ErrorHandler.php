@@ -10,28 +10,48 @@ class ErrorHandler
     {
     }
 
-    public function onError(Exception $e)
+    public function onError(\Error $e)
     {
+        $this->log($e);
+        $this->onCriticalError($e);
+    }
+
+    public function onException(Exception $e)
+    {
+        $this->log($e);
         if ($e->getCode() == ERR_PRINTABLE) {
-            $this->onPrintableError($e);
+            $this->onPrintableException($e);
         } elseif ($e->getCode() == ERR_INVALID) {
-            $this->onInvalidError($e);
+            $this->onInvalidException($e);
         } else {
-            $this->onCriticalError($e);
+            $this->onCriticalException($e);
         }
     }
 
-    protected function onCriticalError(Exception $e)
+    protected function log(\Throwable $e)
+    {
+        welLog(
+            'error', 'WelCMS',
+            $e->getCode() . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()
+        );
+    }
+
+    protected function onCriticalException(Exception $e)
     {
         WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
     }
 
-    protected function onPrintableError(Exception $e)
+    protected function onPrintableException(Exception $e)
     {
         WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
     }
 
-    protected function onInvalidError(Exception $e)
+    protected function onInvalidException(Exception $e)
+    {
+        WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
+    }
+
+    protected function onCriticalError(\Error $e)
     {
         WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
     }

@@ -132,19 +132,19 @@ class WelCms
             $obStarted = !ob_end_flush();
             welLog('debug', 'WelCms', $router->getViewPath() . ' loadView end');
             session_write_close();
-        } catch(\Throwable $e) {
-            welLog(
-                'error', 'WelCMS',
-                $e->getCode() . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()
-            );
+        } catch(\Exception $e) {
             if ($obStarted) {
                 ob_end_clean();
             }
             if ($e instanceof Exception) {
                 welPocket()->getErrorHandler()->onError($e);
             } else {
-                $throwable = new Exception('System error', ERR_CRITICAL, $e);
-                welPocket()->getErrorHandler()->onError($throwable);
+                $ex = new Exception('System error', ERR_CRITICAL, $e);
+                welPocket()->getErrorHandler()->onError($ex);
+            }
+        } catch(\Error $e) {
+            if ($obStarted) {
+                ob_end_clean();
             }
         }
     }
