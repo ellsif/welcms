@@ -109,7 +109,7 @@ class WelCms
                     throw new Exception($auth . ' Auth Not Found');
                 }
                 if (!$auth->isAuthenticated()) {
-                    $auth->onAuthError($route['printerFormat']);
+                    $auth->onAuthError($route->getType());
                     exit(0);
                 }
             }
