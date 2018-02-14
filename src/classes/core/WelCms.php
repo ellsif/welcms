@@ -127,9 +127,11 @@ class WelCms
             if (!($printer = welPocket()->getPrinter($route->getType()))) {
                 throw new Exception($route->getType(). ' Printer not found');
             }
+            welLog('debug', 'WelCms', $router->getViewPath() . ' loadView start');
             $obStarted = ob_start();
             $printer->print($result);
             ob_end_flush();
+            welLog('debug', 'WelCms', $router->getViewPath() . ' loadView end');
             session_write_close();
         } catch(\Exception $e) {
 
