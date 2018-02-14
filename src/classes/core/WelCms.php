@@ -136,13 +136,14 @@ class WelCms
             welLog(
                 'error',
                 'WelCMS',
-                $e->getCode() . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()
+                $e->getCode() . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()
             );
 
             // エラーを表示
             if ($obStarted) {
                 ob_end_clean();
             }
+            echo $e->getCode() . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString();
             /*
             if (!$this->errorPage($e)) {
                 // TODO 次バージョンではExceptionをthrowする。
