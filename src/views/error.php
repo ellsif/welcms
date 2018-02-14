@@ -22,9 +22,11 @@ $errors = $errors ?? [];
                 <?php if (isset($e)) : ?>
                   <p><?php echo $e->getMessage(); ?></p>
                 <?php endif ?>
-                <pre>
-                  <?php if (isset($e)) echo $e->getTraceAsString(); ?>
-                </pre>
+                <pre><?php if (isset($e)) echo $e->getTraceAsString(); ?></pre>
+
+                <?php foreach(\ellsif\WelCMS\welPocket()->getLogger()->getHistory() as $log) : ?>
+                  <p><?php echo $log; ?></p>
+                <?php endforeach ?>
               </div>
             </div>
           </div>
