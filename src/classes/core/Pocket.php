@@ -258,7 +258,7 @@ class Pocket
     /**
      * viewファイル格納ディレクトリの絶対パスをSETします。
      */
-    public function setWiewPath(string $viewPath): Pocket {
+    public function setViewPath(string $viewPath): Pocket {
         $this->viewPath = StringUtil::suffix($viewPath, '/');
         return self::instance();
     }

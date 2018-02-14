@@ -80,6 +80,9 @@ class WelCms
         } else {
             welPocket()->setAppPath(StringUtil::suffix(welPocket()->getAppPath(), '/'));
         }
+        if (!welPocket()->getViewPath()) {
+            welPocket()->setViewPath(welPocket()->getAppPath() . 'views/');
+        }
 
         $this->initLogger();
         $this->initErrorHandler();
