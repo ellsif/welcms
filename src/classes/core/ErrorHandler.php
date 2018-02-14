@@ -34,6 +34,9 @@ class ErrorHandler
             'error', 'WelCMS',
             $e->getCode() . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()
         );
+        if ($e->getPrevious()) {
+            $this->log($e->getPrevious());
+        }
     }
 
     protected function onCriticalException(Exception $e)
