@@ -60,9 +60,6 @@ class Router
         if ($this->getRoute()->getType() !== 'html') {
             $prefix = '_' . $this->getRoute()->getType() . '/';
         }
-        $serviceTerms = explode('\\', $this->getRoute()->getService());
-        $serviceTerms[count($serviceTerms) - 1] =
-            StringUtil::rightRemove($serviceTerms[count($serviceTerms) - 1], 'Service');
         $actionName = strtolower($this->getRoute()->getActionName());
         $viewPath = $prefix . $this->getRoute()->getServicePath() . $actionName . '.php';
         if (file_exists(welPocket()->getViewPath() . $viewPath)) {
@@ -93,7 +90,7 @@ class Router
             }
             if ($this->setCallable($route, $service, $actionName, $dir)) {
                 $route->setType($actionExt);
-                $route->setServicePath($dir);
+                $route->setServicePath($dir . $service . '/');
                 return $route;
             }
             $dir .= $service . '/';

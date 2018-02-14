@@ -106,7 +106,7 @@ class WelCms
             if ($route->getAuth()) {
                 $auth = welPocket()->getAuth($route->getAuth());
                 if (!$auth) {
-                    throw new Exception($auth . 'Auth Not Found');
+                    throw new Exception($auth . ' Auth Not Found');
                 }
                 if (!$auth->isAuthenticated()) {
                     $auth->onAuthError($route['printerFormat']);
