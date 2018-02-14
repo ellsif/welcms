@@ -10,7 +10,7 @@ class ErrorHandler
     {
     }
 
-    public function onError(\Exception $e)
+    public function onError(Exception $e)
     {
         if ($e->getCode() == ERR_PRINTABLE) {
             $this->onPrintableError($e);
@@ -21,17 +21,17 @@ class ErrorHandler
         }
     }
 
-    protected function onCriticalError(\Exception $e)
+    protected function onCriticalError(Exception $e)
     {
         WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
     }
 
-    protected function onPrintableError(\Exception $e)
+    protected function onPrintableError(Exception $e)
     {
         WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
     }
 
-    protected function onInvalidError(\Exception $e)
+    protected function onInvalidError(Exception $e)
     {
         WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
     }
