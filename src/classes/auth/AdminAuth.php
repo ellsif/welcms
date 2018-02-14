@@ -9,17 +9,14 @@ namespace ellsif\WelCMS;
 class AdminAuth extends Auth
 {
     /**
-     * 認証処理済みかどうか。
-     *
-     * ## 説明
-     * システム管理ユーザーログインしていない場合はログイン画面にリダイレクトします。
+     * 認証処理済みかどうかを判定します。
      */
     public function isAuthenticated(): bool
     {
         return isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
     }
 
-    public function getUserData()
+    public function getUserData(bool $secure = true)
     {
 
     }
