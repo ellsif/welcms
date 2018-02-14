@@ -130,8 +130,8 @@ class Router
         $fqClassName = FileUtil::getFqClassName(
             StringUtil::toCamel($service) . 'Service',
             [
-                welPocket()->getAppPath() . 'classes/service/' . $dir,
-                welPocket()->getSysPath() . 'classes/service/' . $dir,
+                welPocket()->getAppPath() . 'service/' . $dir,
+                welPocket()->getSysPath() . 'service/' . $dir,
             ]
         );
 
