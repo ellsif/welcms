@@ -41,6 +41,8 @@ class Pocket
 
     private $appPath;
 
+    private $viewPath;
+
     private $installDirectory;
 
     private $timeZone;
@@ -251,6 +253,21 @@ class Pocket
             $this->installDirectory = '';
         }
         return self::instance();
+    }
+
+    /**
+     * viewファイル格納ディレクトリの絶対パスをSETします。
+     */
+    public function setWiewPath(string $viewPath): Pocket {
+        $this->viewPath = StringUtil::suffix($viewPath, '/');
+        return self::instance();
+    }
+
+    /**
+     * viewファイル格納ディレクトリの絶対パスをGETします。
+     */
+    public function getViewPath(): ?string {
+        return $this->viewPath;
     }
 
     /**

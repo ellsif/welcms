@@ -73,7 +73,7 @@ class WelCms
      */
     public function main($indexPath)
     {
-        welPocket()->setSysPath(dirname(__FILE__, 2));
+        welPocket()->setSysPath(dirname(__FILE__, 3));
         welPocket()->setIndexPath(StringUtil::suffix($indexPath, '/'));
         if (!welPocket()->getAppPath()) {
             welPocket()->setAppPath(realpath($indexPath . '/../app/'));

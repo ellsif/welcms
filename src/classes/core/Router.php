@@ -11,6 +11,8 @@ use ellsif\util\StringUtil;
  */
 class Router
 {
+    protected $route;
+
     protected $defaultService;
 
     public function __construct($defaultService = 'site')
@@ -19,29 +21,7 @@ class Router
     }
 
     /**
-     * Viewファイルのパスを判定し、取得する。
-     *
-     * ## 説明
-     * アプリケーションディレクトリとシステムディレクトリに同名のファイルが存在する場合は、
-     * アプリケーションディレクトリのViewファイルを優先的に利用します。
-     */
-    public static function getViewPath(string $path = null)
-    {
-        $pocket = Pocket::getInstance();
-        $action = pathinfo($pocket->varAction(), PATHINFO_FILENAME);
-        $viewPath = $path ?? (lcfirst($pocket->varService() . '/' . $action) . '.php');
-        if (file_exists($pocket->dirViewApp() . $viewPath)) {
-            return $pocket->dirViewApp() . $viewPath;
-        } elseif (file_exists($pocket->dirView() . $viewPath)) {
-            return $pocket->dirView() . $viewPath;
-        } elseif (file_exists($viewPath)) {
-            return $viewPath;
-        }
-        throw new \DomainException($viewPath . ' Not Found', 404);
-    }
-
-    /**
-     * ルーティングを行う。
+     * ルーティングを行います。
      */
     public function routing($requestUri): Route
     {
@@ -53,7 +33,44 @@ class Router
         welLog('debug', 'Router',
             'routing end: ' . $route->getService() . '.' . $route->getAction()
         );
-        return $route;
+        $this->route = $route;
+        return $this->route;
+    }
+
+    /**
+     * Routeを取得します。
+     */
+    public function getRoute(): ?Route
+    {
+        return $this->route;
+    }
+
+    /**
+     * Viewファイルのパスを判定し、取得する。
+     *
+     * ## 説明
+     * アプリケーションディレクトリとシステムディレクトリに同名のファイルが存在する場合は、
+     * アプリケーションディレクトリのViewファイルを優先的に利用します。
+     *
+     * TODO リクエストメソッドによるVIEWの振り分けを対応するか？
+     */
+    public function getViewPath()
+    {
+        $prefix = '';
+        if ($this->getRoute()->getType() !== 'html') {
+            $prefix = '_' . $this->getRoute()->getType() . '/';
+        }
+        $serviceTerms = explode('\\', $this->getRoute()->getService());
+        $serviceTerms[count($serviceTerms) - 1] =
+            StringUtil::rightRemove($serviceTerms[count($serviceTerms) - 1], 'Service');
+        $actionName = strtolower($this->getRoute()->getActionName());
+        $viewPath = $prefix . $this->getRoute()->getServicePath() . $actionName . '.php';
+        if (file_exists(welPocket()->getViewPath() . $viewPath)) {
+            return welPocket()->getViewPath() . $viewPath;
+        } elseif (file_exists(welPocket()->getSysPath() . 'views/' . $viewPath)) {
+            return welPocket()->getSysPath() . 'views/' . $viewPath;
+        }
+        throw new Exception('view file ' . $viewPath . ' Not Found');
     }
 
     /**
@@ -76,6 +93,7 @@ class Router
             }
             if ($this->setCallable($route, $service, $actionName, $dir)) {
                 $route->setType($actionExt);
+                $route->setServicePath($dir);
                 return $route;
             }
             $dir .= $service . '/';
@@ -88,6 +106,7 @@ class Router
         $actionExt = pathinfo($action, PATHINFO_EXTENSION);
         if ($this->setCallable($route, $service, $actionName, '')) {
             $route->setType($actionExt);
+            $route->setServicePath('');
         } else {
             throw new Exception(
                 'no route was found for ' . $route->getRequestUri(),
@@ -104,15 +123,15 @@ class Router
      * Routeに呼び出し可能なサービスクラスの完全修飾名と
      * 利用可能なアクションメソッドの設定を行います。
      */
-    protected function setCallable(Route &$route, string $service, string $action, string $dir = ''): bool
+    protected function setCallable(Route &$route, string $service, string $actionName, string $dir = ''): bool
     {
         welLog('debug', 'Router', 'search: service/' . $dir);
 
         $fqClassName = FileUtil::getFqClassName(
             StringUtil::toCamel($service) . 'Service',
             [
-                welPocket()->getAppPath() . 'service/' . $dir,
-                welPocket()->getSysPath() . 'service/' . $dir,
+                welPocket()->getAppPath() . 'classes/service/' . $dir,
+                welPocket()->getSysPath() . 'classes/service/' . $dir,
             ]
         );
 
@@ -127,15 +146,18 @@ class Router
         $httpMethod = strtolower($route->getRequestMethod());
 
         $route->setService($fqClassName);
+        $route->setServiceName($service);
         foreach($authList as $auth) {
-            $actionName = StringUtil::toCamel("${httpMethod}_${action}_${auth}", true);
-            if(is_callable([$fqClassName, $actionName])) {
-                $route->setAction($actionName);
+            $actionMethod = StringUtil::toCamel("${httpMethod}_${actionName}_${auth}", true);
+            if(is_callable([$fqClassName, $actionMethod])) {
+                $route->setAction($actionMethod);
+                $route->setActionName($actionName);
                 return true;
             }
-            $actionNameAnyMethod = StringUtil::toCamel("${action}_${auth}", true);
-            if(is_callable([$fqClassName, $actionNameAnyMethod])) {
-                $route->setAction($actionNameAnyMethod);
+            $actionMethodAny = StringUtil::toCamel("${actionName}_${auth}", true);
+            if(is_callable([$fqClassName, $actionMethodAny])) {
+                $route->setAction($actionMethodAny);
+                $route->setActionName($actionName);
                 return true;
             }
         }

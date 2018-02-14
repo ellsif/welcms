@@ -25,7 +25,13 @@ class Route
 
     private $requestPath;
 
+    private $servicePath;
+
+    private $serviceName;
+
     private $service;
+
+    private $actionName;
 
     private $action;
 
@@ -109,6 +115,26 @@ class Route
         return $this->requestPath;
     }
 
+    public function setServicePath(string $servicePath)
+    {
+        $this->servicePath = $servicePath;
+    }
+
+    public function getServicePath(): ?string
+    {
+        return $this->servicePath;
+    }
+
+    public function setServiceName(string $serviceName)
+    {
+        $this->serviceName = $serviceName;
+    }
+
+    public function getServiceName(): ?string
+    {
+        return $this->serviceName;
+    }
+
     /**
      * サービスクラスの完全修飾名をSETします。
      */
@@ -123,6 +149,16 @@ class Route
     public function getService(): ?string
     {
         return $this->service;
+    }
+
+    public function setActionName(string $actionName)
+    {
+        $this->actionName = $actionName;
+    }
+
+    public function getActionName(): ?string
+    {
+        return $this->actionName;
     }
 
     /**
