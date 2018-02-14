@@ -148,12 +148,14 @@ class Router
             if(is_callable([$fqClassName, $actionMethod])) {
                 $route->setAction($actionMethod);
                 $route->setActionName($actionName);
+                $route->setAuth($auth);
                 return true;
             }
             $actionMethodAny = StringUtil::toCamel("${actionName}_${auth}", true);
             if(is_callable([$fqClassName, $actionMethodAny])) {
                 $route->setAction($actionMethodAny);
                 $route->setActionName($actionName);
+                $route->setAuth($auth);
                 return true;
             }
         }
