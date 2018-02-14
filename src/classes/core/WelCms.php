@@ -2,7 +2,6 @@
 
 namespace ellsif\WelCMS;
 
-use ellsif\util\FileUtil;
 use ellsif\util\StringUtil;
 
 /**
@@ -137,15 +136,16 @@ class WelCms
                 ob_end_clean();
             }
             if ($e instanceof Exception) {
-                welPocket()->getErrorHandler()->onError($e);
+                welPocket()->getErrorHandler()->onException($e);
             } else {
                 $ex = new Exception('System error', ERR_CRITICAL, $e);
-                welPocket()->getErrorHandler()->onError($ex);
+                welPocket()->getErrorHandler()->onException($ex);
             }
         } catch(\Error $e) {
             if ($obStarted) {
                 ob_end_clean();
             }
+            welPocket()->getErrorHandler()->onError($e);
         }
     }
 
@@ -170,35 +170,6 @@ class WelCms
                 }
             }
         }
-    }
-
-    /**
-     * エラーページを表示します。
-     */
-    protected  function errorPage(\Exception $e) :bool
-    {
-        $printerClass = Pocket::getInstance()->varPrinter();
-        if (!$printerClass) {
-            $printerClass = FileUtil::getFqClassName(
-                'Printer', [Pocket::getInstance()->dirApp(), Pocket::getInstance()->dirSystem()]
-            );
-        }
-        $printMethod = Pocket::getInstance()->varPrinterFormat() ?? 'html';
-        $printer = new $printerClass();
-        $result = new ServiceResult();
-        $result->error($e->getMessage());
-        try {
-            $result->setView(Router::getViewPath($e->getCode() . '.php'));
-        } catch(\LogicException $e) {
-            $result->setView(Router::getViewPath('error.php'));
-        }
-
-        if ($printMethod) {
-            Logger::log('error', 'WelCMS', "$printerClass::$printMethod called");
-            $printer->$printMethod($result);
-            return true;
-        }
-        return false;
     }
 
     /**
