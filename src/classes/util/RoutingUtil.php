@@ -95,4 +95,14 @@ class RoutingUtil
             throw new Exception('failed to get http hostname', 0, null);
         }
     }
+
+    public static function getViewPath(string $viewPath): string
+    {
+        if (file_exists(welPocket()->getViewPath() . $viewPath)) {
+            return welPocket()->getViewPath() . $viewPath;
+        } elseif (file_exists(welPocket()->getSysPath() . 'views/' . $viewPath)) {
+            return welPocket()->getSysPath() . 'views/' . $viewPath;
+        }
+        return '';
+    }
 }

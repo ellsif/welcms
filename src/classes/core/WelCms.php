@@ -16,6 +16,7 @@ class WelCms
 
     public function __construct()
     {
+        require_once dirname(__FILE__, 3) . '/functions/const.php';
         require_once dirname(__FILE__, 3) . '/functions/func.php';
         require_once dirname(__FILE__, 3) . '/functions/helper.php';
     }
@@ -100,7 +101,7 @@ class WelCms
             welPocket()->setRouter($router);
             $printerType = $route->getType() ? $route->getType() : 'html';
             if (!welPocket()->getPrinter($printerType)) {
-                throw new Exception($printerType . ' Printer Not Found', 0, null, null, 404);
+                throw new Exception($printerType . ' Printer Not Found', ERR_CRITICAL, null, null, 404);
             }
 
             if ($route->getAuth()) {
@@ -124,13 +125,11 @@ class WelCms
             $result = $service->$action(new ActionParams($route));
 
             // 結果を出力
-            if (!($printer = welPocket()->getPrinter($route->getType()))) {
-                throw new Exception($route->getType(). ' Printer not found');
-            }
+            $printer = welPocket()->getPrinter($printerType);
             welLog('debug', 'WelCms', $router->getViewPath() . ' loadView start');
             $obStarted = ob_start();
             $printer->print($result);
-            ob_end_flush();
+            $obStarted = !ob_end_flush();
             welLog('debug', 'WelCms', $router->getViewPath() . ' loadView end');
             session_write_close();
         } catch(\Exception $e) {
@@ -141,19 +140,11 @@ class WelCms
                 $e->getCode() . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()
             );
 
-            // エラーを表示
             if ($obStarted) {
                 ob_end_clean();
             }
-            echo $e->getCode() . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString();
-            /*
-            if (!$this->errorPage($e)) {
-                // TODO 次バージョンではExceptionをthrowする。
-                // TODO 本当はエラーハンドラに渡す
-                header("HTTP/1.1 " . $e->getCode());
-                exit(0);
-            }
-            */
+
+            welPocket()->getErrorHandler()->onError($e);
         }
     }
 

@@ -62,10 +62,9 @@ class Router
         }
         $actionName = strtolower($this->getRoute()->getActionName());
         $viewPath = $prefix . $this->getRoute()->getServicePath() . $actionName . '.php';
-        if (file_exists(welPocket()->getViewPath() . $viewPath)) {
-            return welPocket()->getViewPath() . $viewPath;
-        } elseif (file_exists(welPocket()->getSysPath() . 'views/' . $viewPath)) {
-            return welPocket()->getSysPath() . 'views/' . $viewPath;
+        $fullViewPath = RoutingUtil::getViewPath($viewPath);
+        if ($fullViewPath) {
+            return $fullViewPath;
         }
         throw new Exception('view file ' . $viewPath . ' Not Found');
     }

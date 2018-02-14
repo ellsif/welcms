@@ -1,5 +1,4 @@
 <?php
-header("HTTP/1.1 500 Internal Server Error");
 $errors = $errors ?? [];
 ?><!DOCTYPE html>
 <html lang="ja-JP">
@@ -20,6 +19,9 @@ $errors = $errors ?? [];
                 <?php foreach($errors as $error): ?>
                   <p><?php echo htmlspecialchars($error, ENT_QUOTES) ?></p>
                 <?php endforeach; ?>
+                <pre>
+                  <?php if (isset($e)) echo $e->getMessage(); ?>
+                </pre>
               </div>
             </div>
           </div>

@@ -11,7 +11,7 @@ class Exception extends \Exception
 
     private $errors;
 
-    public function __construct($message, $code = 0, \Exception $previous = null, $errors = null, int $responseCode = 500)
+    public function __construct($message, $code = ERR_CRITICAL, \Exception $previous = null, $errors = null, int $responseCode = 500)
     {
         parent::__construct($message, $code, $previous);
         $this->responseCode = $responseCode;
