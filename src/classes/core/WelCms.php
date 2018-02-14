@@ -87,6 +87,7 @@ class WelCms
         $this->initLogger();
         $this->initErrorHandler();
         $this->initPrinter();
+        $this->initAuth();
         $this->initRouter();
 
         $obStarted = false;
@@ -103,7 +104,6 @@ class WelCms
             }
 
             if ($route->getAuth()) {
-                $this->initAuth();
                 $auth = welPocket()->getAuth($route->getAuth());
                 if (!$auth) {
                     throw new Exception($auth . 'Auth Not Found');
