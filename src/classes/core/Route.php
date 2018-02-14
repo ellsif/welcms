@@ -56,8 +56,6 @@ class Route
 
         $this->action = 'index';
         $this->type = 'html';
-        $this->paths = [];
-        $this->params = [];
     }
 
     public function getRequestUri(): string
