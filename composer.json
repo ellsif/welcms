@@ -38,8 +38,8 @@
         "src/classes/util/",
         "src/classes/repository/",
         "src/classes/printer/",
-        "src/classes/service/",
-        "src/classes/service/admin/"
+        "src/service/",
+        "src/service/admin/"
       ]
     }
   }
