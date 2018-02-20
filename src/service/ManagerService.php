@@ -19,7 +19,7 @@ class ManagerService extends Service
     /**
      * ログイン処理を行います。
      */
-    public function postLogin($params)
+    public function postLogin(ActionParams $params)
     {
         $result = new ServiceResult();
 

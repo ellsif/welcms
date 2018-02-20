@@ -2,15 +2,12 @@
 
 namespace ellsif\WelCMS;
 
-use ellsif\WelCMS\Exception;
-use ellsif\WelCMS\Pocket;
-use ellsif\WelCMS\WelUtil;
 use \PDO;
 
-class SqliteAccess extends DataAccess
+class MysqlAccess extends DataAccess
 {
-    private $pdo = null;
-    private $tables = [];
+
+    protected $tables = [];
 
     /**
      * コンストラクタ。
@@ -19,34 +16,15 @@ class SqliteAccess extends DataAccess
      * PDOの初期化を行います。
      *
      * ## 例外/エラー
-     * PDOの初期化に失敗した場合、Exceptionをthrowします。
+     * PDOの初期化に失敗した場合、PDOExceptionをthrowします。
      */
-    public function __construct()
+    public function __construct(string $dsn, string $username = null, string $password = null, array $options = [])
     {
-        $pocket = Pocket::getInstance();
-
-        if ($pocket->dbPdo()) {
-            $this->pdo = $pocket->dbPdo();
-        } else {
-            try {
-                $this->pdo = new PDO(
-                    'sqlite:' . $pocket->dbDatabase(),
-                    $pocket->dbUsername(),
-                    $pocket->dbPassword()
-                );
-
-            } catch (\PDOException $e) {
-                throw new Exception('PDOの初期化に失敗しました。');
-            }
-
-            $this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 20);  // ロックされている場合の解除待ち
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $pocket->dbPdo($this->pdo);
-        }
+        parent::__construct($dsn, $username, $password, $options);
     }
 
     /**
-     * テーブルを作成する
+     * テーブルを作成します。
      *
      * @param string $name
      * @param array $columns
@@ -54,39 +32,34 @@ class SqliteAccess extends DataAccess
      */
     public function createTable(Scheme $scheme) :bool
     {
+        $columns = $scheme->getDefinition();
         if (count($columns) == 0) {
             throw new Exception('テーブルの作成に失敗しました。カラムが指定されていません。');
-        }
-        if (array_key_exists('id', $columns) || array_key_exists('created', $columns) || array_key_exists('updated', $columns)) {
+        } elseif (isset($columns['id']) || isset($columns['created']) || isset($columns['updated'])) {
             throw new Exception('テーブルの作成に失敗しました。id, created, updated は自動的に追加されるため指定できません。');
         }
-        $columnDefs = array(
-            'id INTEGER PRIMARY KEY AUTOINCREMENT'
-        );
-        foreach($columns as $columnName => $array) {
+        $columnDefs = ['id INT NOT NULL AUTO_INCREMENT'];
+        foreach($columns as $columnName => $sc) {
             $columnName = $this->pdo->quote($columnName);
-            $type = isset($array['type']) ? $this->convertType($array['type']) : 'TEXT';
-            $default = '';
-            if (isset($array['default'])) {
-                $default = $type === 'TEXT' ? $this->pdo->quote($array['default']) : intval($array['default']);
-                $default = "DEFAULT " . $default;
-            }
-            $columnDefs[] = "${columnName} ${type} ${default}";
+            $type = $this->convertType($sc['type']);
+            $default = isset($sc['default']) ? $default = "DEFAULT " . $this->pdo->quote($sc['default']) : '';
+            $comment = $this->pdo->quote($sc['name'] . ':' . ($sc['description'] ?? ''));
+            $columnDefs[] = "${columnName} ${type} ${default} COMMENT ${comment}";
         }
-        $columnDefs[] = 'created TIMESTAMP';
-        $columnDefs[] = 'updated TIMESTAMP';
-        $sql = 'CREATE TABLE IF NOT EXISTS ' . $this->pdo->quote($name) . ' (' . implode(',', $columnDefs) . ')';
+        $columnDefs[] = 'created DATETIME';
+        $columnDefs[] = 'updated DATETIME';
+        $columnDefs[] = 'PRIMARY KEY (id)';
+        $sql = 'CREATE TABLE IF NOT EXISTS ' . $this->pdo->quote($scheme->getName()) . ' (' . implode(',', $columnDefs) . ')';
         $stmt = $this->pdo->prepare($sql);
         if ($stmt->execute()) {
             $this->tables(true); // テーブル一覧を更新する
             return true;
         }
         return false;
-
     }
 
     /**
-     * テーブルを削除する
+     * テーブルを削除します。
      *
      * @param string $name
      * @param bool $force trueの場合、WelCMS標準のテーブルも削除する
@@ -118,30 +91,6 @@ class SqliteAccess extends DataAccess
         }
         if ($stmt->execute()) {
             return $stmt->fetchColumn();
-        } else {
-            Logger::getInstance()->putLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
-            throw new \Exception("${name}からのデータの取得に失敗しました。");
-        }
-    }
-
-    /**
-     * 1件取得する
-     *
-     * @param string $name
-     * @param int $id
-     */
-    public function get(string $name, int $id)
-    {
-        $sql = "SELECT * FROM " . $this->pdo->quote($name) . " WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':id', $id);
-        if ($stmt->execute()) {
-            $results = $stmt->fetchAll(PDO::FETCH_NAMED);
-            if (count($results) > 0) {
-                return $results[0];
-            } else {
-                return null;
-            }
         } else {
             Logger::getInstance()->putLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \Exception("${name}からのデータの取得に失敗しました。");
@@ -193,27 +142,6 @@ class SqliteAccess extends DataAccess
         } else {
             Logger::getInstance()->putLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \RuntimeException("${name}からのデータの取得に失敗しました。");
-        }
-    }
-
-    /**
-     * SQL文を使って検索する。
-     */
-    public function selectQuery(string $sql, array $options = []) :array
-    {
-        $stmt = $this->pdo->prepare($sql);
-        foreach($options as $key => $val) {
-            if (is_string($key) && substr($key, 0, 1) !== ':') {
-                $key = ':' . $key;
-            }
-            $stmt->bindValue($key, $val);
-        }
-        if ($stmt->execute()) {
-            $results = $stmt->fetchAll(PDO::FETCH_NAMED);
-            return $results;
-        } else {
-            Logger::getInstance()->putLog('error', "DataAccess", "データの取得に失敗しました。" . $stmt->errorCode());
-            throw new \Exception("データの取得に失敗しました。");
         }
     }
 
@@ -488,12 +416,12 @@ class SqliteAccess extends DataAccess
     public function convertType($type) :string
     {
         $conv = [
-            'int'       => 'INTEGER',
-            'float'     => 'REAL',
-            'double'    => 'REAL',
-            'string'    => 'TEXT',
+            'int'       => 'INT',
+            'float'     => 'FLOAT',
+            'double'    => 'DOUBLE',
+            'string'    => 'VARCHAR(2048)',
             'text'      => 'TEXT',
-            'timestamp' => 'TIMESTAMP',
+            'datetime'  => 'DATETIME',
         ];
         return $conv[$type] ?? 'TEXT';
     }

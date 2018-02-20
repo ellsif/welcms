@@ -11,6 +11,22 @@ namespace ellsif\WelCMS;
  */
 abstract class DataAccess
 {
+    protected $pdo = null;
+
+    /**
+     * コンストラクタ。
+     *
+     * ## 説明
+     * PDOの初期化を行います。
+     *
+     * ## 例外/エラー
+     * PDOの初期化に失敗した場合、PDOExceptionをthrowします。
+     */
+    public function __construct(string $dsn, string $username = null, string $password = null, array $options = [])
+    {
+        $this->pdo = new \PDO($dsn, $username, $password, $options);
+    }
+
 
     /**
      * テーブルを作成する。
@@ -38,7 +54,7 @@ abstract class DataAccess
      *       'number' => 'INTEGER DEFAULT 1',
      *     ));
      */
-    public abstract function createTable(string $name, array $columns) :bool;
+    public abstract function createTable(Scheme $scheme) :bool;
 
     /**
      * テーブルを削除する
@@ -63,6 +79,26 @@ abstract class DataAccess
     public abstract function count(string $name, array $filter = []);
 
     /**
+     * 件数を取得する。
+     */
+    public function countQuery(string $query, array $params = []): int
+    {
+        $stmt = $this->pdo->prepare($query);
+        foreach($params as $key => $val) {
+            if (is_string($key) && substr($key, 0, 1) !== ':') {
+                $key = ':' . $key;
+            }
+            $stmt->bindValue($key, $val);
+        }
+        if ($stmt->execute()) {
+            return intval($stmt->fetchColumn());
+        } else {
+            welLog('error', "DataAccess", "データの取得に失敗しました。エラーコード：" . $stmt->errorCode());
+            throw new Exception("データの取得に失敗しました。エラーコード：" . $stmt->errorCode());
+        }
+    }
+
+    /**
      * id指定で1件取得する。
      *
      * ## 説明
@@ -82,7 +118,23 @@ abstract class DataAccess
      * ## 例外/エラー
      * 取得に失敗した場合、Exceptionをthrowします。（該当するidのデータが存在しない場合はnullを返して正常処理として扱います）
      */
-    public abstract function get(string $name, int $id);
+    public function get(string $name, int $id)
+    {
+        $sql = 'SELECT * FROM ' . $this->pdo->quote($name) . ' WHERE id = :id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id', $id);
+        if ($stmt->execute()) {
+            $results = $stmt->fetchAll(\PDO::FETCH_NAMED);
+            if (count($results) > 0) {
+                return $results[0];
+            } else {
+                return null;
+            }
+        } else {
+            welLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。エラーコード：" . $stmt->errorCode());
+            throw new Exception("${name}からのデータの取得に失敗しました。エラーコード：" . $stmt->errorCode());
+        }
+    }
 
     /**
      * 複数件取得する。
@@ -166,7 +218,23 @@ abstract class DataAccess
      *       [1]
      *     );
      */
-    public abstract function selectQuery(string $sql, array $params = []): array;
+    public function selectQuery(string $sql, array $options = []) :array
+    {
+        $stmt = $this->pdo->prepare($sql);
+        foreach($options as $key => $val) {
+            if (is_string($key) && substr($key, 0, 1) !== ':') {
+                $key = ':' . $key;
+            }
+            $stmt->bindValue($key, $val);
+        }
+        if ($stmt->execute()) {
+            $results = $stmt->fetchAll(\PDO::FETCH_NAMED);
+            return $results;
+        } else {
+            welLog('error', "DataAccess", "データの取得に失敗しました。エラーコード：" . $stmt->errorCode());
+            throw new Exception("データの取得に失敗しました。エラーコード：" . $stmt->errorCode());
+        }
+    }
 
 
     /**
