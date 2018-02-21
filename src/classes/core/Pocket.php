@@ -57,6 +57,7 @@ class Pocket
     {
         $this->loggers = [];
         $this->dataAccessObjects = [];
+        $this->authObjects = [];
         $this->printers = [];
         $this->errors = [];
         $this->timeZone = date_default_timezone_get();
