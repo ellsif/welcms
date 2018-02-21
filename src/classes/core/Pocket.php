@@ -25,6 +25,8 @@ class Pocket
 
     private $config;
 
+    private $siteName = '';
+
     private $router;
 
     private $loggers;
@@ -59,28 +61,28 @@ class Pocket
     }
 
     /**
+     * サイト名をSETします。
+     */
+    public function setSiteName(string $siteName): Pocket
+    {
+        $this->siteName = $siteName;
+        return self::instance();
+    }
+
+    /**
+     * サイト名をGETします。
+     */
+    public function getSiteName(): string
+    {
+        return $this->siteName;
+    }
+
+    /**
      * インスタンスを取得する。
      */
     public static function getInstance() : Pocket
     {
         return self::instance();
-    }
-
-    /**
-     * LoggerをSETします。
-     */
-    public function setLogger(Logger $logger, string $type = 'default'): Pocket
-    {
-        $this->loggers[$type] = $logger;
-        return self::instance();
-    }
-
-    /**
-     * LoggerをGETします。
-     */
-    public function getLogger($type = 'default'): ?Logger
-    {
-        return $this->loggers[$type] ?? null;
     }
 
     /**
@@ -98,6 +100,23 @@ class Pocket
     public function getRouter(): ?Router
     {
         return $this->router;
+    }
+
+    /**
+     * LoggerをSETします。
+     */
+    public function setLogger(Logger $logger, string $type = 'default'): Pocket
+    {
+        $this->loggers[$type] = $logger;
+        return self::instance();
+    }
+
+    /**
+     * LoggerをGETします。
+     */
+    public function getLogger($type = 'default'): ?Logger
+    {
+        return $this->loggers[$type] ?? null;
     }
 
     /**
