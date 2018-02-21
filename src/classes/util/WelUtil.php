@@ -317,20 +317,16 @@ class WelUtil
 
     /**
      * ベースURLを取得します。
-     * TODO 階層下げた場合の対応が必要。
      */
     public static function getUrl($path = '', $encode = true)
     {
-        $urlInfo = Pocket::getInstance()->varUrlInfo();
-        $urlBase = $urlInfo['scheme'] . '://' . $urlInfo['host'];
-        if (intval($urlInfo['port']) != 80 && $urlInfo['port']) {
-            $urlBase .= ':' . $urlInfo['port'];
+        $route = welPocket()->getRouter()->getRoute();
+        $urlBase = $route->getScheme() . '://' . $route->getHost();
+        if ($route->getPort() && $route->getPort() != 80) {
+            $urlBase .= ':' . $route->getPort();
         }
-        $urlBase .= '/';
+        $urlBase .= '/' . (welPocket()->getInstallDirectory() ?? '');
 
-        if (Pocket::getInstance()->varRoot()) {
-            $urlBase .= Pocket::getInstance()->varRoot();
-        }
         $newPath = StringUtil::leftRemove($path, '/');
         if ($encode) {
             $newPath = implode('/', array_map('urlencode', explode('/', $newPath)));
