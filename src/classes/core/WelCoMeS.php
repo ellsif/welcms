@@ -134,7 +134,7 @@ class WelCoMeS
             $printer->$printMethod($result);
             ob_end_flush();
 
-        } catch(\Exception $e) {
+        } catch(\Throwable $e) {
 
             Logger::log(
                 'error',
