@@ -31,6 +31,8 @@ class Pocket
 
     private $loggers;
 
+    private $authObjects;
+
     private $dataAccessObjects;
 
     private $printers;
@@ -188,7 +190,7 @@ class Pocket
      */
     public function addAuth(Auth $auth): Pocket
     {
-        $this->dataAccessObjects[] = $auth;
+        $this->authObjects[] = $auth;
         return self::instance();
     }
 
@@ -197,7 +199,7 @@ class Pocket
      */
     public function getAuth(string $name): ?Auth
     {
-        foreach($this->dataAccessObjects as $auth) {
+        foreach($this->getAuthObjects() as $auth) {
             if ($auth->getName() === $name) {
                 return $auth;
             }
@@ -210,7 +212,7 @@ class Pocket
      */
     public function getAuthObjects(): array
     {
-        return $this->dataAccessObjects;
+        return $this->authObjects;
     }
 
     /**
