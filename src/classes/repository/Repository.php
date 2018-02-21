@@ -20,7 +20,7 @@ class Repository
      * ## 説明
      *
      */
-    public function __construct(Scheme $scheme, $dataAccess = null)
+    public function __construct(Scheme $scheme, DataAccess $dataAccess = null)
     {
         $this->scheme = $scheme;
         $this->dataAccess = $dataAccess ? $dataAccess : $this->dataAccess = welDataAccess();

@@ -4,20 +4,11 @@ namespace ellsif\WelCMS;
 
 class ManagerRepository extends Repository
 {
-    public function __construct($name)
+    public function __construct(Scheme $scheme = null, DataAccess $dataAccess = null)
     {
-        /**
-         * カラムの定義
-         *
-         * ## 説明
-         * リポジトリへの初回アクセス時にテーブルが存在しない場合、
-         * 自動的にテーブルが作成されます。
-         *
-         *
-         */
-        $scheme = new ManagerScheme();
-        $this->columns = $scheme->getDefinition();
-        parent::__construct($name);
+        $this->scheme = $scheme ? $scheme : new ManagerScheme();
+        $this->columns = $this->scheme->getDefinition();
+        parent::__construct($this->scheme, $dataAccess);
     }
 
     protected function validateUniqueManagerId($value, $id)
