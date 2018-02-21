@@ -17,6 +17,7 @@ class WelCms
     {
         require_once dirname(__FILE__, 3) . '/functions/const.php';
         require_once dirname(__FILE__, 3) . '/functions/func.php';
+        require_once dirname(__FILE__, 3) . '/functions/gfunc.php';
         require_once dirname(__FILE__, 3) . '/functions/helper.php';
     }
 

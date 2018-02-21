@@ -20,7 +20,7 @@ function welLog(string $level, string $label, string $message, string $type = 'd
     $logger->putLog($level, $label, $message);
 }
 
-function pText($text)
+function text($text)
 {
     echo htmlspecialchars($text);
 }
