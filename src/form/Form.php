@@ -1,5 +1,6 @@
 <?php
 namespace ellsif\WelCMS;
+
 use ellsif\util\StringUtil;
 
 /**
