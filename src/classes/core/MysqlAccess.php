@@ -43,7 +43,7 @@ class MysqlAccess extends DataAccess
             $columnName = $this->pdo->quote($columnName);
             $type = $this->convertType($sc['type']);
             $default = isset($sc['default']) ? $default = "DEFAULT " . $this->pdo->quote($sc['default']) : '';
-            $comment = $this->pdo->quote($sc['name'] . ':' . ($sc['description'] ?? ''));
+            $comment = $this->pdo->quote(($sc['label'] ?? '') . ':' . ($sc['description'] ?? ''));
             $columnDefs[] = "${columnName} ${type} ${default} COMMENT ${comment}";
         }
         $columnDefs[] = 'created DATETIME';
