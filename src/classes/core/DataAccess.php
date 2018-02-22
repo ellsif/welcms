@@ -221,13 +221,17 @@ abstract class DataAccess
     public function selectQuery(string $sql, array $options = []) :array
     {
         $stmt = $this->pdo->prepare($sql);
-        foreach($options as $key => $val) {
-            if (is_string($key) && substr($key, 0, 1) !== ':') {
-                $key = ':' . $key;
+        if (!$options || key(array_slice($options, 0, 1, true)) === 0) {
+            $params = $options;
+        } else {
+            $params = [];
+            foreach($options as $key => $val) {
+                if (is_string($key) && substr($key, 0, 1) !== ':') {
+                    $params[':' . $key] = $val;
+                }
             }
-            $stmt->bindValue($key, $val);
         }
-        if ($stmt->execute()) {
+        if ($stmt->execute($params)) {
             $results = $stmt->fetchAll(\PDO::FETCH_NAMED);
             return $results;
         } else {
