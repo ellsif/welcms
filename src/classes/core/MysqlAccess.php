@@ -50,6 +50,7 @@ class MysqlAccess extends DataAccess
         $columnDefs[] = 'updated DATETIME';
         $columnDefs[] = 'PRIMARY KEY (id)';
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $this->pdo->quote($scheme->getName()) . ' (' . implode(',', $columnDefs) . ')';
+        welLog('debug', 'MySQL', 'create table: ' . $sql);
         $stmt = $this->pdo->prepare($sql);
         if ($stmt->execute()) {
             $this->tables(true); // テーブル一覧を更新する
