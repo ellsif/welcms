@@ -40,7 +40,7 @@ class MysqlAccess extends DataAccess
         }
         $columnDefs = ['id INT NOT NULL AUTO_INCREMENT'];
         foreach($columns as $columnName => $sc) {
-            $columnName = $this->pdo->quote($columnName);
+            $columnName = $columnName;
             $type = $this->convertType($sc['type']);
             $default = isset($sc['default']) ? $default = "DEFAULT " . $this->pdo->quote($sc['default']) : '';
             $comment = $this->pdo->quote(($sc['label'] ?? '') . ':' . ($sc['description'] ?? ''));
@@ -49,14 +49,21 @@ class MysqlAccess extends DataAccess
         $columnDefs[] = 'created DATETIME';
         $columnDefs[] = 'updated DATETIME';
         $columnDefs[] = 'PRIMARY KEY (id)';
-        $sql = 'CREATE TABLE IF NOT EXISTS ' . $this->pdo->quote($scheme->getName()) . ' (' . implode(',', $columnDefs) . ')';
+        $columnSql = ' (' . implode(',', $columnDefs) . ')';
+        $sql = 'CREATE TABLE IF NOT EXISTS ' . $scheme->getName() . $columnSql;
         welLog('debug', 'MySQL', 'create table: ' . $sql);
         $stmt = $this->pdo->prepare($sql);
-        if ($stmt->execute()) {
-            $this->tables(true); // テーブル一覧を更新する
-            return true;
+        if (!$stmt) {
+            throw new Exception(
+                'MySQL ERROR ' . implode(':', $this->pdo->errorInfo())
+            );
         }
-        return false;
+        if (!$stmt->execute()) {
+            throw new Exception(
+                'MySQL ERROR ' . implode(':', $stmt->errorInfo())
+            );
+        }
+        return true;
     }
 
     /**
