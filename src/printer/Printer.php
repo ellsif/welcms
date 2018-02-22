@@ -29,8 +29,9 @@ abstract class Printer
     /**
      * サブViewを読み込みます。
      */
-    public function loadView(string $path)
+    public function loadView(string $path, array $data = [])
     {
-        RoutingUtil::getViewPath($path);
+        $path = RoutingUtil::getViewPath($path);
+        WelUtil::loadView($path, $data);
     }
 }
