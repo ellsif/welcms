@@ -17,7 +17,7 @@ class HtmlPrinter extends Printer
             $viewPath = welPocket()->getRouter()->getViewPath();
         }
 
-        if ($result->isError()) {
+        if ($result->hasError()) {
             $data = ['errors' => $result->error()];
         } else {
             $data = $result->resultData();
