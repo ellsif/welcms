@@ -27,7 +27,7 @@ class ServiceResult
     }
 
     /**
-     * Formを追加します。
+     * Formを追加します
      */
     public function addForm(Form $form, string $name = null): ServiceResult
     {
@@ -39,7 +39,7 @@ class ServiceResult
     }
 
     /**
-     * Formを取得します。
+     * Formを取得します
      */
     public function getForm(string $name = null): ?Form
     {
@@ -52,11 +52,33 @@ class ServiceResult
     }
 
     /**
-     * エラー
+     * エラーの有無を判定します
      */
-    public function isError(): bool
+    public function hasError(string $formName = null): bool
     {
-        return (is_array($this->errors) && count($this->errors) > 0);
+        $form = $this->getForm($formName);
+        return $form ? (count($form->getErrors()) > 0) : false;
+    }
+
+    /**
+     * エラーを取得します
+     */
+    public function getErrors(string $formName = null): array
+    {
+        $form = $this->getForm($formName);
+        return $form ? $form->getErrors() : [];
+    }
+
+    /**
+     * エラーメッセージのリストを取得します
+     */
+    public function getErrorMessages(string $formName = null): array
+    {
+        $messages = [];
+        foreach($this->getErrors($formName) as $name => $msgs) {
+            $messages = array_merge($messages, $msgs);
+        }
+        return $messages;
     }
 
     /**
