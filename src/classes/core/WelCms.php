@@ -123,6 +123,7 @@ class WelCms
 
             $service = new $serviceClass();
             $result = $service->$action(new ActionParams($route));
+            welPocket()->setServiceResult($result);
 
             // 結果を出力
             $printer = welPocket()->getPrinter($printerType);

@@ -6,7 +6,7 @@ use ellsif\Logger;
 use ellsif\util\HtmlUtil;
 use ellsif\util\StringUtil;
 
-class Form
+class OldForm
 {
 
     private static $_count = 0;

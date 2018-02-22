@@ -51,6 +51,14 @@ class Pocket
 
     private $timeZone;
 
+    private $loginAdmin;
+
+    private $loginManager;
+
+    private $loginUser;
+
+    private $serviceResult;
+
     private $errors;
 
     protected function __construct()
@@ -329,6 +337,70 @@ class Pocket
         return $this->timeZone;
     }
 
+    /**
+     * ログイン中システム管理者情報をSETします。
+     */
+    public function setLoginAdmin(array $loginAdmin = null): Pocket {
+        $this->loginAdmin = $loginAdmin;
+        return self::instance();
+    }
+
+    /**
+     * ログイン中システム管理者情報をGETします。
+     */
+    public function getLoginAdmin(): ?array {
+        return $this->loginAdmin;
+    }
+
+    /**
+     * ログイン中管理者情報をSETします。
+     */
+    public function setLoginManager(array $loginManager = null): Pocket {
+        $this->loginManager = $loginManager;
+        return self::instance();
+    }
+
+    /**
+     * ログイン中管理者情報をGETします。
+     */
+    public function getLoginManager(): ?array {
+        return $this->loginManager;
+    }
+
+    /**
+     * ログイン中ユーザー情報をSETします。
+     */
+    public function setLoginUser(array $loginUser = null): Pocket
+    {
+        $this->loginUser = $loginUser;
+        return self::instance();
+    }
+
+    /**
+     * ログイン中ユーザー情報をGETします。
+     */
+    public function getLoginUser(): ?array
+    {
+        return $this->loginUser;
+    }
+
+    /**
+     * サービス処理結果をSETします。
+     */
+    public function setServiceResult(ServiceResult $serviceResult): Pocket
+    {
+        $this->serviceResult = $serviceResult;
+        return self::instance();
+    }
+
+    /**
+     * サービス処理結果をGETします。
+     */
+    public function getServiceResult(): ServiceResult
+    {
+        return $this->serviceResult;
+    }
+
     public function reset()
     {
         $this->config = [
@@ -558,10 +630,6 @@ class Pocket
      * 実際に出力するにはPrinter側での出力処理の実装が必要になります。
      */
     public function printFormats(...$val) { return $this->getset(__FUNCTION__, $val); }
-
-    public function loginUser(...$val) { return $this->getset(__FUNCTION__, $val); }
-
-    public function loginManager(...$val) { return $this->getset(__FUNCTION__, $val); }
 
     public function isAdmin(...$val) { return $this->getset(__FUNCTION__, $val); }
 

@@ -7,7 +7,7 @@ namespace ellsif\WelCMS;
 class ManagerScheme extends Scheme
 {
     /**
-     * 画面項目定義 + DB項目定義
+     * DB項目定義
      *
      * 項目名
      * 表示名

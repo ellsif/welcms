@@ -11,9 +11,10 @@ class ManagerService extends Service
     /**
      * ログイン画面を表示します。
      */
-    public function getLogin($params)
+    public function getLogin(ActionParams $params)
     {
-        return new ServiceResult();
+        $result = new ServiceResult();
+        return $result->addForm(new ManagerLoginForm());
     }
 
     /**
@@ -21,30 +22,18 @@ class ManagerService extends Service
      */
     public function postLogin(ActionParams $params)
     {
-        $result = new ServiceResult();
+        $form = new ManagerLoginForm();
+        $form->submit($params->post());
 
-        $data = $_POST;
-        $pocket = Pocket::getInstance();
-
-        $managerRepo = WelUtil::getRepository('Manager');
-        $managers = $managerRepo->list(['managerId' => $data['managerId']]);
-
-        // TODO バリデーションがいる
-        if (count($managers) > 0) {
-
-            // ログイン処理を行う
-            $manager = $managers[0];
-            $hash = $manager['password'];
-
-            if (Auth::checkHash($data['password'], $hash)) {
-                $_SESSION['manager_id'] = $data['managerId'];
-                $pocket->loginManager($manager);
+        if ($form->isAccepted()) {
+            if (welPocket()->getRouter()->getRoute()->getType() === 'html') {
                 WelUtil::redirect('/manager');
             }
+            $result = new ServiceResult();
+        } else {
+            $result = new ServiceResult([], $form->getErrors());
         }
-        // TODO エラーの処理方法は・・・？
-        $pocket->varFormError(['認証に失敗しました。']);
-        return $result;
+        return $result->addForm($form);
     }
 
     /**

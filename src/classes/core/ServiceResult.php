@@ -7,9 +7,49 @@ namespace ellsif\WelCMS;
  */
 class ServiceResult
 {
-    private $errors = [];
-    private $resultData = [];
-    private $viewPath = [];
+    private $forms;
+
+    private $errors;
+
+    private $resultData;
+
+    private $viewPathList;
+
+    /**
+     * コンストラクタ
+     */
+    public function __construct(array $resultData = [], array $errors = [])
+    {
+        $this->forms = [];
+        $this->resultData = $resultData;
+        $this->errors = $errors;
+        $this->viewPathList = [];
+    }
+
+    /**
+     * Formを追加します。
+     */
+    public function addForm(Form $form, string $name = null): ServiceResult
+    {
+        if (!$name) {
+            $name = $form->getName();
+        }
+        $this->forms[$name] = $form;
+        return $this;
+    }
+
+    /**
+     * Formを取得します。
+     */
+    public function getForm(string $name = null): ?Form
+    {
+        if ($name && isset($this->forms[$name])) {
+            return $this->forms[$name];
+        } elseif ($this->forms) {
+            return current(array_slice($this->forms, 0, 1, true));
+        }
+        return null;
+    }
 
     /**
      * エラー
@@ -46,20 +86,22 @@ class ServiceResult
     }
 
     /**
-     * Viewファイルパスのgetter/setter。
+     * ViewファイルのパスをSETします。
      */
-    public function setView($view, $type = 'html')
+    public function setView($view, $type = 'html'): ServiceResult
     {
-        $this->viewPath[$type] = $view;
+        $this->viewPathList[$type] = $view;
+        return $this;
     }
 
-    public function getView($type)
+    /**
+     * Serviceで設定されたViewファイルのパスをGETします。
+     */
+    public function getView($type): ?string
     {
-        $pocket = Pocket::getInstance();
-        if (array_key_exists($type, $this->viewPath)) {
-            return $this->viewPath[$type];
+        if (array_key_exists($type, $this->viewPathList)) {
+            return $this->viewPathList[$type];
         } else {
-            // デフォルトを使う
             return null;
         }
     }

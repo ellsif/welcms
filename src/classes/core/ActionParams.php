@@ -26,10 +26,9 @@ class ActionParams
         return $param;
     }
 
-    public function post($key)
+    public function post(string $key = null)
     {
-        $param = $this->postParams[$key] ?? null;
-        return $param;
+        return $key ? ($this->postParams[$key] ?? null) : $this->postParams;
     }
 
     public function getPost($key, $urlDecode = true)

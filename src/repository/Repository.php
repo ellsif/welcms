@@ -91,6 +91,12 @@ class Repository
         }
     }
 
+    public function first(string $query, array $params = [], bool $modify = true): ?array
+    {
+        $results = $this->list($query, $params, $modify);
+        return $results[0] ?? null;
+    }
+
     /**
      * データ件数を取得します。
      */
