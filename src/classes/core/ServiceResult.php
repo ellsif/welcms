@@ -63,10 +63,14 @@ class ServiceResult
     /**
      * エラーを取得します
      */
-    public function getErrors(string $formName = null): array
+    public function getErrors(string $name = null, string $formName = null): array
     {
         $form = $this->getForm($formName);
-        return $form ? $form->getErrors() : [];
+        $errors = $form ? $form->getErrors() : [];
+        if ($name) {
+            return $errors[$name] ?? [];
+        }
+        return $errors;
     }
 
     /**
