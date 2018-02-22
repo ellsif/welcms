@@ -41,6 +41,7 @@
         "src/repository/scheme/",
         "src/printer/",
         "src/service/",
+        "src/form/",
         "src/service/admin/"
       ]
     }
