@@ -235,8 +235,7 @@ abstract class DataAccess
             $results = $stmt->fetchAll(\PDO::FETCH_NAMED);
             return $results;
         } else {
-            welLog('error', "DataAccess", "データの取得に失敗しました。エラーコード：" . $stmt->errorCode());
-            throw new Exception("データの取得に失敗しました。エラーコード：" . $stmt->errorCode());
+            throw new Exception("データの取得に失敗しました。" . $stmt->errorCode() . ':' . implode(':', $stmt->errorInfo()));
         }
     }
 
