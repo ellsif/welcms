@@ -42,9 +42,10 @@ class MysqlAccess extends DataAccess
         foreach($columns as $columnName => $sc) {
             $columnName = $columnName;
             $type = $this->convertType($sc['type']);
-            $default = isset($sc['default']) ? $default = "DEFAULT " . $this->pdo->quote($sc['default']) : '';
+            $default = isset($sc['default']) ? "DEFAULT " . $this->pdo->quote($sc['default']) : '';
+            $nullable = (isset($sc['null']) && $sc['null'] === false) ? ' NOT NULL ' : '';
             $comment = $this->pdo->quote(($sc['label'] ?? '') . ':' . ($sc['description'] ?? ''));
-            $columnDefs[] = "${columnName} ${type} ${default} COMMENT ${comment}";
+            $columnDefs[] = "${columnName} ${type} ${default} ${nullable} COMMENT ${comment}";
         }
         $columnDefs[] = 'created DATETIME';
         $columnDefs[] = 'updated DATETIME';
