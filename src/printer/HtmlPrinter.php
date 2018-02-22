@@ -25,12 +25,4 @@ class HtmlPrinter extends Printer
 
         WelUtil::loadView($viewPath, $data);
     }
-
-    /**
-     * サブViewを読み込みます。
-     */
-    public function loadView(string $path)
-    {
-        RoutingUtil::getViewPath($path);
-    }
 }

@@ -25,4 +25,12 @@ abstract class Printer
         $class = get_class($this);
         return lcfirst(StringUtil::rightRemove(substr($class, strrpos($class, '\\') + 1), 'Printer'));
     }
+
+    /**
+     * サブViewを読み込みます。
+     */
+    public function loadView(string $path)
+    {
+        RoutingUtil::getViewPath($path);
+    }
 }
