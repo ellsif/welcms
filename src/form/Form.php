@@ -16,6 +16,8 @@ abstract class Form
 
     protected $token;
 
+    protected $data;
+
     /**
      * コンストラクタです。
      *
@@ -24,6 +26,7 @@ abstract class Form
      */
     public function __construct(string $tokenName = '__token__')
     {
+        $this->data = [];
         $this->errors = [];
         $this->accepted = false;
         $this->tokenName = $tokenName;
@@ -68,6 +71,8 @@ abstract class Form
 
     public function submit(array $data, bool $doValidation = true, bool $transaction = false): Form
     {
+        $this->data = $data;
+
         if ($transaction) {
             // TODO トランザクション開始
         }
@@ -122,6 +127,14 @@ abstract class Form
     {
         $class = get_class($this);
         return lcfirst(StringUtil::rightRemove(substr($class, strrpos($class, '\\') + 1), 'Form'));
+    }
+
+    public function getData(string $name): string
+    {
+        if (isset($this->data[$name])) {
+            return $this->data[$name];
+        }
+        return '';
     }
 
     /**

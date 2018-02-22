@@ -79,7 +79,7 @@ class ServiceResult
     public function getErrorMessages(string $formName = null): array
     {
         $messages = [];
-        foreach($this->getErrors($formName) as $name => $msgs) {
+        foreach($this->getErrors(null, $formName) as $name => $msgs) {
             $messages = array_merge($messages, $msgs);
         }
         return $messages;
