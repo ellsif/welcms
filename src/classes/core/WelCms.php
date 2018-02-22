@@ -127,11 +127,9 @@ class WelCms
 
             // 結果を出力
             $printer = welPocket()->getPrinter($printerType);
-            welLog('debug', 'WelCms', $router->getViewPath() . ' loadView start');
             $obStarted = ob_start();
             $printer->print($result);
             $obStarted = !ob_end_flush();
-            welLog('debug', 'WelCms', $router->getViewPath() . ' loadView end');
             session_write_close();
         } catch(\Exception $e) {
             if ($obStarted) {

@@ -16,6 +16,7 @@ class HtmlPrinter extends Printer
         } else {
             $viewPath = welPocket()->getRouter()->getViewPath();
         }
+        welLog('debug', 'View', $viewPath . ' load HtmlView start');
 
         if ($result->hasError()) {
             $data = ['errors' => $result->error()];
@@ -24,5 +25,6 @@ class HtmlPrinter extends Printer
         }
 
         WelUtil::loadView($viewPath, $data);
+        welLog('debug', 'View', $viewPath . ' load HtmlView end');
     }
 }

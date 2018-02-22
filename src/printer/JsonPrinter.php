@@ -12,7 +12,7 @@ class JsonPrinter extends Printer
     public function print(ServiceResult $result = null)
     {
         header("Content-Type: application/json; charset=utf-8");
-        if ($result->isError()) {
+        if ($result->hasError()) {
             http_response_code(500);
         }
         if ($result->getView('json')) {
