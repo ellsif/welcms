@@ -11,6 +11,8 @@ namespace ellsif\WelCMS;
  */
 abstract class DataAccess
 {
+    protected $tables = [];
+
     protected $pdo = null;
 
     /**
@@ -54,7 +56,18 @@ abstract class DataAccess
      *       'number' => 'INTEGER DEFAULT 1',
      *     ));
      */
-    public abstract function createTable(Scheme $scheme) :bool;
+    public function createTable(Scheme $scheme) :bool
+    {
+        if ($this->isTableExists($scheme->getName())) {
+            throw new Exception('テーブル' . $scheme->getName() . 'は既に存在しています。');
+        }
+        if ($result = $this->processCreateTable($scheme)) {
+            $this->tables[] = $scheme->getName();
+        }
+        return $result;
+    }
+
+    protected abstract function processCreateTable(Scheme $scheme) :bool;
 
     /**
      * テーブルを削除する
@@ -345,7 +358,7 @@ abstract class DataAccess
     /**
      * SQL文による更新・削除
      *
-     * @param string $query
+     * @param string $queryd
      * @return int
      */
     public abstract function updateQuery(string $query) :int;
@@ -353,12 +366,26 @@ abstract class DataAccess
 
     public abstract function getColumns(string $tableName): array;
 
-    public abstract function tables() :array;
+    /**
+     * テーブルの一覧を取得します。
+     */
+    public function getTables(bool $force = false) :array
+    {
+        if ($force || empty($this->tables)) {
+            $this->tables = $this->processGetTables();
+        }
+        return $this->tables;
+    }
+
+    protected abstract function processGetTables() :array;
 
     public abstract function convertType($type) :string;
 
+    /**
+     * テーブルが存在するかチェックします。
+     */
     public function isTableExists($tableName): bool
     {
-        return in_array($tableName, $this->tables());
+        return in_array(strtolower($tableName), array_map('strtolower', $this->getTables()));
     }
 }

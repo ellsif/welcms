@@ -78,7 +78,7 @@ class SqliteAccess extends DataAccess
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $this->pdo->quote($name) . ' (' . implode(',', $columnDefs) . ')';
         $stmt = $this->pdo->prepare($sql);
         if ($stmt->execute()) {
-            $this->tables(true); // テーブル一覧を更新する
+            $this->getTables(true); // テーブル一覧を更新する
             return true;
         }
         return false;
@@ -104,7 +104,7 @@ class SqliteAccess extends DataAccess
      */
     public function count(string $name, array $filter = [])
     {
-        if (!in_array($name, $this->tables())) {
+        if (!in_array($name, $this->getTables())) {
             throw new \Exception("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT COUNT(*) FROM " . $this->pdo->quote($name);
@@ -160,7 +160,7 @@ class SqliteAccess extends DataAccess
      */
     public function select(string $name, int $offset = 0, int $limit = -1, string $order = '', array $filter = []) :array
     {
-        if (!in_array($name, $this->tables())) {
+        if (!in_array($name, $this->getTables())) {
             throw new \InvalidArgumentException("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT * FROM " . $this->pdo->quote($name) . ' ';
@@ -396,7 +396,7 @@ class SqliteAccess extends DataAccess
      *
      * @return array
      */
-    public function tables($force = false) :array
+    public function getTables($force = false) :array
     {
         if ($force || empty($this->tables)) {
             $this->tables = [];

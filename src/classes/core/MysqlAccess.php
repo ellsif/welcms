@@ -7,8 +7,6 @@ use \PDO;
 class MysqlAccess extends DataAccess
 {
 
-    protected $tables = [];
-
     /**
      * コンストラクタ。
      *
@@ -30,7 +28,7 @@ class MysqlAccess extends DataAccess
      * @param array $columns
      * @return bool
      */
-    public function createTable(Scheme $scheme) :bool
+    protected function processCreateTable(Scheme $scheme) :bool
     {
         $columns = $scheme->getDefinition();
         if (count($columns) == 0) {
@@ -86,7 +84,7 @@ class MysqlAccess extends DataAccess
      */
     public function count(string $name, array $filter = [])
     {
-        if (!in_array($name, $this->tables())) {
+        if (!in_array($name, $this->getTables())) {
             throw new \Exception("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT COUNT(*) FROM " . $this->pdo->quote($name);
@@ -118,7 +116,7 @@ class MysqlAccess extends DataAccess
      */
     public function select(string $name, int $offset = 0, int $limit = -1, string $order = '', array $filter = []) :array
     {
-        if (!in_array($name, $this->tables())) {
+        if (!in_array($name, $this->getTables())) {
             throw new \InvalidArgumentException("${name}テーブルは存在しません。", -1);
         }
         $sql = "SELECT * FROM " . $this->pdo->quote($name) . ' ';
@@ -329,23 +327,17 @@ class MysqlAccess extends DataAccess
     }
 
     /**
-     * テーブル名の一覧を取得する
-     *
-     * @return array
+     * テーブル名の一覧を取得します。
      */
-    public function tables($force = false) :array
+    protected function  processGetTables() :array
     {
-        if ($force || empty($this->tables)) {
-            $this->tables = [];
-            $sql = "SELECT name FROM sqlite_master WHERE type = 'table'";
-            $stmt = $this->pdo->prepare($sql);
-            if ($stmt->execute()) {
-                foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $row) {
-                    $this->tables[] = $row->name;
-                }
-            }
+        $result = [];
+        $tables = $this->selectQuery("SHOW TABLES");
+        foreach($tables as $table) {
+            var_dump($table);
+            $result[] = 'test';
         }
-        return $this->tables;
+        return $result;
     }
 
     /**
