@@ -99,7 +99,7 @@ class MysqlAccess extends DataAccess
         if ($stmt->execute()) {
             return $stmt->fetchColumn();
         } else {
-            Logger::getInstance()->putLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
+            welLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \Exception("${name}からのデータの取得に失敗しました。");
         }
     }
@@ -142,12 +142,12 @@ class MysqlAccess extends DataAccess
         }
         if ($stmt->execute()) {
             $results = $stmt->fetchAll(PDO::FETCH_NAMED);
-            Logger::getInstance()->putLog('debug', 'sql', WelUtil::getPdoDebug($stmt));
-            Logger::getInstance()->putLog('debug', 'sql', "options: " . json_encode($filter));
-            Logger::getInstance()->putLog('debug', 'sql', json_encode($results));
+            welLog('debug', 'sql', WelUtil::getPdoDebug($stmt));
+            welLog('debug', 'sql', "options: " . json_encode($filter));
+            welLog('debug', 'sql', json_encode($results));
             return $results;
         } else {
-            Logger::getInstance()->putLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
+            welLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。" . $stmt->errorCode());
             throw new \RuntimeException("${name}からのデータの取得に失敗しました。");
         }
     }
@@ -173,7 +173,7 @@ class MysqlAccess extends DataAccess
      */
     public function insert(string $name, array $data) :int
     {
-        Logger::getInstance()->putLog('trace', 'DataAccess', "INSERT to ${name} start data:" . json_encode($data));
+        welLog('trace', 'DataAccess', "INSERT to ${name} start data:" . json_encode($data));
 
         $data = $this->addCreatedAt($data);
 
@@ -188,12 +188,12 @@ class MysqlAccess extends DataAccess
         foreach($columns as $column) {
             $stmt->bindValue(":${column}", $data[$column]);
         }
-        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        welLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         try {
             $stmt->execute();
         } catch(\Exception $e) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
+            welLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}へのINSERTに失敗しました。", 0, $e);
         }
         $id = $this->pdo->lastInsertId();
@@ -210,7 +210,7 @@ class MysqlAccess extends DataAccess
      */
     public function update(string $name, int $id, array $data) :bool
     {
-        Logger::getInstance()->putLog('trace', 'DataAccess', "UPDATE to ${name} data:" . json_encode($data));
+        welLog('trace', 'DataAccess', "UPDATE to ${name} data:" . json_encode($data));
 
         $data = $this->addUpdatedAt($data);
 
@@ -223,10 +223,10 @@ class MysqlAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
         $stmt->bindValue(':id', $id);
-        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        welLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
+            welLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のUPDATEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -259,10 +259,10 @@ class MysqlAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
 
-        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        welLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
+            welLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のUPDATEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -280,10 +280,10 @@ class MysqlAccess extends DataAccess
         $sql = 'DELETE FROM ' . $this->pdo->quote($name) . ' WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue('id', $id);
-        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        welLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
+            welLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のDELETEに失敗しました。");
         }
         return $stmt->rowCount();
@@ -306,10 +306,10 @@ class MysqlAccess extends DataAccess
             $stmt->bindValue($key, $val);
         }
 
-        Logger::getInstance()->putLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
+        welLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
         if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
-            Logger::getInstance()->putLog('error', 'DataAccess', $errorInfo[2]);
+            welLog('error', 'DataAccess', $errorInfo[2]);
             throw new \Exception("${name}のDELETEに失敗しました。");
         }
         return $stmt->rowCount();
