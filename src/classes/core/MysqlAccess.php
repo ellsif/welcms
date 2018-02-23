@@ -334,8 +334,7 @@ class MysqlAccess extends DataAccess
         $result = [];
         $tables = $this->selectQuery("SHOW TABLES");
         foreach($tables as $table) {
-            var_dump($table);
-            $result[] = 'test';
+            $result[] = current(array_slice($table, 0, 1, true));
         }
         return $result;
     }
