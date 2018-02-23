@@ -182,19 +182,18 @@ class MysqlAccess extends DataAccess
         foreach($columns as $column) {
             $params[] = ":${column}";
         }
-        $sql = 'INSERT INTO ' . $this->pdo->quote($name) . ' (' . implode(',', $columns) . ') VALUES (' . implode(',', $params) . ')';
+        $sql = 'INSERT INTO ' . $name . ' (' . implode(',', $columns) . ') VALUES (' . implode(',', $params) . ')';
         $stmt = $this->pdo->prepare($sql);
 
         foreach($columns as $column) {
             $stmt->bindValue(":${column}", $data[$column]);
         }
         welLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
-        try {
-            $stmt->execute();
-        } catch(\Exception $e) {
+
+        if (!$stmt->execute()) {
             $errorInfo = $stmt->errorInfo();
             welLog('error', 'DataAccess', $errorInfo[2]);
-            throw new \Exception("${name}へのINSERTに失敗しました。", 0, $e);
+            throw new Exception("${name}へのINSERTに失敗しました。");
         }
         $id = $this->pdo->lastInsertId();
         return $id;
