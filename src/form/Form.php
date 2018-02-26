@@ -29,6 +29,7 @@ abstract class Form
     public function __construct(string $tokenName = '__token__')
     {
         $this->data = [];
+        $this->messages = [];
         $this->errors = [];
         $this->accepted = false;
         $this->tokenName = $tokenName;
