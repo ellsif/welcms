@@ -5,3 +5,9 @@ if (!function_exists('text')) {
         \ellsif\WelCMS\text($text);
     }
 }
+
+if (!function_exists('welLoadView')) {
+    function welLoadView(string $path, array $data = []) {
+        \ellsif\WelCMS\welLoadView($path, $data);
+    }
+}

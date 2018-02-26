@@ -11,6 +11,11 @@ function welDataAccess(string $type = 'default'): DataAccess
     return welPocket()->getDataAccess($type);
 }
 
+function welLoadView(string $path, array $data = [])
+{
+    Pocket::getInstance()->getPrinter()->loadView($path, $data);
+}
+
 function welLog(string $level, string $label, string $message, string $type = 'default')
 {
     $logger = welPocket()->getLogger($type);
