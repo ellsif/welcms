@@ -9,7 +9,7 @@ class ManagerLoginForm extends Form
     /**
      * フォームの送信内容の受け付け処理を行います。
      */
-    protected function processSubmit(array $data): bool
+    protected function processSubmit(array $data): array
     {
         $managerRepo = new ManagerRepository();
         $manager = $managerRepo->first(
@@ -17,7 +17,7 @@ class ManagerLoginForm extends Form
         );
         if (!$manager) {
             $this->addError(null, '認証に失敗しました。ログインIDかパスワードが間違っています。');
-            return false;
+            return $data;
         }
 
         $hash = $manager['password'];
@@ -26,7 +26,7 @@ class ManagerLoginForm extends Form
             unset($manager['password']);
             welPocket()->setLoginManager($manager);
         }
-        return true;
+        return $data;
     }
 
     /**

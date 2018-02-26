@@ -59,6 +59,11 @@ abstract class Form
 
     }
 
+    public function hasError(): bool
+    {
+        return count($this->errors) > 0;
+    }
+
     public function getErrors(): array
     {
         return $this->errors;
@@ -88,13 +93,13 @@ abstract class Form
             return $this;
         }
 
-        $result = $this->processSubmit($data);
+        $this->data = $this->processSubmit($this->data);
 
         if ($transaction) {
             // TODO トランザクション終了
         }
 
-        $this->accepted = $result;
+        $this->accepted = $this->hasError();
         return $this;
     }
 
@@ -140,7 +145,7 @@ abstract class Form
     /**
      * フォームの送信内容の受け付け処理を行います。
      */
-    abstract protected function processSubmit(array $data): bool;
+    abstract protected function processSubmit(array $data): array;
 
     /**
      * フォームの送信内容のバリデーションを行います。
