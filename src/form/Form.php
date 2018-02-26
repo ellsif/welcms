@@ -10,6 +10,8 @@ abstract class Form
 {
     private $tokenName;
 
+    private $messages;
+
     private $errors;
 
     private $accepted;
@@ -35,6 +37,12 @@ abstract class Form
         }
     }
 
+    protected function addMessage(string $message): Form
+    {
+        $this->messages[] = $message;
+        return $this;
+    }
+
     protected function setErrors(string $name, array $errors): Form
     {
         $this->errors[$name] = $errors;
@@ -57,6 +65,11 @@ abstract class Form
     protected function checkToken(string $postedToken)
     {
 
+    }
+
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 
     public function hasError(): bool
