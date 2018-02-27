@@ -36,7 +36,7 @@ function text($text)
 /**
  * HTML用にエスケープされたURLを出力します。
  */
-function link($path)
+function url($path)
 {
     echo WelUtil::getUrl(rawurlencode($path));
 }

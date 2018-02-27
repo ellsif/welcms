@@ -6,9 +6,9 @@ if (!function_exists('text')) {
     }
 }
 
-if (!function_exists('link')) {
-    function link($url) {
-        \ellsif\WelCMS\link($url);
+if (!function_exists('url')) {
+    function url($url) {
+        \ellsif\WelCMS\url($url);
     }
 }
 
