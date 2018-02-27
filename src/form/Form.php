@@ -26,9 +26,9 @@ abstract class Form
      * ## 説明
      * $tokenNameに空文字列を指定した場合、トークンチェックの処理は行いません。
      */
-    public function __construct(string $tokenName = '__token__')
+    public function __construct(array $data = [], string $tokenName = '__token__')
     {
-        $this->data = [];
+        $this->data = $data;
         $this->messages = [];
         $this->errors = [];
         $this->accepted = false;
