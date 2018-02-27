@@ -25,9 +25,20 @@ function welLog(string $level, string $label, string $message, string $type = 'd
     $logger->putLog($level, $label, $message);
 }
 
+/**
+ * HTML用にエスケープされた文字列を出力します。
+ */
 function text($text)
 {
     echo htmlspecialchars($text);
+}
+
+/**
+ * HTML用にエスケープされたURLを出力します。
+ */
+function link($path)
+{
+    echo WelUtil::getUrl(rawurlencode($path));
 }
 
 
