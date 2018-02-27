@@ -1,14 +1,20 @@
 <?php
 
-if (!function_exists('text')) {
-    function text($text) {
+if (!function_exists('pText')) {
+    function pText($text) {
         \ellsif\WelCMS\text($text);
     }
 }
 
-if (!function_exists('url')) {
-    function url($url) {
+if (!function_exists('pUrl')) {
+    function pUrl($url) {
         \ellsif\WelCMS\url($url);
+    }
+}
+
+if (!function_exists('pVal')) {
+    function pVal(array $data = null, string $key, string $default = '') {
+        \ellsif\WelCMS\val($data, $key, $default);
     }
 }
 

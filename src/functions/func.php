@@ -41,6 +41,13 @@ function url($path)
     echo WelUtil::getUrl(rawurlencode($path));
 }
 
+/**
+ * データ配列の値を出力します。
+ */
+function val(array $data = null, string $key, string $default = '')
+{
+    text($data[$key] ?? $default);
+}
 
 /**
  * パイプ区切りの文字列を分割して配列にします。
