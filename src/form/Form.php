@@ -148,7 +148,7 @@ abstract class Form
         return lcfirst(StringUtil::rightRemove(substr($class, strrpos($class, '\\') + 1), 'Form'));
     }
 
-    public function getData(string $name): ?string
+    public function getData(string $name)
     {
         if (isset($this->data[$name])) {
             return $this->data[$name];
