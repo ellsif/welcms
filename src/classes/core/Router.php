@@ -144,15 +144,15 @@ class Router
         $route->setService($fqClassName);
         $route->setServiceName($service);
         foreach($authList as $auth) {
-            if ($auth) $auth = "_${auth}";
-            $actionMethod = StringUtil::toCamel("${httpMethod}_${actionName}${auth}", true);
+            $_auth = ($auth) ? "_${auth}" : '';
+            $actionMethod = StringUtil::toCamel("${httpMethod}_${actionName}${_auth}", true);
             if(is_callable([$fqClassName, $actionMethod])) {
                 $route->setAction($actionMethod);
                 $route->setActionName($actionName);
                 $route->setAuth($auth);
                 return true;
             }
-            $actionMethodAny = StringUtil::toCamel("${actionName}${auth}", true);
+            $actionMethodAny = StringUtil::toCamel("${actionName}${_auth}", true);
             if(is_callable([$fqClassName, $actionMethodAny])) {
                 $route->setAction($actionMethodAny);
                 $route->setActionName($actionName);
