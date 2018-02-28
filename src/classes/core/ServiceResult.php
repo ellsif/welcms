@@ -100,6 +100,11 @@ class ServiceResult
         return $this->errors;
     }
 
+    public function getResultData(): array
+    {
+        return $this->resultData;
+    }
+
     /**
      * Service実行結果のgetter/setter。
      */
