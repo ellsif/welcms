@@ -90,6 +90,7 @@ class Router
             if ($this->setCallable($route, $service, $actionName, $dir)) {
                 $route->setType($actionExt);
                 $route->setServicePath($dir . $service . '/');
+                $route->setParams(array_slice($paths, $i+2));
                 return $route;
             }
             $dir .= $service . '/';
@@ -103,6 +104,7 @@ class Router
         if ($this->setCallable($route, $service, $actionName, '')) {
             $route->setType($actionExt);
             $route->setServicePath('');
+            $route->setParams(array_slice($paths, 1));
         } else {
             throw new Exception(
                 'no route was found for ' . $route->getRequestUri(),

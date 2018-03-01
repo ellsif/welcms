@@ -50,7 +50,7 @@ class Route
         $this->pass = $urlInfo['pass'] ?? '';
         $this->fragment = $urlInfo['fragment'] ?? '';
         $this->paths = $urlInfo['paths'] ?? [];
-        $this->params = $urlInfo['params'] ?? [];
+        $this->params = $urlInfo['params'] ?? [];   // いらない？
         $this->requestMethod = strtoupper($_SERVER['REQUEST_METHOD']);
         $this->requestPath = implode('/', $urlInfo['paths']) . '/';
 
@@ -96,6 +96,12 @@ class Route
     public function getPaths(): array
     {
         return $this->paths;
+    }
+
+    public function setParams(array $params): Route
+    {
+        $this->params = $params;
+        return $this;
     }
 
     public function getParams(): array
