@@ -133,7 +133,10 @@ abstract class DataAccess
      */
     public function get(string $name, int $id)
     {
-        $sql = 'SELECT * FROM ' . $this->pdo->quote($name) . ' WHERE id = :id';
+        if (!$this->isTableExists($name)) {
+            throw new Exception($name . 'というテーブルが見つかりませんでした。');
+        }
+        $sql = 'SELECT * FROM ' . $name . ' WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id);
         if ($stmt->execute()) {
@@ -144,8 +147,10 @@ abstract class DataAccess
                 return null;
             }
         } else {
-            welLog('error', "DataAccess", "${name}からのデータの取得に失敗しました。エラーコード：" . $stmt->errorCode());
-            throw new Exception("${name}からのデータの取得に失敗しました。エラーコード：" . $stmt->errorCode());
+            throw new Exception(
+                "${name}からのデータの取得に失敗しました。エラーコード：" . $stmt->errorCode()
+                    . ' ' . implode(':', $stmt->errorInfo())
+            );
         }
     }
 
