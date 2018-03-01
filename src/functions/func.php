@@ -38,7 +38,8 @@ function text($text)
  */
 function url($path)
 {
-    echo WelUtil::getUrl(rawurlencode($path));
+    $path = implode('/', array_map('rawurlencode', explode('/', $path)));
+    echo WelUtil::getUrl($path);
 }
 
 /**
