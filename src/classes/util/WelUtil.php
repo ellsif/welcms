@@ -334,64 +334,6 @@ class WelUtil
         return $urlBase . $newPath;
     }
 
-
-    /**
-     * パラメータの配列から連想配列を作ります。
-     *
-     * ## 説明
-     * "/service/action/var1/10/var2/100"のようなリクエストから得られる
-     * パラメータをハッシュにして返します。
-     *
-     * ## パラメータ
-     *
-     *     ['var1', '10', 'var2', '100', 'var2', '20', 'var3[]', '1', 'var3[]', '2', 'var4[foo]', 'foo', 'var4[bar]', 'bar']
-     *
-     * ## 返り値
-     * 奇数番をキー、偶数番を値とした連想配列を返します。
-     * $arrayのサイズが奇数の場合、最後の値はnullになります。
-     * キーが重複する場合は後で指定された値で上書きされます。
-     * ただし、キーの末尾が'[]'の場合、配列として、'[key]'の場合はハッシュとして追加されます。
-     *
-     *     [
-     *       'var1' => '10',
-     *       'var2' => '20',
-     *       'var3' => ['1', '2'],
-     *       'var4' => ['foo' => 'foo', 'bar' => 'bar']
-     *     ]
-     */
-    public static function getParamMap($array)
-    {
-        $result = [];
-
-        for($i = 0; $i < count($array); $i+=2) {
-            $key = $array[$i];
-            $val = $array[$i+1] ?? null;
-            if ($val) $val = rawurldecode($val);
-            $keys = [$key];
-
-            // 配列の場合
-            if (($startPos = mb_strpos($key, '[')) < ($endPos = mb_strrpos($key, ']'))) {
-                $keys = [mb_substr($key, 0, $startPos)];
-                $keyStr = mb_substr($key, $startPos + 1, $endPos - $startPos - 1);
-                $subKeys = explode('][', $keyStr);
-                $keys = array_merge($keys, $subKeys);
-            }
-            $target =& $result;
-            for($j = 0; $j < count($keys) - 1; $j++) {
-                $key = $keys[$j];
-                if (!array_key_exists($key, $target)) $target[$key] = [];
-                $target =& $target[$key];
-            }
-            if ($keys[count($keys)-1] === '') {
-                $target[] = $val;
-            } else {
-                $target[$keys[count($keys)-1]] = $val;
-            }
-        }
-        return $result;
-    }
-
-
     /**
      * Viewをロードします。
      */
