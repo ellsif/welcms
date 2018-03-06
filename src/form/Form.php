@@ -113,7 +113,7 @@ abstract class Form
             // TODO トランザクション終了
         }
 
-        $this->accepted = $this->hasError();
+        $this->accepted = !$this->hasError();
         return $this;
     }
 
