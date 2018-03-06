@@ -125,17 +125,17 @@ class Repository
             }
         }
 
-        if (isset($row['id']) && is_numeric($row['id'])) {
+        if (isset($data['id']) && is_numeric($data['id'])) {
             // 更新
             welLog('debug', 'update', json_encode($saveData));
-            if (!$this->dataAccess->update($this->getName(), $row['id'], $this->modifyOnSave($saveData))) {
+            if (!$this->dataAccess->update($this->getName(), $data['id'], $this->modifyOnSave($saveData))) {
                 throw new \RuntimeException('データの更新に失敗しました。');
             }
         } else {
             // 登録
             welLog('debug', 'regist', json_encode($saveData));
             $id = $this->dataAccess->insert($this->getName(), $this->modifyOnSave($saveData));
-            $row['id'] = $id;
+            $data['id'] = $id;
             welLog('debug', 'registed', "id = ${id}");
         }
         return $data;
