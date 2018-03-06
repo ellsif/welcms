@@ -214,7 +214,7 @@ class MysqlAccess extends DataAccess
         $data = $this->addUpdatedAt($data);
 
         list($columns, $params) = $this->parseConditions($data);
-        $sql = 'UPDATE ' . $this->pdo->quote($name) . ' SET ';
+        $sql = 'UPDATE ' . $name . ' SET ';
         $sql .= implode(', ', $columns);
         $sql .= ' WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
@@ -246,7 +246,7 @@ class MysqlAccess extends DataAccess
         list($dataColumns, $dataParams) = $this->parseConditions($data);
         list($whereColumns, $whereParams) = $this->parseConditions($condition, ':_');
 
-        $sql = 'UPDATE ' . $this->pdo->quote($name) . ' SET ';
+        $sql = 'UPDATE ' . $name . ' SET ';
         $sql .= implode(', ', $dataColumns);
         $sql .= ' WHERE ' . implode(' AND ', $whereColumns);
         $stmt = $this->pdo->prepare($sql);
@@ -276,7 +276,7 @@ class MysqlAccess extends DataAccess
      */
     public function delete(string $name, int $id) :bool
     {
-        $sql = 'DELETE FROM ' . $this->pdo->quote($name) . ' WHERE id = :id';
+        $sql = 'DELETE FROM ' . $name . ' WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue('id', $id);
         welLog('trace', 'DataAccess', WelUtil::getPdoDebug($stmt));
@@ -297,7 +297,7 @@ class MysqlAccess extends DataAccess
      */
     public function deleteAll(string $name, array $condition) :int
     {
-        $sql = 'DELETE FROM ' . $this->pdo->quote($name) . ' WHERE ';
+        $sql = 'DELETE FROM ' . $name . ' WHERE ';
         list($columns, $params) = $this->parseConditions($condition);
         $sql .= implode(' AND ', $columns);
         $stmt = $this->pdo->prepare($sql);
