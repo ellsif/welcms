@@ -128,12 +128,14 @@ class Repository
         if (isset($data['id']) && is_numeric($data['id'])) {
             // 更新
             welLog('debug', 'update', json_encode($saveData));
+            $saveData['updated'] = date('Y-m-d H:i:s');
             if (!$this->dataAccess->update($this->getName(), $data['id'], $this->modifyOnSave($saveData))) {
                 throw new \RuntimeException('データの更新に失敗しました。');
             }
         } else {
             // 登録
             welLog('debug', 'regist', json_encode($saveData));
+            $saveData['created'] = date('Y-m-d H:i:s');
             $id = $this->dataAccess->insert($this->getName(), $this->modifyOnSave($saveData));
             $data['id'] = $id;
             welLog('debug', 'registed', "id = ${id}");
