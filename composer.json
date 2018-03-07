@@ -27,8 +27,9 @@
         "src/classes/exception/",
         "src/classes/auth/",
         "src/classes/util/",
-        "src/classes/repository/",
-        "src/classes/printer/"
+        "src/repository/",
+        "src/repository/scheme/",
+        "src/printer/"
       ],
       "ellsif\\WelCMS\\": [
         "src/",
@@ -36,10 +37,12 @@
         "src/classes/exception/",
         "src/classes/auth/",
         "src/classes/util/",
-        "src/classes/repository/",
-        "src/classes/printer/",
-        "src/classes/service/",
-        "src/classes/service/admin/"
+        "src/repository/",
+        "src/repository/scheme/",
+        "src/printer/",
+        "src/service/",
+        "src/form/",
+        "src/service/admin/"
       ]
     }
   }

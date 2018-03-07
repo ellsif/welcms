@@ -7,16 +7,82 @@ namespace ellsif\WelCMS;
  */
 class ServiceResult
 {
-    private $errors = [];
-    private $resultData = [];
-    private $viewPath = [];
+    private $forms;
+
+    private $errors;
+
+    private $resultData;
+
+    private $viewPathList;
 
     /**
-     * エラー
+     * コンストラクタ
      */
-    public function isError(): bool
+    public function __construct(array $resultData = [], array $errors = [])
     {
-        return (is_array($this->errors) && count($this->errors) > 0);
+        $this->forms = [];
+        $this->resultData = $resultData;
+        $this->errors = $errors;
+        $this->viewPathList = [];
+    }
+
+    /**
+     * Formを追加します
+     */
+    public function addForm(Form $form, string $name = null): ServiceResult
+    {
+        if (!$name) {
+            $name = $form->getName();
+        }
+        $this->forms[$name] = $form;
+        return $this;
+    }
+
+    /**
+     * Formを取得します
+     */
+    public function getForm(string $name = null): ?Form
+    {
+        if ($name && isset($this->forms[$name])) {
+            return $this->forms[$name];
+        } elseif ($this->forms) {
+            return current(array_slice($this->forms, 0, 1, true));
+        }
+        return null;
+    }
+
+    /**
+     * エラーの有無を判定します
+     */
+    public function hasError(string $formName = null): bool
+    {
+        $form = $this->getForm($formName);
+        return $form ? (count($form->getErrors()) > 0) : false;
+    }
+
+    /**
+     * エラーを取得します
+     */
+    public function getErrors(string $name = null, string $formName = null): array
+    {
+        $form = $this->getForm($formName);
+        $errors = $form ? $form->getErrors() : [];
+        if ($name) {
+            return $errors[$name] ?? [];
+        }
+        return $errors;
+    }
+
+    /**
+     * エラーメッセージのリストを取得します
+     */
+    public function getErrorMessages(string $formName = null): array
+    {
+        $messages = [];
+        foreach($this->getErrors(null, $formName) as $name => $msgs) {
+            $messages = array_merge($messages, $msgs);
+        }
+        return $messages;
     }
 
     /**
@@ -34,6 +100,11 @@ class ServiceResult
         return $this->errors;
     }
 
+    public function getResultData(): array
+    {
+        return $this->resultData;
+    }
+
     /**
      * Service実行結果のgetter/setter。
      */
@@ -46,20 +117,22 @@ class ServiceResult
     }
 
     /**
-     * Viewファイルパスのgetter/setter。
+     * ViewファイルのパスをSETします。
      */
-    public function setView($view, $type = 'html')
+    public function setView($view, $type = 'html'): ServiceResult
     {
-        $this->viewPath[$type] = $view;
+        $this->viewPathList[$type] = $view;
+        return $this;
     }
 
-    public function getView($type)
+    /**
+     * Serviceで設定されたViewファイルのパスをGETします。
+     */
+    public function getView($type): ?string
     {
-        $pocket = Pocket::getInstance();
-        if (array_key_exists($type, $this->viewPath)) {
-            return $this->viewPath[$type];
+        if (array_key_exists($type, $this->viewPathList)) {
+            return $this->viewPathList[$type];
         } else {
-            // デフォルトを使う
             return null;
         }
     }

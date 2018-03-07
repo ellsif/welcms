@@ -11,68 +11,62 @@ use ellsif\util\StringUtil;
  */
 class Router
 {
+    protected $route;
+
+    protected $defaultService;
+
+    public function __construct($defaultService = 'site')
+    {
+        $this->defaultService = $defaultService;
+    }
+
+    /**
+     * ルーティングを行います。
+     */
+    public function routing($requestUri): Route
+    {
+        $route = new Route($requestUri);
+        welLog('debug', 'Router', 'routing start: ' . json_encode($route->getPaths()));
+
+        $this->setServiceAndAction($route);
+
+        welLog('debug', 'Router',
+            'routing end: ' . $route->getService() . '.' . $route->getAction()
+        );
+        $this->route = $route;
+        return $this->route;
+    }
+
+    /**
+     * Routeを取得します。
+     */
+    public function getRoute(): ?Route
+    {
+        return $this->route;
+    }
+
     /**
      * Viewファイルのパスを判定し、取得する。
      *
      * ## 説明
      * アプリケーションディレクトリとシステムディレクトリに同名のファイルが存在する場合は、
      * アプリケーションディレクトリのViewファイルを優先的に利用します。
-     */
-    public static function getViewPath(string $path = null)
-    {
-        $pocket = Pocket::getInstance();
-        $action = pathinfo($pocket->varAction(), PATHINFO_FILENAME);
-        $viewPath = $path ?? (lcfirst($pocket->varService() . '/' . $action) . '.php');
-        if (file_exists($pocket->dirViewApp() . $viewPath)) {
-            return $pocket->dirViewApp() . $viewPath;
-        } elseif (file_exists($pocket->dirView() . $viewPath)) {
-            return $pocket->dirView() . $viewPath;
-        } elseif (file_exists($viewPath)) {
-            return $viewPath;
-        }
-        throw new \DomainException($viewPath . ' Not Found', 404);
-    }
-
-    /**
-     * ルーティングを行う。
      *
-     * ## 例外
-     * 表示できるページが存在しない場合は例外をthrowします。
+     * TODO リクエストメソッドによるVIEWの振り分けを対応するか？
      */
-    public function routing()
+    public function getViewPath()
     {
-        $pocket = Pocket::getInstance();
-        $this->initialize();
-
-        $urlInfo = $pocket->varUrlInfo();
-        $paths = $urlInfo['paths'];
-        Logger::log('debug', 'WelCMS', 'routing start' . PHP_EOL. json_encode($paths));
-
-        // サービスとアクションを取得
-        if (!$this->setServiceAndAction($paths)) {
-            throw new \DomainException('Not Found', 404);
+        $prefix = '';
+        if ($this->getRoute()->getType() !== 'html') {
+            $prefix = '_' . $this->getRoute()->getType() . '/';
         }
-        $pocket->varUrlInfo($urlInfo);
-
-        // プリンタを選択
-        $this->routingSetPrinter();
-    }
-
-    /**
-     * 初期化処理を行う。
-     *
-     * ## 説明
-     * Configの値を初期化します。
-     */
-    protected function initialize()
-    {
-        $config = Pocket::getInstance();
-
-        $urlInfo = WelUtil::parseUrl($_SERVER['REQUEST_URI']);
-        $config->varUrlInfo($urlInfo);
-        $config->varRequestMethod($_SERVER['REQUEST_METHOD']);
-        $config->varCurrentUrl($_SERVER['REQUEST_URI']);
-        $config->varCurrentPath(implode('/', $urlInfo['paths']));
+        $actionName = strtolower($this->getRoute()->getActionName());
+        $viewPath = $prefix . $this->getRoute()->getServicePath() . $actionName . '.php';
+        $fullViewPath = RoutingUtil::getViewPath($viewPath);
+        if ($fullViewPath) {
+            return $fullViewPath;
+        }
+        throw new Exception('view file ' . $viewPath . ' Not Found');
     }
 
     /**
@@ -81,133 +75,93 @@ class Router
      * ## 説明
      * URLからServiceとAcrionを判定し、ConfingのvarService、varAction、varActionParamsに設定します。
      */
-    protected function setServiceAndAction($paths)
+    protected function setServiceAndAction(Route &$route): Route
     {
-        Logger::getInstance()->putLog('debug', 'routing', "setServiceAndAction paths: " . json_encode($paths));
-
-        $pocket = Pocket::getInstance();
+        $paths = $route->getPaths();
         $dir = '';
         for($i = 0; $i < count($paths); $i++) {
             $service = $paths[$i];
             $action = $paths[$i + 1] ?? 'index';
-
-            $actionMethod = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
+            $actionName = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
             $actionExt = pathinfo($action, PATHINFO_EXTENSION);
-            $callable = $this->getCallableAction($service, $actionMethod, $dir);
-            if ($callable) {
-                $pocket->varService($dir . $service);
-                $pocket->varAction($actionExt ? ($actionMethod . '.' . $actionExt) : $actionMethod);
-                $pocket->varActionParams(array_map('urldecode', array_splice($paths, $i + 2)));
-                $pocket->varActionMethod($callable[0]);
-                $pocket->varAuth($callable[1]);
-                $pocket->varPrinterFormat($this->getPrinterFormat($actionExt));
-                return true;
+            if (!ctype_alnum($actionName)) {
+                break;
+            }
+            if ($this->setCallable($route, $service, $actionName, $dir)) {
+                $route->setType($actionExt);
+                $route->setServicePath($dir . $service . '/');
+                $route->setParams(RoutingUtil::getParamMap(array_slice($paths, $i+2)));
+                return $route;
             }
             $dir .= $service . '/';
         }
 
-        // 上記に無い場合はSiteServiceを利用
-        $service = 'site';
+        // デフォルトを利用
+        $service = $this->defaultService;
         $action = $paths[0] ?? 'index';
-        $actionMethod = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
+        $actionName = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
         $actionExt = pathinfo($action, PATHINFO_EXTENSION);
-        $callable = $this->getCallableAction($service, $actionMethod, '');
-        if ($callable) {
-            $pocket->varService($service);
-            $pocket->varAction($actionExt ? ($actionMethod . '.' . $actionExt) : $actionMethod);
-            $pocket->varActionParams(array_map('urldecode', array_splice($paths, 1)));
-            $pocket->varActionMethod($callable[0]);
-            $pocket->varAuth($callable[1]);
-            $pocket->varPrinterFormat($this->getPrinterFormat($actionExt));
-            return true;
+        if ($this->setCallable($route, $service, $actionName, '')) {
+            $route->setType($actionExt);
+            $route->setServicePath('');
+            $route->setParams(RoutingUtil::getParamMap(array_slice($paths, 1)));
+        } else {
+            throw new Exception(
+                'no route was found for ' . $route->getRequestUri(),
+                0, null, null, 404
+            );
         }
-        $pocket->varPrinterFormat($this->getPrinterFormat(''));
-        return false;
+        return $route;
     }
 
     /**
-     * 呼び出し可能なアクションを取得する。
+     * 呼び出し可能なサービスとアクションを判定しRouteに設定する。
      *
      * ## 説明
-     * 命名規則に従い、Serviceファイルをrequireし、該当のActionが実行可能かチェックします。
-     *
-     * ## 返り値
-     * メソッド名と認証方法の配列を返します。
+     * Routeに呼び出し可能なサービスクラスの完全修飾名と
+     * 利用可能なアクションメソッドの設定を行います。
      */
-    protected function getCallableAction(string $service, string $action, string $dir = '')
+    protected function setCallable(Route &$route, string $service, string $actionName, string $dir = ''): bool
     {
-        $pocket = Pocket::getInstance();
-        Logger::getInstance()->putLog('debug', 'routing', "service: ${service} action: ${action}");
-        Logger::getInstance()->putLog('debug', 'routing', "search: ".$pocket->dirApp() . 'classes/service/' . $dir);
+        welLog('debug', 'Router', 'search: service/' . $dir);
 
-        $className = FileUtil::getFqClassName(
+        $fqClassName = FileUtil::getFqClassName(
             StringUtil::toCamel($service) . 'Service',
-            [$pocket->dirApp() . 'classes/service/' . $dir, $pocket->dirSystem() . 'classes/service/' . $dir]
+            [
+                welPocket()->getAppPath() . 'service/' . $dir,
+                welPocket()->getSysPath() . 'service/' . $dir,
+            ]
         );
 
-        if ($className) {
-            $pocket->varServiceClass($className);
+        if (!$fqClassName) {
+            return false;
+        }
+        $authList = [];
+        foreach(welPocket()->getAuthObjects() as $auth) {
+            $authList[] = $auth->getName();
+        }
+        $authList[] = '';
+        $httpMethod = strtolower($route->getRequestMethod());
 
-            $authList = [];
-            $authClassFileList = FileUtil::getFileList([$pocket->dirApp() . '/classes/auth', $pocket->dirSystem() . '/classes/auth']);
-            foreach($authClassFileList as $authClassFilePath) {
-                $authClassName = pathinfo($authClassFilePath, PATHINFO_FILENAME);
-                if (StringUtil::endsWith($authClassName, 'Auth') && $authClassName !== 'Auth') {
-                    $authList[] = StringUtil::rightRemove($authClassName, 'Auth');
-                }
+        $route->setService($fqClassName);
+        $route->setServiceName($service);
+        foreach($authList as $auth) {
+            $_auth = ($auth) ? "_${auth}" : '';
+            $actionMethod = StringUtil::toCamel("${httpMethod}_${actionName}${_auth}", true);
+            if(is_callable([$fqClassName, $actionMethod])) {
+                $route->setAction($actionMethod);
+                $route->setActionName($actionName);
+                $route->setAuth($auth);
+                return true;
             }
-            $authList[] = '';   // 認証不要ページ
-            $httpMethodList = [strtolower($pocket->varRequestMethod()), ''];
-            foreach($authList as $auth) {
-                foreach($httpMethodList as $httpMethod) {
-                    $methodName = StringUtil::toCamel("${httpMethod}_${action}_${auth}", true);
-                    if(is_callable([$className, $methodName])) {
-                        return [$methodName, $auth];
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Printerを設定する。
-     *
-     * ## 説明
-     * 下記の順にURLの判定を行い、対応するPrinterクラスを決定します。
-     * Printerクラスの完全修飾名がvarPrinterに設定されます。
-     *
-     * - 個別ページURLが指定された場合はPagePrinterを利用します。
-     * - サービス名に対応するPrinterクラスが存在する場合は該当のPrinterを利用します。
-     * - 上記以外の場合はデフォルトのPrinterクラスを利用します。
-     */
-    protected function routingSetPrinter()
-    {
-        $pocket = Pocket::getInstance();
-        if ($pocket->varIsPage()) {
-            $printerClassName = 'PagePrinter';
-        } else {
-            $printerClassName = StringUtil::toCamel($pocket->varService(), true) . 'Printer';
-        }
-
-        $printerFqClassName = FileUtil::getFqClassName($printerClassName, [$pocket->dirApp(), $pocket->dirSystem()]);
-        if (!$printerFqClassName) {
-            $printerFqClassName = FileUtil::getFqClassName('Printer', [$pocket->dirApp(), $pocket->dirSystem()]);  // デフォルト
-        }
-        $pocket->varPrinter($printerFqClassName);
-    }
-
-
-    protected function getPrinterFormat($extension)
-    {
-        $extension = mb_strtolower($extension);
-        if ($extension) {
-            if (in_array($extension, Pocket::getInstance()->printFormats())) {
-                return $extension;
-            } elseif (!in_array($extension, ['php', 'html', 'htm'])) {
-                throw new \InvalidArgumentException('Invalid file type ' . $extension, 404);
+            $actionMethodAny = StringUtil::toCamel("${actionName}${_auth}", true);
+            if(is_callable([$fqClassName, $actionMethodAny])) {
+                $route->setAction($actionMethodAny);
+                $route->setActionName($actionName);
+                $route->setAuth($auth);
+                return true;
             }
         }
-        return 'html';
+        return false;
     }
 }

@@ -9,13 +9,15 @@ namespace ellsif\WelCMS;
 class ManagerAuth extends Auth
 {
     /**
-     * 認証処理を行います。
-     *
-     * ## 説明
-     * 管理ユーザーログインしていない場合はログイン画面にリダイレクトします。
+     * 認証処理済みかどうかを判定します。
      */
-    protected function doAuthenticate()
+    public function isAuthenticated(): bool
     {
-        return Pocket::getInstance()->loginManager();
+        return isset($_SESSION['manager_id']) && $_SESSION['manager_id'];
+    }
+
+    public function getUserData(bool $secure = true)
+    {
+
     }
 }

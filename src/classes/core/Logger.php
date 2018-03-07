@@ -1,5 +1,5 @@
 <?php
-namespace ellsif;
+namespace ellsif\WelCMS;
 
 use ellsif\util\FileUtil;
 use ellsif\util\StringUtil;
@@ -7,38 +7,21 @@ use ellsif\WelCMS\WelUtil;
 
 class Logger
 {
-    use Singleton;
-    public static function getInstance() : Logger
-    {
-        return self::instance();
-    }
-
     private $logLevel = 'debug';
+
     private $logDir = null;
+
     private $delim = '    ';
 
+    protected $cache;
+
+    public function __construct(string $logDir)
+    {
+        $this->logDir = $logDir;
+        $this->cache = [];
+    }
+
     const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'];
-
-    public static function log($level, $label, $message)
-    {
-        Logger::getInstance()->putLog($level, $label, $message);
-    }
-
-    public function setLogDir($path)
-    {
-        if ($path) {
-            $this->logDir = StringUtil::suffix($path, '/');
-        }
-    }
-
-    public function setLogLevel($logLevel)
-    {
-        if ($this->isValidLogLevel($logLevel)) {
-            $this->logLevel = $logLevel;
-        } else {
-            throw new \Exception('ログレベルを更新できません。' . $logLevel . 'は無効な値です。');
-        }
-    }
 
     /**
      * ログ出力を行います。
@@ -48,11 +31,11 @@ class Logger
      */
     public function putLog($level, $label, $message)
     {
+        $this->cache[] = implode(', ', [$level, $label, $message]);
         if ($level == null) {
             $level = $this->logLevel;
         }
         $logLevel = array_search($level, Logger::LOG_LEVELS);
-
         if ($logLevel !== FALSE &&  $logLevel <= array_search($this->logLevel, Logger::LOG_LEVELS)) {
             // ログ出力
             $log = WelUtil::getDateTime() . $this->delim . $level . $this->delim . $label . $this->delim . $message;
@@ -69,8 +52,8 @@ class Logger
         }
     }
 
-    private function isValidLogLevel($logLevel): bool
+    public function getHistory(): array
     {
-        return in_array($logLevel, Logger::LOG_LEVELS);
+        return $this->cache;
     }
 }
