@@ -60,7 +60,7 @@ class Router
         if ($this->getRoute()->getType() !== 'html') {
             $prefix = '_' . $this->getRoute()->getType() . '/';
         }
-        $actionName = strtolower($this->getRoute()->getActionName());
+        $actionName = $this->getRoute()->getActionName();
         $viewPath = $prefix . $this->getRoute()->getServicePath() . $actionName . '.php';
         $fullViewPath = RoutingUtil::getViewPath($viewPath);
         if ($fullViewPath) {
