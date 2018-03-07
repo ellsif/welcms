@@ -102,7 +102,7 @@ class Repository
      */
     public function count(string $query, array $params = []): int
     {
-        return $this->dataAccess->count($query, $params);
+        return $this->dataAccess->countQuery($query, $params);
     }
 
     /**
