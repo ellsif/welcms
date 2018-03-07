@@ -13,7 +13,7 @@ class ManagerLoginForm extends Form
     {
         $managerRepo = new ManagerRepository();
         $manager = $managerRepo->first(
-            'SELECT * FROM Manager WHERE managerId = ?', [$data['managerId']]
+            'SELECT * FROM manager WHERE managerId = ?', [$data['managerId']]
         );
         if (!$manager) {
             $this->addError(null, '認証に失敗しました。ログインIDかパスワードが間違っています。');
