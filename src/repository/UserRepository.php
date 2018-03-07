@@ -5,80 +5,11 @@ namespace ellsif\WelCMS;
 class UserRepository extends Repository
 {
 
-    public function __construct($name)
+    public function __construct(Scheme $scheme = null, DataAccess $dataAccess = null)
     {
-        /**
-         * カラムの定義
-         *
-         * ## 説明
-         * リポジトリへの初回アクセス時にテーブルが存在しない場合、
-         * 自動的にテーブルが作成されます。
-         */
-        $this->columns = [
-            'userId' => [
-                'label'       => 'ユーザーID',
-                'type'        => 'string',
-                'description' => 'ログインに利用するidです。後からの変更は出来ません。',
-                'validation'  => [
-                    ['rule' => 'required'],
-                    [
-                        'rule' => 'uniqueLoginId',
-                        'function' => function($field, $value, array $params, array $fields) {
-                            $id = $fields['id'] ?? null;
-                            return $this->validateUniqueLoginId($value, $id);
-                        },
-                        'message' => 'is already in use',
-                    ],
-                ],
-            ],
-            'password' => [
-                'label'       => 'パスワード',
-                'type'        => 'string',
-                'description' => '半角英数記号を入力してください。',
-                'onSave'      => '',  // 登録更新時に自動的にハッシュ化する？
-                'validation'  => [
-                    ['rule' => 'required'],
-                ],
-            ],
-            'name' => [
-                'label'       => '名前',
-                'type'        => 'string',
-                'description' => '表示用の名前です。後から変更できます。',
-                'validation'  => [
-                    ['rule' => 'required'],
-                ],
-            ],
-            'email' => [
-                'label'       => 'メールアドレス',
-                'type'        => 'string',
-                'description' => 'メールアドレスです。idの代わりにログインに利用できます。',
-                'validation'  => [
-                    ['rule' => 'required'],
-                    [
-                        'rule' => 'uniqueManagerEmail',
-                        'function' => function($field, $value, array $params, array $fields) {
-                            $id = $fields['id'] ?? null;
-                            return $this->validateUniqueManagerEmail($value, $id);
-                        },
-                        'message' => 'is already in use',
-                    ],
-                    ['rule' => 'email'],
-                ],
-            ],
-            'info' => [
-                'label'       => 'ユーザー情報',
-                'type'        => 'string',
-                'onSave'      => '\json_encode',
-                'onLoad'      => '\ellsif\WelCMS\Repository::json_decode',
-                'description' => '任意のユーザー情報をJSON形式で保存します。',
-            ],
-            'token' => [
-                'label'       => 'APIトークン',
-                'type'        => 'string',
-                'description' => 'API呼び出し時に利用するトークンです。',
-            ]
-        ];
-        parent::__construct($name);
+        $this->scheme = $scheme ? $scheme : new UserScheme();
+        $this->columns = $this->scheme->getDefinition();
+        parent::__construct($this->scheme, $dataAccess);
     }
 
     /**

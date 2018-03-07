@@ -146,15 +146,21 @@ abstract class Form
         return lcfirst(StringUtil::rightRemove(substr($class, strrpos($class, '\\') + 1), 'Form'));
     }
 
-    public function getData(string $name = '')
+    public function getData(...$names)
     {
-        if (!$name) {
+        if (count($names) == 0) {
             return $this->data;
         }
-        if (isset($this->data[$name])) {
-            return $this->data[$name];
+        $_data = $this->data;
+        foreach($names as $name) {
+            if (isset($_data[$name])) {
+                $_data = $_data[$name];
+                continue;
+            } else {
+                return null;
+            }
         }
-        return null;
+        return $_data;
     }
 
     /**
