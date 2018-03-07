@@ -95,7 +95,6 @@ abstract class Form
         if ($transaction) {
             // TODO トランザクション開始
         }
-
         if ($this->tokenName) {
             $this->checkToken($data[$this->tokenName] ?? '');
             if (!$this->isValid()) {
@@ -112,7 +111,6 @@ abstract class Form
         if ($transaction) {
             // TODO トランザクション終了
         }
-
         $this->accepted = !$this->hasError();
         return $this;
     }
@@ -148,8 +146,11 @@ abstract class Form
         return lcfirst(StringUtil::rightRemove(substr($class, strrpos($class, '\\') + 1), 'Form'));
     }
 
-    public function getData(string $name)
+    public function getData(string $name = '')
     {
+        if (!$name) {
+            return $this->data;
+        }
         if (isset($this->data[$name])) {
             return $this->data[$name];
         }
