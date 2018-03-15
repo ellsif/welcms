@@ -38,7 +38,7 @@ abstract class Form
         }
     }
 
-    protected function addMessage(string $message): Form
+    public function addMessage(string $message): Form
     {
         $this->messages[] = $message;
         return $this;
