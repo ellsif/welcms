@@ -414,11 +414,19 @@ class MysqlAccess extends DataAccess
 
     public function convertType($type) :string
     {
+        $types = explode(':', $type);
+        $varCharSize = 1024;
+        if (count($types) > 1) {
+            $type = $types[0];
+            if ($type == 'string') {
+                $varCharSize = intval($types[1]);
+            }
+        }
         $conv = [
             'int'       => 'INT',
             'float'     => 'FLOAT',
             'double'    => 'DOUBLE',
-            'string'    => 'VARCHAR(2048)',
+            'string'    => "VARCHAR(${varCharSize})",
             'text'      => 'TEXT',
             'datetime'  => 'DATETIME',
         ];
