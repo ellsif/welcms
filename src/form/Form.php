@@ -163,6 +163,18 @@ abstract class Form
         return $_data;
     }
 
+    public function saveSession(string $name = null)
+    {
+        $name = $name ?? $this->getName();
+        $_SESSION[$name] = json_encode($this->data, true);
+    }
+
+    public function loadSession(string $name = null)
+    {
+        $name = $name ?? $this->getName();
+        $this->data = json_decode($_SESSION[$name], true);
+    }
+
     /**
      * フォームの送信内容の受け付け処理を行います。
      */
