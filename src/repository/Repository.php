@@ -124,7 +124,7 @@ class Repository
             if (in_array($column, $columns)) {
                 $type = $definition[$column]['type'];
                 $notnull = isset($definition[$column]['null']) && $definition[$column]['null'] === false;
-                if ($val || ($type !== 'text' && $type !== 'string' && $notnull)) {
+                if ($val !== '' || ($type !== 'text' && $type !== 'string' && $notnull)) {
                     $saveData[$column] = $val;
                 } elseif ($val === '' && $type !== 'text' && $type !== 'string' && !$notnull) {
                     $saveData[$column] = null;
