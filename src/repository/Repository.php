@@ -121,7 +121,7 @@ class Repository
         $columns = array_keys($this->scheme->getDefinition());
         foreach ($data as $column => $val) {
             if (in_array($column, $columns)) {
-                $type = $columns[$column]['null'];
+                $type = $columns[$column]['type'];
                 $notnull = isset($columns[$column]['null']) && $columns[$column]['null'] === false;
                 if ($val || ($type !== 'text' && $type !== 'string' && $notnull)) {
                     // nullableで値なしならnullとする
