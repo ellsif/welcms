@@ -125,8 +125,9 @@ class Repository
                 $type = $definition[$column]['type'];
                 $notnull = isset($definition[$column]['null']) && $definition[$column]['null'] === false;
                 if ($val || ($type !== 'text' && $type !== 'string' && $notnull)) {
-                    // nullableで値なしならnullとする
                     $saveData[$column] = $val;
+                } elseif (!$val && $type !== 'text' && $type !== 'string' && !$notnull) {
+                    $saveData[$column] = null;
                 }
             }
         }
