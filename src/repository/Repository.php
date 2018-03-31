@@ -118,11 +118,12 @@ class Repository
     {
         // 有効なカラムのみ抽出
         $saveData = [];
+        $definition = $this->scheme->getDefinition();
         $columns = array_keys($this->scheme->getDefinition());
         foreach ($data as $column => $val) {
             if (in_array($column, $columns)) {
-                $type = $columns[$column]['type'];
-                $notnull = isset($columns[$column]['null']) && $columns[$column]['null'] === false;
+                $type = $definition[$column]['type'];
+                $notnull = isset($definition[$column]['null']) && $definition[$column]['null'] === false;
                 if ($val || ($type !== 'text' && $type !== 'string' && $notnull)) {
                     // nullableで値なしならnullとする
                     $saveData[$column] = $val;
