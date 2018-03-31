@@ -57,7 +57,7 @@ class Repository
             $this->modifiersOnSave[$column][] = $onSave;
         }
         if ($onLoad) {
-            $this->modifiersOnLoad[$column][] = $onSave;
+            $this->modifiersOnLoad[$column][] = $onLoad;
         }
         return $this;
     }
