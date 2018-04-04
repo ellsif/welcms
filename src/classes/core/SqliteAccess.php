@@ -9,8 +9,6 @@ use \PDO;
 
 class SqliteAccess extends DataAccess
 {
-    private $pdo = null;
-    private $tables = [];
 
     /**
      * コンストラクタ。
@@ -21,28 +19,9 @@ class SqliteAccess extends DataAccess
      * ## 例外/エラー
      * PDOの初期化に失敗した場合、Exceptionをthrowします。
      */
-    public function __construct()
+    public function __construct(string $dsn, string $username = null, string $password = null, array $options = [])
     {
-        $pocket = Pocket::getInstance();
-
-        if ($pocket->dbPdo()) {
-            $this->pdo = $pocket->dbPdo();
-        } else {
-            try {
-                $this->pdo = new PDO(
-                    'sqlite:' . $pocket->dbDatabase(),
-                    $pocket->dbUsername(),
-                    $pocket->dbPassword()
-                );
-
-            } catch (\PDOException $e) {
-                throw new Exception('PDOの初期化に失敗しました。');
-            }
-
-            $this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 20);  // ロックされている場合の解除待ち
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $pocket->dbPdo($this->pdo);
-        }
+        parent::__construct($dsn, $username, $password, $options);
     }
 
     /**
@@ -54,6 +33,7 @@ class SqliteAccess extends DataAccess
      */
     public function createTable(Scheme $scheme) :bool
     {
+        $columns = $scheme->getDefinition();
         if (count($columns) == 0) {
             throw new Exception('テーブルの作成に失敗しました。カラムが指定されていません。');
         }
@@ -75,7 +55,7 @@ class SqliteAccess extends DataAccess
         }
         $columnDefs[] = 'created TIMESTAMP';
         $columnDefs[] = 'updated TIMESTAMP';
-        $sql = 'CREATE TABLE IF NOT EXISTS ' . $this->pdo->quote($name) . ' (' . implode(',', $columnDefs) . ')';
+        $sql = 'CREATE TABLE IF NOT EXISTS ' . $scheme->getName() . ' (' . implode(',', $columnDefs) . ')';
         $stmt = $this->pdo->prepare($sql);
         if ($stmt->execute()) {
             $this->getTables(true); // テーブル一覧を更新する
