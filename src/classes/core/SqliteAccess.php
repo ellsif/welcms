@@ -31,7 +31,7 @@ class SqliteAccess extends DataAccess
      * @param array $columns
      * @return bool
      */
-    public function createTable(Scheme $scheme) :bool
+    protected function processCreateTable(Scheme $scheme) :bool
     {
         $columns = $scheme->getDefinition();
         if (count($columns) == 0) {
@@ -376,19 +376,17 @@ class SqliteAccess extends DataAccess
      *
      * @return array
      */
-    public function getTables($force = false) :array
+    protected function processGetTables() :array
     {
-        if ($force || empty($this->tables)) {
-            $this->tables = [];
-            $sql = "SELECT name FROM sqlite_master WHERE type = 'table'";
-            $stmt = $this->pdo->prepare($sql);
-            if ($stmt->execute()) {
-                foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $row) {
-                    $this->tables[] = $row->name;
-                }
+        $tables = [];
+        $sql = "SELECT name FROM sqlite_master WHERE type = 'table'";
+        $stmt = $this->pdo->prepare($sql);
+        if ($stmt->execute()) {
+            foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $row) {
+                $tables[] = $row->name;
             }
         }
-        return $this->tables;
+        return $tables;
     }
 
     /**
