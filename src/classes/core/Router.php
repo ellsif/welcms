@@ -78,10 +78,10 @@ class Router
     protected function setServiceAndAction(Route &$route): Route
     {
         $paths = $route->getPaths();
-        $dir = '';
-        for($i = 0; $i < count($paths); $i++) {
-            $service = $paths[$i];
-            $action = $paths[$i + 1] ?? 'index';
+        for($i = count($paths); $i >= 0; $i--) {
+            $dir = implode('/', array_slice($paths, 0, $i));
+            $service = $paths[$i - 1];
+            $action = $paths[$i] ?? 'index';
             $actionName = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
             $actionExt = pathinfo($action, PATHINFO_EXTENSION);
             if (!ctype_alnum($actionName)) {
@@ -90,10 +90,9 @@ class Router
             if ($this->setCallable($route, $service, $actionName, $dir)) {
                 $route->setType($actionExt);
                 $route->setServicePath($dir . $service . '/');
-                $route->setParams(RoutingUtil::getParamMap(array_slice($paths, $i+2)));
+                $route->setParams(RoutingUtil::getParamMap(array_slice($paths, $i + 1)));
                 return $route;
             }
-            $dir .= $service . '/';
         }
 
         // デフォルトを利用
@@ -123,10 +122,11 @@ class Router
      */
     protected function setCallable(Route &$route, string $service, string $actionName, string $dir = ''): bool
     {
-        welLog('debug', 'Router', 'search: service/' . $dir);
+        $serviceClassName = StringUtil::toCamel($service) . 'Service';
+        welLog('debug', 'Router', 'search: service/' . $dir . '/' . $serviceClassName);
 
         $fqClassName = FileUtil::getFqClassName(
-            StringUtil::toCamel($service) . 'Service',
+            $serviceClassName,
             [
                 welPocket()->getAppPath() . 'service/' . $dir,
                 welPocket()->getSysPath() . 'service/' . $dir,

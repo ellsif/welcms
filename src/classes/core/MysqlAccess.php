@@ -392,7 +392,7 @@ class MysqlAccess extends DataAccess
     private function addCreatedAt(array $data) :array
     {
         if (!isset($data['created'])) {
-            $data['created'] = time();
+            $data['created'] = date('Y-m-d H:i:s');
         }
         $data = $this->addUpdatedAt($data);
         return $data;
@@ -407,7 +407,7 @@ class MysqlAccess extends DataAccess
     private function addUpdatedAt(array $data) :array
     {
         if (!isset($data['updated'])) {
-            $data['updated'] = time();
+            $data['updated'] = date('Y-m-d H:i:s');
         }
         return $data;
     }
