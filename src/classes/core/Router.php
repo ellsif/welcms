@@ -78,10 +78,10 @@ class Router
     protected function setServiceAndAction(Route &$route): Route
     {
         $paths = $route->getPaths();
-        for($i = count($paths); $i >= 0; $i--) {
+        for($i = count($paths); $i > 0; $i--) {
             $dir = implode('/', array_slice($paths, 0, $i));
-            $service = $paths[$i - 1] ?? $paths[$i];
-            $action = ($i > 0) ? $paths[$i] : 'index';
+            $service = $paths[$i - 1];
+            $action = $paths[$i] ?? 'index';
             $actionName = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
             $actionExt = pathinfo($action, PATHINFO_EXTENSION);
             if (!ctype_alnum($actionName)) {
