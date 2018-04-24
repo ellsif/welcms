@@ -79,7 +79,7 @@ class Router
     {
         $paths = $route->getPaths();
         for($i = count($paths); $i > 0; $i--) {
-            $dir = implode('/', array_slice($paths, 0, $i - 1));
+            $dir = implode('/', array_slice($paths, 0, $i - 1)) . '/';
             $service = $paths[$i - 1];
             $action = $paths[$i] ?? 'index';
             $actionName = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
