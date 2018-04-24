@@ -73,7 +73,7 @@ class Router
      * ServiceとActionを決定する。
      *
      * ## 説明
-     * URLからServiceとAcrionを判定し、ConfingのvarService、varAction、varActionParamsに設定します。
+     * URLからServiceとActionを判定し、ConfingのvarService、varAction、varActionParamsに設定します。
      */
     protected function setServiceAndAction(Route &$route): Route
     {
@@ -85,7 +85,7 @@ class Router
             $actionName = WelUtil::safeFunction(pathinfo($action, PATHINFO_FILENAME));
             $actionExt = pathinfo($action, PATHINFO_EXTENSION);
             if (!ctype_alnum($actionName)) {
-                break;
+                continue;
             }
             if ($this->setCallable($route, $service, $actionName, $dir)) {
                 $route->setType($actionExt);
