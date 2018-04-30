@@ -9,6 +9,15 @@ class UserRepository extends Repository
     {
         $this->scheme = $scheme ? $scheme : new UserScheme();
         $this->columns = $this->scheme->getDefinition();
+        $this
+            ->addModifier('info',        // TODO パスワードの変換？
+                function($val) {
+                    return json_encode($val, true);
+                },
+                function($val) {
+                    return json_decode($val, true);
+                }
+            );
         parent::__construct($this->scheme, $dataAccess);
     }
 
