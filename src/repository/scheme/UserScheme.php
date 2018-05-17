@@ -35,7 +35,7 @@ class UserScheme extends Scheme
             ],
             'info' => [
                 'label'       => 'ユーザー情報',
-                'type'        => 'string',
+                'type'        => 'text',
                 'description' => '任意のユーザー情報をJSON形式で保存します。',
             ],
             'token' => [
