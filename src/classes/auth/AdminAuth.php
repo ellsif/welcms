@@ -16,7 +16,7 @@ class AdminAuth extends Auth
         return isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
     }
 
-    public function getUserData(bool $secure = true)
+    public function getUserData(bool $secure = true, Repository $repo = null)
     {
 
     }

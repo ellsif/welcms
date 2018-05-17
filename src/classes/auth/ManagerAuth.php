@@ -16,7 +16,7 @@ class ManagerAuth extends Auth
         return isset($_SESSION['manager_id']) && $_SESSION['manager_id'];
     }
 
-    public function getUserData(bool $secure = true)
+    public function getUserData(bool $secure = true, Repository $repo = null)
     {
 
     }
