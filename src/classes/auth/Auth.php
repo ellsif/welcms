@@ -14,7 +14,7 @@ abstract class Auth
     /**
      * 認証済みの場合、ユーザー情報を取得します。
      */
-    public abstract function getUserData(bool $secure = true, );
+    public abstract function getUserData(bool $secure = true, Repository $repo = null);
 
     /**
      * ログイン情報を初期化します。
