@@ -7,14 +7,14 @@ use ellsif\util\StringUtil;
 abstract class Auth
 {
     /**
-     * 認証が完了しているかどうかを判定する。
+     * 認証が完了しているかどうかを判定します。
      */
     public abstract function isAuthenticated(): bool;
 
     /**
-     * 認証済みの場合、ユーザー情報を取得する。
+     * 認証済みの場合、ユーザー情報を取得します。
      */
-    public abstract function getUserData(bool $secure = true);
+    public abstract function getUserData(bool $secure = true, );
 
     /**
      * ログイン情報を初期化します。
