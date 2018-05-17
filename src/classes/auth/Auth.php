@@ -17,30 +17,6 @@ abstract class Auth
     public abstract function getUserData(bool $secure = true, Repository $repo = null);
 
     /**
-     * ログイン情報を初期化します。
-     */
-    public static function setLoginUsers()
-    {
-        if (($_SESSION['is_admin'] ?? false) === true) {
-            Pocket::getInstance()->isAdmin(true);
-        }
-        if (isset($_SESSION['manager_id']) && $_SESSION['manager_id']) {
-            $managerRepo = WelUtil::getRepository('Manager');
-            $manager = $managerRepo->list(['managerId' => $_SESSION['manager_id']]);
-            if (count($manager) == 1) {
-                Pocket::getInstance()->loginManager($manager[0]);
-            }
-        }
-        if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
-            $userRepo = WelUtil::getRepository('User');
-            $user = $userRepo->get($_SESSION['user_id']);
-            if ($user) {
-                Pocket::getInstance()->loginUser($user);
-            }
-        }
-    }
-
-    /**
      * ハッシュ化に使うsaltを取得します。
      */
     public static function getSalt($length = 48) :string

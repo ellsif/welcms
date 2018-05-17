@@ -8,6 +8,8 @@ namespace ellsif\WelCMS;
  */
 class UserAuth extends Auth
 {
+    protected $user = null;
+
     /**
      * 認証処理済みかどうかを判定します。
      */
@@ -24,9 +26,12 @@ class UserAuth extends Auth
         if (!$this->isAuthenticated()) {
             return null;
         }
-        if (!$repo) {
-            $repo = new UserRepository();
+        if (!$this->user) {
+            if (!$repo) {
+                $repo = new UserRepository();
+            }
+            $this->user = $repo->get($_SESSION['user_id']);
         }
-        return $repo->get($_SESSION['user_id']);
+        return $this->user;
     }
 }
