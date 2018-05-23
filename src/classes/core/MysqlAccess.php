@@ -315,7 +315,7 @@ class MysqlAccess extends DataAccess
     }
 
     /**
-     * SQL文による更新・削除
+     * SQL文による更新
      *
      * @param string $query
      * @return int
@@ -323,6 +323,22 @@ class MysqlAccess extends DataAccess
     public function updateQuery(string $query) :int
     {
         // TODO: Implement updateQuery() method.
+    }
+
+    /**
+     * SQL文による削除
+     *
+     * @param string $query
+     * @return int
+     */
+    public function deleteQuery(string $query, array $params = []) :int
+    {
+        $stmt = $this->pdo->prepare($query);
+        if ($stmt->execute($params)) {
+            return $stmt->rowCount();
+        } else {
+            throw new Exception("データの削除に失敗しました。" . $stmt->errorCode() . ':' . implode(':', $stmt->errorInfo()));
+        }
     }
 
     /**

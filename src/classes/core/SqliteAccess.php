@@ -371,6 +371,11 @@ class SqliteAccess extends DataAccess
         // TODO: Implement updateQuery() method.
     }
 
+    public function deleteQuery(string $query) :int
+    {
+        // TODO: Implement updateQuery() method.
+    }
+
     /**
      * テーブル名の一覧を取得する
      *

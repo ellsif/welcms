@@ -372,6 +372,8 @@ abstract class DataAccess
      */
     public abstract function updateQuery(string $query) :int;
 
+    public abstract function deleteQuery(string $query, array $params = []) :int;
+
 
     public abstract function getColumns(string $tableName): array;
 
