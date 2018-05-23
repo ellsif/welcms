@@ -162,6 +162,14 @@ class Repository
     }
 
     /**
+     * SQLによるデータ削除を行います。
+     */
+    public function deleteQuery(string $query, array $params = []): int
+    {
+        $this->dataAccess->deleteQuery($query, $params);
+    }
+
+    /**
      * Load時にデータを加工します。
      *
      * ## 説明
