@@ -166,7 +166,7 @@ class Repository
      */
     public function deleteQuery(string $query, array $params = []): int
     {
-        $this->dataAccess->deleteQuery($query, $params);
+        return $this->dataAccess->deleteQuery($query, $params);
     }
 
     /**
