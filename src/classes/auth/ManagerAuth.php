@@ -27,7 +27,7 @@ class ManagerAuth extends Auth
             if (!$repo) {
                 $repo = new ManagerRepository();
             }
-            $this->user = $repo->first('SELECT * FROM manager WHERE managerId = ?', [$_SESSION['manager_id']]);
+            $this->manager = $repo->first('SELECT * FROM manager WHERE managerId = ?', [$_SESSION['manager_id']]);
         }
         return $this->manager;
     }
