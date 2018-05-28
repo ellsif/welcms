@@ -8,6 +8,8 @@ namespace ellsif\WelCMS;
  */
 class ManagerAuth extends Auth
 {
+    protected $manager = null;
+
     /**
      * 認証処理済みかどうかを判定します。
      */
@@ -18,6 +20,15 @@ class ManagerAuth extends Auth
 
     public function getUserData(bool $secure = true, Repository $repo = null)
     {
-
+        if (!$this->isAuthenticated()) {
+            return null;
+        }
+        if (!$this->manager) {
+            if (!$repo) {
+                $repo = new ManagerRepository();
+            }
+            $this->user = $repo->get($_SESSION['manager_id']);
+        }
+        return $this->manager;
     }
 }
