@@ -8,6 +8,15 @@ class ManagerRepository extends Repository
     {
         $this->scheme = $scheme ? $scheme : new ManagerScheme();
         $this->columns = $this->scheme->getDefinition();
+        $this
+            ->addModifier('info',
+                function($val) {
+                    return json_encode($val, true);
+                },
+                function($val) {
+                    return json_decode($val, true);
+                }
+            );
         parent::__construct($this->scheme, $dataAccess);
     }
 
