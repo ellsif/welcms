@@ -178,7 +178,7 @@ abstract class Form
     /**
      * フォームの初期化処理を行います。
      */
-    public function processInit(array $data): array {
+    protected function processInit(array $data): array {
         // 継承先にて実装
         return $data;
     }
