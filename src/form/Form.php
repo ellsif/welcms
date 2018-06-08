@@ -28,7 +28,7 @@ abstract class Form
      */
     public function __construct(array $data = [], string $tokenName = '__token__')
     {
-        $this->data = $data;
+        $this->data = $this->processInit($data);
         $this->messages = [];
         $this->errors = [];
         $this->accepted = false;
@@ -173,6 +173,14 @@ abstract class Form
     {
         $name = $name ?? $this->getName();
         $this->data = json_decode($_SESSION[$name], true);
+    }
+
+    /**
+     * フォームの初期化処理を行います。
+     */
+    public function processInit(array $data): array {
+        // 継承先にて実装
+        return $data;
     }
 
     /**
