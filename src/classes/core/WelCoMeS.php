@@ -189,7 +189,7 @@ class WelCoMeS
     /**
      * エラーページを表示します。
      */
-    protected  function errorPage(\Exception $e) :bool
+    protected  function errorPage(\Throwable $e) :bool
     {
         $printerClass = Pocket::getInstance()->varPrinter();
         if (!$printerClass) {
