@@ -118,9 +118,13 @@ abstract class Form
     /**
      * バリデーション処理のみを行います。
      */
-    public function validate(array $data): bool
+    public function validate(array $data = null): bool
     {
-        $this->processValidate($data);
+        if ($data) {
+            $this->processValidate($data);
+        } else {
+            $this->processValidate($this->data);
+        }
         return $this->isValid();
     }
 
