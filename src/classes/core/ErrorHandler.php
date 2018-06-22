@@ -41,21 +41,21 @@ class ErrorHandler
 
     protected function onCriticalException(Exception $e)
     {
-        WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
+        Pocket::getInstance()->getPrinter()->loadView('/error.php', ['e' => $e]);
     }
 
     protected function onPrintableException(Exception $e)
     {
-        WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
+        Pocket::getInstance()->getPrinter()->loadView('/error.php', ['e' => $e]);
     }
 
     protected function onInvalidException(Exception $e)
     {
-        WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
+        Pocket::getInstance()->getPrinter()->loadView('/error.php', ['e' => $e]);
     }
 
     protected function onCriticalError(\Error $e)
     {
-        WelUtil::loadView(dirname(__FILE__, 3) . '/views/error.php', ['e' => $e]);
+        Pocket::getInstance()->getPrinter()->loadView('/error.php', ['e' => $e]);
     }
 }
