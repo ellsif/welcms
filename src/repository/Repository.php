@@ -127,7 +127,10 @@ class Repository
                 if ($val !== '' || ($type !== 'text' && $type !== 'string' && $notnull)) {
                     $saveData[$column] = $val;
                 } elseif ($val === '' && $type !== 'text' && $type !== 'string' && !$notnull) {
+                    // 空文字指定でnull可能ならnullで登録
                     $saveData[$column] = null;
+                } elseif ($val !== null && !$notnull) {
+                    $saveData[$column] = $val;
                 }
             }
         }
