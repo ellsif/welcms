@@ -25,15 +25,14 @@ class Router
      */
     public function routing($requestUri): Route
     {
-        $route = new Route($requestUri);
-        welLog('debug', 'Router', 'routing start: ' . json_encode($route->getPaths()));
+        $this->route = new Route($requestUri);
+        welLog('debug', 'Router', 'routing start: ' . json_encode($this->route->getPaths()));
 
-        $this->setServiceAndAction($route);
+        $this->setServiceAndAction($this->route);
 
         welLog('debug', 'Router',
-            'routing end: ' . $route->getService() . '.' . $route->getAction()
+            'routing end: ' . $this->route->getService() . '.' . $this->route->getAction()
         );
-        $this->route = $route;
         return $this->route;
     }
 
