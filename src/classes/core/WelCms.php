@@ -92,13 +92,16 @@ class WelCms
         $this->initRouter();
 
         $obStarted = false;
-        try {
-            session_start();
+        session_start();
 
-            // Routerの初期化、ルーティング
+        $router = welPocket()->getRouter();
+        if (!$router) {
             $router = new Router();
+        }
+        welPocket()->setRouter($router);
+        $route = null;
+        try {
             $route = $router->routing($_SERVER['REQUEST_URI']);
-            welPocket()->setRouter($router);
             $printerType = $route->getType() ? $route->getType() : 'html';
             if (!welPocket()->getPrinter($printerType)) {
                 throw new Exception($printerType . ' Printer Not Found', ERR_CRITICAL, null, null, 404);
