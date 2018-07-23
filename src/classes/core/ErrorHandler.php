@@ -92,9 +92,10 @@ class ErrorHandler
         $printerType = $this->getPrinterType($router);
         $printer = welPocket()->getPrinter($printerType);
         $result = new ServiceResult([]);
-        try {
-            $result->setView(RoutingUtil::getViewPath($e->getCode() . '.php'));
-        } catch(\LogicException $e) {
+        $viewPath = RoutingUtil::getViewPath($e->getCode() . '.php');
+        if ($viewPath) {
+            $result->setView($viewPath);
+        } else {
             $result->setView(RoutingUtil::getViewPath('error.php'));
         }
         $printer->print($result);
