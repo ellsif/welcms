@@ -25,6 +25,8 @@ class ManagerLoginForm extends Form
             $_SESSION['manager_id'] = $data['managerId'];
             unset($manager['password']);
             welPocket()->setLoginManager($manager);
+        } else {
+            $this->addError(null, '認証に失敗しました。ログインIDかパスワードが間違っています。');
         }
         return $data;
     }
