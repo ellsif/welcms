@@ -176,7 +176,7 @@ abstract class Form
     public function loadSession(string $name = null)
     {
         $name = $name ?? $this->getName();
-        $this->data = json_decode($_SESSION[$name], true);
+        $this->data = json_decode($_SESSION[$name] ?? [], true);
     }
 
     /**
