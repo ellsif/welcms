@@ -18,12 +18,11 @@ class HtmlPrinter extends Printer
         }
         welLog('debug', 'View', $viewPath . ' load HtmlView start');
 
-        if ($result->hasError()) {
-            $data = ['errors' => $result->error()];
-        } else {
-            $data = $result->resultData();
-        }
+        $data = $result->resultData();
 
+        if ($result->hasError() || $result->error()) {
+            $data['errors'] = $result->error();
+        }
         WelUtil::loadView($viewPath, $data);
         welLog('debug', 'View', $viewPath . ' load HtmlView end');
     }
